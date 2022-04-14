@@ -45,7 +45,9 @@ public class CharacterCreator implements CharactersBase, Character {
 	public String getName() {
 		return characteristics.get(0);
 	}
-	
-	
 
+	@Override
+	public List<String> getCharacteristics() {
+		return characteristics;
+	}
 }

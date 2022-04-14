@@ -28,7 +28,7 @@ public class App implements CharactersBase{
 		Game game = new RandomGame(characters);
 		
 		for (int i = 0; i < numberOfPlayers; i++) {
-			game.addPlayer(new RandomPlayer("Test" + i + 1, questions.getQuestionMap(), guessess));
+			game.addPlayer(new RandomPlayer("Test" + i, questions.getQuestionMap(), guessess));
 		}
 		
 		game.assignCharacters();//+

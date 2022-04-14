@@ -29,6 +29,8 @@ public class RandomPlayer implements Player {
 		this.name = name;
 		this.availableQuestions = new HashMap<>(availableQuestions);
 		this.availableGuesses = new ArrayList<String>(availableGuesses);
+		keys = availableQuestions.keySet();
+		keysIterator = keys.iterator();
 	}
 	
 	@Override
@@ -38,9 +40,11 @@ public class RandomPlayer implements Player {
 
 	@Override
 	public String getQuestion() {
-		keys = availableQuestions.keySet();
-		keysIterator = keys.iterator();
-		values = availableQuestions.remove(keysIterator.next());
+//		keys = availableQuestions.keySet();
+//		keysIterator = keys.iterator();
+
+		if(keysIterator.hasNext()) values = availableQuestions.remove(keysIterator.next()); //!!!!!!!!!!!!!!!!!!! ERROR!!!
+
 		if (values.isEmpty()) {
             System.out.println("Value is empty");
             if (keysIterator.hasNext()) {
@@ -54,7 +58,13 @@ public class RandomPlayer implements Player {
 
 	@Override
 	public String answerQuestion(String question, Character character){
-		String answer = Math.random() < 0.5 ? "Yes" : "No";	
+		String answer = "No";
+		for (var feature : character.getCharacteristics()){
+			if(question.contains(feature)){
+				answer = "Yes";
+				break;
+			}
+		}
 		System.out.println("Player: " + name + ". Answers: " + answer);
 		return answer;
 	}
@@ -62,7 +72,11 @@ public class RandomPlayer implements Player {
 
 	@Override
 	public String answerGuess(String guess, Character character) {
-		String answer = Math.random() < 0.5 ? "Yes" : "No";
+		String answer = "No";
+		if (character.getName().equals(guess)){
+			answer = "Yes";
+		}
+		//String answer = Math.random() < 0.5 ? "Yes" : "No";
 		System.out.println("Player: " + name + ". Answers: " + answer);
 		return answer;
 	}
