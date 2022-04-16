@@ -3,6 +3,10 @@ package com.eleks.academy.whoami;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.networking.client.ClientPlayer;
@@ -12,19 +16,35 @@ public class App {
 
 	public static void main(String[] args) throws IOException {
 
-		ServerImpl server = new ServerImpl(888);
+		final int players = 4;
 
-		Game game = server.startGame();
+		List<Socket> playersSockets = new ArrayList<>();
 
-		var socket = server.waitForPlayer(game);
+		BufferedReader reader = null;
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		PrintStream writer = null;
 
 		boolean gameStatus = true;
 
-		var playerName = reader.readLine();
+		ServerImpl server = new ServerImpl(8888);
 
-		server.addPlayer(new ClientPlayer(playerName, socket));
+		Game game = server.startGame();
+
+		for (int i = 0; i < players; i++) {
+			playersSockets.add(server.waitForPlayer(game));
+
+			reader = new BufferedReader(new InputStreamReader(playersSockets.get(i).getInputStream()));
+
+			writer = new PrintStream(playersSockets.get(i).getOutputStream());
+
+			var playerName = reader.readLine();
+
+			server.addPlayer(new ClientPlayer(playerName, playersSockets.get(i)));
+			if (i < players - 1) {
+				writer.println("Waiting players");
+			}
+			
+		}
 
 		game.assignCharacters();
 
@@ -40,7 +60,9 @@ public class App {
 			gameStatus = !game.isFinished();
 		}
 
-		server.stopServer(socket, reader);
+		server.stopServer(playersSockets, reader);
+
+		writer.close();
 	}
 
 }
