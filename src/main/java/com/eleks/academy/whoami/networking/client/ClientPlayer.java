@@ -10,7 +10,7 @@ import com.eleks.academy.whoami.core.Player;
 
 public class ClientPlayer implements Player {
 
-	private String name;
+	private final String name;
 	private Socket socket;
 	private BufferedReader reader;
 	private PrintStream writer;
@@ -32,8 +32,9 @@ public class ClientPlayer implements Player {
 		String question = "";
 
 		try {
-			writer.println("Ask your questinon: ");
+			writer.println("Ask your question: ");
 			question = reader.readLine();
+			System.out.println(name + ":" + question);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -47,6 +48,7 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Answer second player question: " + question + "Character is:"+ character);
 			answer = reader.readLine();
+			System.out.println(name + ": " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -57,11 +59,11 @@ public class ClientPlayer implements Player {
 	@Override
 	public String getGuess() {
 		String answer = "";
-		
-	
+
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();
+			System.out.println(name + ": " + answer);
 		} catch (IOException e) {
 
 			e.printStackTrace();
@@ -76,11 +78,12 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Are you ready to guess? ");
 			answer = reader.readLine();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		return answer.equals("Yes") ? true : false;
+		return answer.equals("Yes");
 	}
 
 	@Override
@@ -90,6 +93,7 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Write your answer: ");
 			answer = reader.readLine();
+			System.out.println(answer);
 		} catch (IOException e) {
 
 			e.printStackTrace();
