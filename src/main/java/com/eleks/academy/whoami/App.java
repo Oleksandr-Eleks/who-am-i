@@ -1,46 +1,35 @@
 package com.eleks.academy.whoami;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import com.eleks.academy.whoami.core.Game;
-import com.eleks.academy.whoami.networking.client.ClientPlayer;
 import com.eleks.academy.whoami.networking.server.ServerImpl;
+
+import java.io.IOException;
 
 public class App {
 
-	public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
-		ServerImpl server = new ServerImpl(888);
+        ServerImpl server = new ServerImpl(888);
 
-		Game game = server.startGame();
+        Game game = server.startGame();
 
-		var socket = server.waitForPlayer(game);
+        boolean gameStatus = true;
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        game.assignCharacters();
 
-		boolean gameStatus = true;
+        game.initGame();
 
-		var playerName = reader.readLine();
+        while (gameStatus) {
+            boolean turnResult = game.makeTurn();
 
-		server.addPlayer(new ClientPlayer(playerName, socket));
+            while (turnResult) {
+                turnResult = game.makeTurn();
+            }
+            game.changeTurn();
+            gameStatus = !game.isFinished();
+        }
 
-		game.assignCharacters();
-
-		game.initGame();
-
-		while (gameStatus) {
-			boolean turnResult = game.makeTurn();
-
-			while (turnResult) {
-				turnResult = game.makeTurn();
-			}
-			game.changeTurn();
-			gameStatus = !game.isFinished();
-		}
-
-		server.stopServer(socket, reader);
-	}
+        //server.stopServer(socket, reader);
+    }
 
 }

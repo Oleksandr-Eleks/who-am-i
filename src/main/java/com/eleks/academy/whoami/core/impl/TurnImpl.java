@@ -23,13 +23,13 @@ public class TurnImpl implements Turn {
 	@Override
 	public List<Player> getOtherPlayers() {
 		return this.players.stream()
-				.filter(player -> !player.getName().equals(this.getGuesser().getName()))
-				.collect(Collectors.toList());
+				.filter(player -> !player.getName().equals(getGuesser().getName())).toList();
+
 	}
 	
 	@Override
 	public void changeTurn() {
-		this.currentPlayerIndex = this.currentPlayerIndex + 1 >= this.players.size() ? 0 : this.currentPlayerIndex + 1; 
+		this.currentPlayerIndex = currentPlayerIndex + 1 >= players.size() ? 0 : currentPlayerIndex + 1;
 	}
 	
 	
