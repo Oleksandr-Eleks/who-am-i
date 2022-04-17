@@ -10,7 +10,15 @@ public class TurnImpl implements Turn {
 	
 	private List<Player> players;
 	private int currentPlayerIndex = 0;
-	
+
+	public int getCurrentPlayerIndex() {
+		return currentPlayerIndex;
+	}
+
+	public void setCurrentPlayerIndex(int currentPlayerIndex) {
+		this.currentPlayerIndex = currentPlayerIndex;
+	}
+
 	public TurnImpl(List<Player> players) {
 		this.players = players;
 	}
