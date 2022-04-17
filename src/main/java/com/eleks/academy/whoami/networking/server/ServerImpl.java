@@ -25,7 +25,7 @@ public class ServerImpl implements Server {
 		this.serverSocket = new ServerSocket(port);
 	}
 	public static boolean notEnoughPlayers() {
-		return playersCount < 1;
+		return playersCount < 3;
 	}
 	@Override
 	public Game startGame() throws IOException {
