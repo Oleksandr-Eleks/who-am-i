@@ -29,7 +29,7 @@ public class ServerImpl implements Server {
 	public Game startGame() throws IOException {
 		game.addPlayer(new RandomPlayer("Bot", questions, guessess));
 		System.out.println("Server starts");
-		System.out.println("Waiting for a client connect....");
+		System.out.println("Waiting for a client connect...");
 		return game;
 	}
 
