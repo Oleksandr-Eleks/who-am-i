@@ -28,8 +28,5 @@ public class App {
             game.changeTurn();
             gameStatus = !game.isFinished();
         }
-
-        //server.stopServer(socket, reader);
     }
-
 }

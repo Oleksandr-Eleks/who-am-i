@@ -7,7 +7,7 @@ public class Character implements Card {
 
     @Override
     public void addCards(List<String> cards) {
-     this.characters = cards;
+        this.characters = cards;
     }
 
     @Override
