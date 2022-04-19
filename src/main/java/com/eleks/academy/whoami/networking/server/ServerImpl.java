@@ -20,7 +20,6 @@ public class ServerImpl implements Server {
 
     private Card cards = new Character();
     private RandomGame game;
-
     private final ServerSocket serverSocket;
 
     public ServerImpl(int port) throws IOException {
@@ -54,12 +53,10 @@ public class ServerImpl implements Server {
     public void addPlayer(Player player) {
         game.addPlayer(player);
         System.out.println("Player: " + player.getName() + " Connected to the game!");
-
     }
 
     @Override
     public void stopServer(Socket clientSocket, BufferedReader reader) throws IOException {
         serverSocket.close();
     }
-
 }

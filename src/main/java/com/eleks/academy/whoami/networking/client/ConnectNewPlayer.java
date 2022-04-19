@@ -8,9 +8,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-public class ConnectNewPlayer implements Runnable{
+public class ConnectNewPlayer implements Runnable {
     private Server server;
     private Game game;
+
     public ConnectNewPlayer(Server server, Game game) {
         this.server = server;
         this.game = game;
@@ -18,7 +19,7 @@ public class ConnectNewPlayer implements Runnable{
 
     @Override
     public void run() {
-        while (true){
+        while (true) {
             try {
                 Socket socket = server.waitForPlayer(game);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

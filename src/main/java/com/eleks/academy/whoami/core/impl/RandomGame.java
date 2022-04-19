@@ -17,7 +17,6 @@ public class RandomGame implements Game {
     private List<String> availableCharacters;
     private Turn currentTurn;
 
-
     private static final String YES = "YES";
     private static final String NO = "NO";
 
@@ -101,7 +100,6 @@ public class RandomGame implements Game {
     @Override
     public void initGame() {
         this.currentTurn = new TurnImpl(this.players);
-
     }
 
 
@@ -119,5 +117,4 @@ public class RandomGame implements Game {
     public void changeTurn() {
         this.currentTurn.changeTurn();
     }
-
 }

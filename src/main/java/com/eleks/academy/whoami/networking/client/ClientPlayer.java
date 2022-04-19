@@ -1,18 +1,18 @@
 package com.eleks.academy.whoami.networking.client;
 
+import com.eleks.academy.whoami.core.Player;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
-import com.eleks.academy.whoami.core.Player;
-
 public class ClientPlayer implements Player {
 
-    private String name;
-    private BufferedReader reader;
-    private PrintStream writer;
+    private final String name;
+    private final BufferedReader reader;
+    private final PrintStream writer;
 
     public ClientPlayer(String name, Socket socket) throws IOException {
         this.name = name;
@@ -80,7 +80,7 @@ public class ClientPlayer implements Player {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return answer.equals("yes");
+        return answer.equalsIgnoreCase("yes");
     }
 
     @Override
