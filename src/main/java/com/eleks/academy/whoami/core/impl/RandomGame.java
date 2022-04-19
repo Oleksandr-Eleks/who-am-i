@@ -13,7 +13,7 @@ import com.eleks.academy.whoami.core.Turn;
 import com.eleks.academy.whoami.core.Character;
 
 public class RandomGame implements Game {
-	
+
 	private Map<String, Character> playersCharacter = new HashMap<>();
 	private List<Player> players = new ArrayList<>();
 	private List<Character> availableCharacters;
@@ -41,6 +41,7 @@ public class RandomGame implements Game {
 			answers = currentTurn.getOtherPlayers().stream()
 					.map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
 					.collect(Collectors.toSet());
+
 			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
 			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
 			
@@ -52,7 +53,7 @@ public class RandomGame implements Game {
 			return win;
 			
 		} else {
-			String question = currentGuesser.getQuestion(); // !!!
+			String question = currentGuesser.getQuestion(); // +-
 			
 			
 			answers = currentTurn.getOtherPlayers().stream()
@@ -60,6 +61,7 @@ public class RandomGame implements Game {
 				.collect(Collectors.toSet());
 			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
 			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+			if(positiveCount > negativeCount) currentGuesser.setCorrectCharacteristics(question);
 			return positiveCount > negativeCount;
 		}
 		
@@ -68,7 +70,10 @@ public class RandomGame implements Game {
 	@Override
 	public void assignCharacters() {
 		players.stream().forEach(player -> this.playersCharacter.put(player.getName(), this.getRandomCharacter()));
-		
+		playersCharacter.forEach((k,v) -> System.out.println((k + ": " + v.getName())));
+//		for (int i =0; i < players.size(); i++){
+//			playersCharacter.put(players.get(i).getName(), this.getRandomCharacter());
+//		}
 	}
 	
 	@Override

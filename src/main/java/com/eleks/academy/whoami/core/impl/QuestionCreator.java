@@ -8,7 +8,7 @@ import com.eleks.academy.whoami.core.QuestionsBase;
 
 public class QuestionCreator implements QuestionsBase{
 	private Map <String, List <String>> questions = new HashMap<>();
-	
+
 	public QuestionCreator() {
 		questions.put("creature", questionCreate(creature));
 		questions.put("reality", questionCreate(reality));
@@ -25,8 +25,8 @@ public class QuestionCreator implements QuestionsBase{
 		return temp;
 	}	
 	
-	public Map <String, List <String>> getQuestionMap() {
-		return questions;
+	public Map <String, List <String>> getQuestions() {
+		return new HashMap<>(questions);
 	}
 	
 }

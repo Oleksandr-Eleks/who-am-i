@@ -12,6 +12,8 @@ public interface Player {
 	
 	boolean isReadyForGuess();
 
+
 	String answerGuess(String guess, Character character);
-	
+
+    void setCorrectCharacteristics(String question);
 }
