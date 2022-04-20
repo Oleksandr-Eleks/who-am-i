@@ -10,20 +10,12 @@ public class QuestionCreator implements QuestionsBase{
 	private Map <String, List <String>> questions = new HashMap<>();
 
 	public QuestionCreator() {
-		questions.put("creature", questionCreate(creature));
-		questions.put("reality", questionCreate(reality));
-		questions.put("gender", questionCreate(gender));
-		questions.put("age", questionCreate(age));
-		questions.put("hairColor", questionCreate(hairColor));
+		questions.put("creature", new ArrayList<>(creature));
+		questions.put("reality", new ArrayList<>(reality));
+		questions.put("gender", new ArrayList<>(gender));
+		questions.put("age", new ArrayList<>(age));
+		questions.put("hairColor", new ArrayList<>(hairColor));
 	}
-
-	public List<String> questionCreate(List<String> fromBase) {	
-		List <String> temp = new ArrayList<>();
-		for (int i = 0; i < fromBase.size(); i++) {
-			temp.add(fromBase.get(i));
-		}
-		return temp;
-	}	
 	
 	public Map <String, List <String>> getQuestions() {
 		return new HashMap<>(questions);

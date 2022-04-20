@@ -1,10 +1,6 @@
 package com.eleks.academy.whoami.core.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.eleks.academy.whoami.core.Game;
@@ -19,12 +15,10 @@ public class RandomGame implements Game {
 	private List<Character> availableCharacters;
 	private Turn currentTurn;
 
-	
 	private final static String YES = "Yes";
 	private final static String NO = "No";
-	
 	public RandomGame(List<Character> availableCharacters) {
-		this.availableCharacters = new ArrayList<Character>(availableCharacters);
+		this.availableCharacters = new ArrayList<>(availableCharacters);
 	}
 
 	@Override
@@ -44,52 +38,46 @@ public class RandomGame implements Game {
 
 			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
 			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			
 			boolean win = positiveCount > negativeCount;
-			
 			if (win) {
 				players.remove(currentGuesser);
+				System.out.println("Player: " + currentGuesser.getName() + " WIN!!!");
+				if(isFinished()){
+					return false;
+				}
 			}
 			return win;
-			
 		} else {
-			String question = currentGuesser.getQuestion(); // +-
-			
-			
+			String question = currentGuesser.getQuestion();
 			answers = currentTurn.getOtherPlayers().stream()
 				.map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
 				.collect(Collectors.toSet());
 			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
 			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			if(positiveCount > negativeCount) currentGuesser.setCorrectCharacteristics(question);
+			if(positiveCount > negativeCount) {
+				currentGuesser.setCorrectAnswers(question);
+			}
 			return positiveCount > negativeCount;
 		}
-		
 	}
 
 	@Override
 	public void assignCharacters() {
-		players.stream().forEach(player -> this.playersCharacter.put(player.getName(), this.getRandomCharacter()));
-		playersCharacter.forEach((k,v) -> System.out.println((k + ": " + v.getName())));
-//		for (int i =0; i < players.size(); i++){
-//			playersCharacter.put(players.get(i).getName(), this.getRandomCharacter());
-//		}
+		players.stream().forEach(player -> this.playersCharacter.put(player.getName(), getRandomCharacter()));
 	}
-	
+
 	@Override
 	public void initGame() {
 		this.currentTurn = new TurnImpl(this.players);
-		
 	}
-
 
 	@Override
 	public boolean isFinished() {
 		return players.size() == 1;
 	}
-	
+
 	private Character getRandomCharacter() {
-		int randomPos = (int)(Math.random() * this.availableCharacters.size()); 
+		int randomPos = (int)(Math.random() * this.availableCharacters.size());
 		return this.availableCharacters.remove(randomPos);
 	}
 
@@ -97,5 +85,4 @@ public class RandomGame implements Game {
 	public void changeTurn() {
 		this.currentTurn.changeTurn();
 	}
-
 }

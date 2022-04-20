@@ -1,6 +1,7 @@
 package com.eleks.academy.whoami;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,14 +19,12 @@ public class App implements CharactersBase{
 		for (int i = 0; i < numberOfCharacters; i++) {
 			characters.add(new CharacterCreator());
 		}
-		//List<String> questions = List.of("Am i a human?", "Am i a character from a movie?"); // interface Questions
-//		List<String> guessess = List.of(batman.get(0), arestowych.get(0),scoobyDoo.get(0),garfield.get(0));
-
 		QuestionCreator questions = new QuestionCreator();
-		List<String> guessess = new ArrayList<>();
+		Map <String,List <String>> guessess = new HashMap<>();
 		for(Character character : characters) {
-			guessess.add(character.getName());
+			guessess.put(character.getName(), character.getCharacteristics());
 		}
+
 		Game game = new RandomGame(characters);
 		for (int i = 0; i < numberOfPlayers; i++) {
 			game.addPlayer(new RandomPlayer("Test " + i, questions.getQuestions(), guessess));
@@ -38,12 +37,6 @@ public class App implements CharactersBase{
 				turnResult = game.makeTurn();
 			}
 			game.changeTurn();
-			System.out.println("\n");
 		}
-
-		
-		
 	}
-	
-
 }

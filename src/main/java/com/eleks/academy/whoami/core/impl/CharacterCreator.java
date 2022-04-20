@@ -11,34 +11,17 @@ public class CharacterCreator implements CharactersBase, Character {
 	private List<String> characteristics = new ArrayList<>();
 	
 	public CharacterCreator() {
-		switch (randomizer)
-		{
-			case 0:
-				setCharacter(batman);
-				break;
-			case 1:
-				setCharacter(arestowych);
-				break;
-			case 2:
-				setCharacter(scoobyDoo);
-				break;
-			case 3:
-				setCharacter(garfield);
-				break;
+		switch (randomizer) {
+			case 0 -> this.characteristics.addAll(batman);
+			case 1 -> this.characteristics.addAll(arestowych);
+			case 2 -> this.characteristics.addAll(scoobyDoo);
+			case 3 -> this.characteristics.addAll(garfield);
 		}
 		if(randomizer <= 3) {
 			randomizer++;
 		}else {
 			randomizer = 0;
 		}
-		
-	}
-	
-	public void setCharacter (List<String> characteristics) {
-		
-		for (int i = 0; i < characteristics.size() - 1; i++) {
-            this.characteristics.add(characteristics.get(i));
-        }
 		
 	}
 	
