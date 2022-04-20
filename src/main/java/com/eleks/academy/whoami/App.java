@@ -1,46 +1,48 @@
 package com.eleks.academy.whoami;
 
+import com.eleks.academy.whoami.core.Game;
+import com.eleks.academy.whoami.core.impl.RandomPlayer;
+import com.eleks.academy.whoami.networking.client.ClientPlayer;
+import com.eleks.academy.whoami.networking.server.ServerImpl;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import com.eleks.academy.whoami.core.Game;
-import com.eleks.academy.whoami.networking.client.ClientPlayer;
-import com.eleks.academy.whoami.networking.server.ServerImpl;
-
 public class App {
 
-	public static void main(String[] args) throws IOException {
+    public static BufferedReader reader;
 
-		ServerImpl server = new ServerImpl(888);
+    public static void main(String[] args) throws IOException {
 
-		Game game = server.startGame();
+        ServerImpl server = new ServerImpl(1100);
 
-		var socket = server.waitForPlayer(game);
+        Game game = server.startGame();
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        var sockets = server.waitForPlayer(game);
+        for (var socket : sockets) {
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            var playerName = reader.readLine();
 
-		boolean gameStatus = true;
+            server.addPlayer(new ClientPlayer(playerName, socket));
+        }
+        game.assignCharacters();
 
-		var playerName = reader.readLine();
+        boolean gameStatus = true;
 
-		server.addPlayer(new ClientPlayer(playerName, socket));
+        game.initGame();
 
-		game.assignCharacters();
+        while (gameStatus) {
+            boolean turnResult = game.makeTurn();
 
-		game.initGame();
+            while (turnResult) {
+                turnResult = game.makeTurn();
+            }
+            game.changeTurn();
+            gameStatus = !game.isFinished();
+        }
 
-		while (gameStatus) {
-			boolean turnResult = game.makeTurn();
-
-			while (turnResult) {
-				turnResult = game.makeTurn();
-			}
-			game.changeTurn();
-			gameStatus = !game.isFinished();
-		}
-
-		server.stopServer(socket, reader);
-	}
+        server.stopServer(sockets, reader);
+    }
 
 }
