@@ -3,6 +3,7 @@ package com.eleks.academy.whoami.networking.server;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.impl.RandomGame;
+import com.eleks.academy.whoami.core.impl.RandomPlayer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,9 +14,9 @@ import java.util.List;
 
 public class ServerImpl implements Server {
 
-    private List<String> characters = List.of("Batman", "Superman", "Ironman", "Spiderman");
-    private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?");
-    private List<String> guessess = List.of("Batman", "Superman", "Ironman", "Spiderman");
+    private List<String> characters = List.of("Batman", "Superman", "Ironman", "Spiderman", "Aquaman");
+    private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?", "Am i a superhero?");
+    private List<String> guessess = List.of("Batman", "Superman", "Ironman", "Spiderman", "Aquaman");
 
     private RandomGame game = new RandomGame(characters);
 
@@ -34,6 +35,7 @@ public class ServerImpl implements Server {
 
     @Override
     public LinkedList<Socket> waitForPlayer(Game game) throws IOException {
+        game.addPlayer(new RandomPlayer("Bot", questions, guessess));
         LinkedList<Socket> serverList = new LinkedList<>();
         while (serverList.size() != 4) {
             serverList.add(serverSocket.accept());

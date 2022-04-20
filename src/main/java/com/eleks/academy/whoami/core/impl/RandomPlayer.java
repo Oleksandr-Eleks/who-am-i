@@ -24,22 +24,31 @@ public class RandomPlayer implements Player {
 
     @Override
     public String getQuestion() {
-        String question = availableQuestions.remove(0);
+        String question;
+        if (name.equals("Bot")) {
+            question = availableQuestions.remove(availableQuestions.size() - 1);
+        } else {
+            question = availableQuestions.remove(0);
+        }
         System.out.println("Player: " + name + ". Asks: " + question);
         return question;
     }
 
     @Override
-    public String answerQuestion(String question, String character) {
+    public String answerQuestion(String question, String character, String nameAsker) {
         String answer = Math.random() < 0.5 ? "Yes" : "No";
         System.out.println("Player: " + name + ". Answers: " + answer);
         return answer;
     }
 
-
     @Override
     public String answerGuess(String guess, String character) {
-        String answer = Math.random() < 0.5 ? "Yes" : "No";
+        String answer;
+        if (guess.equals(character)) {
+            answer = "Yes";
+        } else {
+            answer = "No";
+        }
         System.out.println("Player: " + name + ". Answers: " + answer);
         return answer;
     }
@@ -55,6 +64,11 @@ public class RandomPlayer implements Player {
     @Override
     public boolean isReadyForGuess() {
         return availableQuestions.isEmpty();
+    }
+
+    @Override
+    public void clearQuestions() {
+        availableQuestions.clear();
     }
 
 }

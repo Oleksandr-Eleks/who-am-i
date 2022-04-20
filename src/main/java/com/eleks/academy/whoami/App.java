@@ -1,6 +1,7 @@
 package com.eleks.academy.whoami;
 
 import com.eleks.academy.whoami.core.Game;
+import com.eleks.academy.whoami.core.impl.RandomPlayer;
 import com.eleks.academy.whoami.networking.client.ClientPlayer;
 import com.eleks.academy.whoami.networking.server.ServerImpl;
 
@@ -20,12 +21,10 @@ public class App {
 
         var sockets = server.waitForPlayer(game);
         for (var socket : sockets) {
-            System.out.println(socket);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             var playerName = reader.readLine();
 
             server.addPlayer(new ClientPlayer(playerName, socket));
-
         }
         game.assignCharacters();
 

@@ -33,13 +33,11 @@ public class RandomGame implements Game {
         Set<String> answers;
         if (currentGuesser.isReadyForGuess()) {
             String guess = currentGuesser.getGuess();
-            System.out.println("Player: " + currentGuesser.getName() + ". Guess: " + guess);
             answers = currentTurn.getOtherPlayers().stream()
                     .map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
                     .collect(Collectors.toSet());
             long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
             long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-            System.out.println(positiveCount > negativeCount ? "Yes" : "No");
 
             boolean win = positiveCount > negativeCount;
 
@@ -50,13 +48,16 @@ public class RandomGame implements Game {
 
         } else {
             String question = currentGuesser.getQuestion();
-            System.out.println("Player: " + currentGuesser.getName() + ". Question: " + question);
             answers = currentTurn.getOtherPlayers().stream()
-                    .map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
+                    .map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName()), currentGuesser.getName()))
                     .collect(Collectors.toSet());
             long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
             long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-            System.out.println(positiveCount > negativeCount ? "Yes" : "No");
+            if (currentGuesser.getName().equals("Bot")
+                    && question.equals("Am i a superhero?")
+                    && positiveCount > negativeCount) {
+                currentGuesser.clearQuestions();
+            }
             return positiveCount > negativeCount;
         }
 

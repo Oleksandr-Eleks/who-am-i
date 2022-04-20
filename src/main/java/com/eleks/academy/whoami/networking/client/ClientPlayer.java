@@ -34,6 +34,7 @@ public class ClientPlayer implements Player {
         try {
             writer.println("Ask your questinon: ");
             question = reader.readLine();
+            System.out.println("Player: " + name + ". Asks: " + question);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -41,12 +42,13 @@ public class ClientPlayer implements Player {
     }
 
     @Override
-    public String answerQuestion(String question, String character) {
+    public String answerQuestion(String question, String character, String nameAsker) {
         String answer = "";
 
         try {
-            writer.println("Answer second player question: " + question + " Character is: "+ character);
+            writer.println("Player: " + nameAsker + ". Question: " + question + " Character is: "+ character);
             answer = reader.readLine();
+            System.out.println("Player: " + name + ". Answers: " + answer);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,6 +63,7 @@ public class ClientPlayer implements Player {
         try {
             writer.println("Write your guess: ");
             answer = reader.readLine();
+            System.out.println("Player: " + name + ". Guesses: Am I " + answer);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,10 +91,16 @@ public class ClientPlayer implements Player {
         try {
             writer.println("Guess his character: " + guess + " Write your answer: ");
             answer = reader.readLine();
+            System.out.println("Player: " + name + ". Answers: " + answer);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return answer;
+    }
+
+    @Override
+    public void clearQuestions() {
+        return;
     }
 
 }
