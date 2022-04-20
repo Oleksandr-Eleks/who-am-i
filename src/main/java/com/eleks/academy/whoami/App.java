@@ -23,8 +23,10 @@ public class App {
 		boolean gameStatus = true;
 
 		var playerName = reader.readLine();
+		var playerName2 = reader.readLine();
 
 		server.addPlayer(new ClientPlayer(playerName, socket));
+		server.addPlayer(new ClientPlayer(playerName2, socket));
 
 		game.assignCharacters();
 
