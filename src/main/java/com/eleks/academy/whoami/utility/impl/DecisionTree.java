@@ -25,16 +25,6 @@ public class DecisionTree implements Tree{
 		this.right = tree.getRight();
 		this.left = tree.getLeft();		
 	}
-	/*private Node root;
-	
-	public DecisionTree(String data) {
-		root.setData(data);
-	}
-	
-	public Node getRoot() {		
-		return root; ///return s.equals("right")? right: left;
-	}*/
-
 	
 	public Tree getNode(String s) {
 		// TODO Auto-generated method stub
