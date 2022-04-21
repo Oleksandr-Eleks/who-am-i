@@ -13,10 +13,10 @@ import com.eleks.academy.whoami.networking.client.ClientPlayer;
 import com.eleks.academy.whoami.networking.server.ServerImpl;
 
 public class App {
+	
+	static final int players = 2;
 
 	public static void main(String[] args) throws IOException {
-
-		final int players = 4;
 
 		List<Socket> playersSockets = new ArrayList<>();
 
@@ -26,13 +26,13 @@ public class App {
 
 		boolean gameStatus = true;
 
-		ServerImpl server = new ServerImpl(8888);
+		ServerImpl server = new ServerImpl(888);
 
 		Game game = server.startGame();
 
 		for (int i = 0; i < players; i++) {
 			playersSockets.add(server.waitForPlayer(game));
-
+			
 			reader = new BufferedReader(new InputStreamReader(playersSockets.get(i).getInputStream()));
 
 			writer = new PrintStream(playersSockets.get(i).getOutputStream());
@@ -43,7 +43,7 @@ public class App {
 			if (i < players - 1) {
 				writer.println("Waiting players");
 			}
-			
+
 		}
 
 		game.assignCharacters();
@@ -56,13 +56,12 @@ public class App {
 			while (turnResult) {
 				turnResult = game.makeTurn();
 			}
+			
 			game.changeTurn();
 			gameStatus = !game.isFinished();
 		}
 
-		server.stopServer(playersSockets, reader);
-
-		writer.close();
+		server.stopServer(playersSockets, reader, writer);
 	}
 
 }

@@ -32,8 +32,14 @@ public class ClientPlayer implements Player {
 		String question = "";
 
 		try {
-			writer.println("Ask your questinon: ");
+
+			this.writer.println("Ask your questinon: ");
+			System.out.println("Ask your questinon: ");
+
 			question = reader.readLine();
+
+			System.out.println("Player " + this.name + ": " + question);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -41,57 +47,82 @@ public class ClientPlayer implements Player {
 	}
 
 	@Override
-	public String answerQuestion(String question, String character) {
-		String answer = "";
-		
-		try {
-			writer.println("Answer" + this.name + " player question: " + question + " Character is:"+ character);
-			answer = reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return answer;
+	public Socket getPlayerSocket() {
+		return this.socket;
 	}
 
 	@Override
 	public String getGuess() {
 		String answer = "";
-		
-	
-		try {
-			writer.println("Write your guess: ");
-			answer = reader.readLine();
-		} catch (IOException e) {
 
+		try {
+
+			this.writer.println("Write your guess: ");
+			System.out.println("Write your guess: ");
+
+			answer = reader.readLine();
+
+			System.out.println("Player " + this.name + ": " + answer);
+
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return answer;
+	}
+
+	@Override
+	public String answerQuestion(String question, String character) {
+		String answer = "";
+
+		try {
+
+			this.writer.println("Answer" + this.name + " player question: " + question + " Character is:" + character);
+			System.out.println("Answer" + this.name + " player question: " + question + " Character is:" + character);
+
+			answer = reader.readLine();
+
+			System.out.println("Player " + this.name + ": " + answer);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		return answer;
 	}
 
 	@Override
 	public boolean isReadyForGuess() {
 		String answer = "";
-		
+
 		try {
-			writer.println("Are you ready to guess? ");
+			this.writer.println("Are you ready to guess? ");
+			System.out.println("Are you ready to guess? ");
+
 			answer = reader.readLine();
+
+			System.out.println("Player " + this.name + ": " + answer);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return answer.equals("Yes") ? true : false;
 	}
 
 	@Override
 	public String answerGuess(String guess, String character) {
 		String answer = "";
-		
-		try {
-			writer.println("Write your answer: ");
-			answer = reader.readLine();
-		} catch (IOException e) {
 
+		try {
+
+			this.writer.println("Write your answer: ");
+			System.out.println("Write your answer: ");
+
+			answer = reader.readLine();
+
+			System.out.println("Player " + this.name + ": " + answer);
+
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return answer;
