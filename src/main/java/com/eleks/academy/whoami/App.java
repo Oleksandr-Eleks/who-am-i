@@ -21,35 +21,34 @@ public class App {
 		Game game = server.startGame();
 
 		List<Socket> playerList = new ArrayList<>(players);
-		for (int i = 0; i < players; i++) {
-			var socket = server.waitForPlayer(game);
-			playerList.add(socket);
-		}
-
-		Socket socket = playerList.get(0);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-		boolean gameStatus = true;
-
-		var playerName = reader.readLine();
-
-		server.addPlayer(new ClientPlayer(playerName, socket));
-
-		game.assignCharacters();
-
-		game.initGame();
-
-		while (gameStatus) {
-			boolean turnResult = game.makeTurn();
-
-			while (turnResult) {
-				turnResult = game.makeTurn();
+		try {
+			for (int i = 0; i < players; i++) {
+				var socket = server.waitForPlayer(game);
+				playerList.add(socket);
 			}
-			game.changeTurn();
-			gameStatus = !game.isFinished();
-		}
+			System.out.println(String.format("Got %d players. Starting a game.", players));
+			for (int i = 0; i < playerList.size(); i++) {
+				Socket client = playerList.get(i);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+				var playerName = reader.readLine();
+				System.out.println(String.format("Player #%d has name %s", i, playerName));
+				server.addPlayer(new ClientPlayer(playerName, client));
+			}
+			boolean gameStatus = true;
+			game.assignCharacters();
+			game.initGame();
+			while (gameStatus) {
+				boolean turnResult = game.makeTurn();
 
-		server.stopServer(socket, reader);
+				while (turnResult) {
+					turnResult = game.makeTurn();
+				}
+				game.changeTurn();
+				gameStatus = !game.isFinished();
+			} 
+		} finally {
+			server.stop();
+		}
 	}
 
 	private static int readPlayersArg(String[] args) {
