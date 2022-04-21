@@ -2,6 +2,7 @@ package com.eleks.academy.whoami.networking.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
@@ -10,6 +11,7 @@ import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.impl.RandomGame;
 import com.eleks.academy.whoami.core.impl.RandomPlayer;
+import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class ServerImpl implements Server {
 
@@ -30,6 +32,12 @@ public class ServerImpl implements Server {
 		game.addPlayer(new RandomPlayer("Bot", questions, guessess));
 		System.out.println("Server starts");
 		System.out.println("Waiting for a client connect....");
+		while (game.playersNum() != 4) {
+			Socket socket = waitForPlayer(game);
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			String playerName = bufferedReader.readLine();
+			addPlayer(new ClientPlayer(playerName, socket));
+		}
 		return game;
 	}
 

@@ -14,4 +14,6 @@ public interface Game {
 
 	void initGame();
 
+	int playersNum();
+
 }

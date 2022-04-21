@@ -39,7 +39,7 @@ public class RandomPlayer implements Player {
 
 	@Override
 	public String answerGuess(String guess, String character) {
-		String answer = Math.random() < 0.5 ? "Yes" : "No";
+		String answer = guess.toLowerCase().contains(character) ? "Yes" : "No";
 		System.out.println("Player: " + name + ". Answers: " + answer);
 		return answer;
 	}

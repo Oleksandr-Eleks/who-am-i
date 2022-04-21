@@ -24,6 +24,7 @@ public class RandomGame implements Game {
 	
 	public RandomGame(List<String> availableCharacters) {
 		this.availableCharacters = new ArrayList<String>(availableCharacters);
+		this.players = new ArrayList<>(players);
 	}
 
 	@Override
@@ -90,4 +91,8 @@ public class RandomGame implements Game {
 		this.currentTurn.changeTurn();
 	}
 
+	@Override
+	public int playersNum() {
+		return players.size();
+	}
 }
