@@ -3,15 +3,15 @@ package com.eleks.academy.whoami.core;
 public interface Player {
 
 	String getName();
-	
+
 	String getQuestion();
-	
-	String answerQuestion(String question, String character);
-	
-	String getGuess();
-	
+
+	boolean answerQuestion(String question, String character);
+
 	boolean isReadyForGuess();
 
-	String answerGuess(String guess, String character);
-	
+	String getGuess();
+
+	boolean answerGuess(String guess, String character);
+
 }

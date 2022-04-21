@@ -2,16 +2,23 @@ package com.eleks.academy.whoami.core;
 
 public interface Game {
 	
-	void addPlayer(Player player);
-	
-	boolean makeTurn();
+	void init();
+
+	void displayPlayers();
 	
 	void assignCharacters();
 	
+	void start();
+
 	boolean isFinished();
 
-	void changeTurn();
+	boolean makeTurn();
 
-	void initGame();
+	void endTurn();
 
+	void addPlayer(Player player);
+	
+	int countPlayers();
+	
+	void displayResults();
 }
