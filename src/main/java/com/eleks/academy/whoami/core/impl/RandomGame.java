@@ -13,17 +13,17 @@ import com.eleks.academy.whoami.core.Turn;
 
 public class RandomGame implements Game {
 	
-	private Map<String, String> playersCharacter = new HashMap<>();
-	private List<Player> players = new ArrayList<>();
-	private List<String> availableCharacters;
+	private final Map<String, String> playersCharacter = new HashMap<>();
+	private final List<Player> players = new ArrayList<>();
+	private final List<String> availableCharacters;
 	private Turn currentTurn;
 
 	
-	private final static String YES = "Yes";
-	private final static String NO = "No";
+	private static final String YES = "Yes";
+	private static final String NO = "No";
 	
 	public RandomGame(List<String> availableCharacters) {
-		this.availableCharacters = new ArrayList<String>(availableCharacters);
+		this.availableCharacters = new ArrayList<>(availableCharacters);
 	}
 
 	@Override
@@ -38,10 +38,10 @@ public class RandomGame implements Game {
 		if (currentGuesser.isReadyForGuess()) {
 			String guess = currentGuesser.getGuess();
 			answers = currentTurn.getOtherPlayers().stream()
-					.map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
+					.map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.name())))
 					.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+			long positiveCount = answers.stream().filter(YES::equalsIgnoreCase).count();
+			long negativeCount = answers.stream().filter(NO::equalsIgnoreCase).count();
 			
 			boolean win = positiveCount > negativeCount;
 			
@@ -53,25 +53,22 @@ public class RandomGame implements Game {
 		} else {
 			String question = currentGuesser.getQuestion();
 			answers = currentTurn.getOtherPlayers().stream()
-				.map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
+				.map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.name())))
 				.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+			long positiveCount = answers.stream().filter(YES::equalsIgnoreCase).count();
+			long negativeCount = answers.stream().filter(NO::equalsIgnoreCase).count();
 			return positiveCount > negativeCount;
 		}
-		
 	}
 
 	@Override
 	public void assignCharacters() {
-		players.stream().forEach(player -> this.playersCharacter.put(player.getName(), this.getRandomCharacter()));
-		
+		players.forEach(player -> this.playersCharacter.put(player.name(), this.getRandomCharacter()));
 	}
 	
 	@Override
 	public void initGame() {
 		this.currentTurn = new TurnImpl(this.players);
-		
 	}
 
 

@@ -23,7 +23,7 @@ public class ClientPlayer implements Player {
 	}
 
 	@Override
-	public String getName() {
+	public String name() {
 		return this.name;
 	}
 
@@ -32,8 +32,9 @@ public class ClientPlayer implements Player {
 		String question = "";
 
 		try {
-			writer.println("Ask your questinon: ");
+			writer.println("Ask your question: ");
 			question = reader.readLine();
+			System.out.println(name + " asks: " + question);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -47,23 +48,22 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Answer second player question: " + question + "Character is:"+ character);
 			answer = reader.readLine();
+			System.out.println(name + " answer: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return answer;
+		return answer.toLowerCase();
 	}
 
 	@Override
 	public String getGuess() {
 		String answer = "";
-		
-	
+
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();
+			System.out.println(name + " answer: " + answer);
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 		return answer;
@@ -76,11 +76,11 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Are you ready to guess? ");
 			answer = reader.readLine();
+			System.out.println(name + " answer: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return answer.equals("Yes") ? true : false;
+		return answer.equalsIgnoreCase("yes");
 	}
 
 	@Override
@@ -90,11 +90,10 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Write your answer: ");
 			answer = reader.readLine();
+			System.out.println(name + " answer: " + answer);
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 		return answer;
 	}
-
 }
