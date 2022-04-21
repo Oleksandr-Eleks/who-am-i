@@ -1,5 +1,6 @@
 package com.eleks.academy.whoami.core.impl;
 
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,13 +11,13 @@ public class RandomPlayer implements Player {
 	private String name;
 	private List<String> availableQuestions;
 	private List<String> availableGuesses;
-	
+
 	public RandomPlayer(String name, List<String> availableQuestions, List<String> availableGuesses) {
 		this.name = name;
 		this.availableQuestions = new ArrayList<String>(availableQuestions);
 		this.availableGuesses = new ArrayList<String>(availableGuesses);
 	}
-	
+
 	@Override
 	public String getName() {
 		return this.name;
@@ -35,7 +36,6 @@ public class RandomPlayer implements Player {
 		System.out.println("Player: " + name + ". Answers: " + answer);
 		return answer;
 	}
-	
 
 	@Override
 	public String answerGuess(String guess, String character) {
@@ -46,7 +46,7 @@ public class RandomPlayer implements Player {
 
 	@Override
 	public String getGuess() {
-		int randomPos = (int)(Math.random() * this.availableGuesses.size()); 
+		int randomPos = (int) (Math.random() * this.availableGuesses.size());
 		String guess = this.availableGuesses.remove(randomPos);
 		System.out.println("Player: " + name + ". Guesses: Am I " + guess);
 		return guess;
@@ -57,6 +57,10 @@ public class RandomPlayer implements Player {
 		return availableQuestions.isEmpty();
 	}
 
-	
-	
+	@Override
+	public Socket getPlayerSocket() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
