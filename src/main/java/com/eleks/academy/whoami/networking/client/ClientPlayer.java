@@ -23,7 +23,7 @@ public class ClientPlayer implements Player {
 	}
 
 	@Override
-	public String getName() {
+	public String name() {
 		return this.name;
 	}
 
@@ -48,7 +48,7 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Answer second player question: " + question + "Character is:"+ character);
 			answer = reader.readLine();
-			System.out.println(name + " answers: " + answer);
+			System.out.println(name + " answer: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -62,7 +62,7 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();
-			System.out.println(name + answer);
+			System.out.println(name + " answer: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -76,7 +76,7 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Are you ready to guess? ");
 			answer = reader.readLine();
-			System.out.println(name + " answer " + answer);
+			System.out.println(name + " answer: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -90,7 +90,7 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Write your answer: ");
 			answer = reader.readLine();
-			System.out.println(name + " answer " + answer);
+			System.out.println(name + " answer: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
