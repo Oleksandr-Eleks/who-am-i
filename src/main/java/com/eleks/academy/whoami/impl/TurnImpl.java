@@ -1,4 +1,4 @@
-package com.eleks.academy.whoami.core.impl;
+package com.eleks.academy.whoami.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +31,4 @@ public class TurnImpl implements Turn {
 	public void changeTurn() {
 		this.currentPlayerIndex = this.currentPlayerIndex + 1 >= this.players.size() ? 0 : this.currentPlayerIndex + 1; 
 	}
-	
-	
-
 }

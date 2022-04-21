@@ -14,6 +14,7 @@ public class ClientPlayer implements Player {
 	private Socket socket;
 	private BufferedReader reader;
 	private PrintStream writer;
+	private int numberAnswer = -1;
 
 	public ClientPlayer(String name, Socket socket) throws IOException {
 		this.name = name;
@@ -21,6 +22,20 @@ public class ClientPlayer implements Player {
 		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		this.writer = new PrintStream(socket.getOutputStream());
 	}
+
+	@Override
+	public void setAssumptionOrClarification(int numberAnswer) {
+		this.numberAnswer = numberAnswer;
+	}
+
+	@Override
+	public int getAssumptionOrClarification() {
+		return numberAnswer;
+	}
+
+
+
+
 
 	@Override
 	public String getName() {

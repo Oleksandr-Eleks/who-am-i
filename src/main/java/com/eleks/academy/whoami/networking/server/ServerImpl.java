@@ -8,16 +8,12 @@ import java.util.List;
 
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
-import com.eleks.academy.whoami.core.impl.RandomGame;
-import com.eleks.academy.whoami.core.impl.RandomPlayer;
+import com.eleks.academy.whoami.impl.RandomGame;
+import com.eleks.academy.whoami.impl.RandomPlayer;
 
 public class ServerImpl implements Server {
 
-	private List<String> characters = List.of("Batman", "Superman");
-	private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?");
-	private List<String> guessess = List.of("Batman", "Superman");
-
-	private RandomGame game = new RandomGame(characters);
+	private RandomGame game = new RandomGame();
 
 	private final ServerSocket serverSocket;
 
@@ -27,7 +23,7 @@ public class ServerImpl implements Server {
 
 	@Override
 	public Game startGame() throws IOException {
-		game.addPlayer(new RandomPlayer("Bot", questions, guessess));
+		game.addPlayer(new RandomPlayer("Bot"));
 		System.out.println("Server starts");
 		System.out.println("Waiting for a client connect....");
 		return game;
