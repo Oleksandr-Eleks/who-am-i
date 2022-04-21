@@ -14,9 +14,9 @@ public class App {
 	public static void main(String[] args) {
 		System.out.println("Game Init!");
 		
-		List<String> characters = List.of("Batman", "Superman");
-		List<String> questions = List.of("Am i a human?", "Am i a character from a movie?");
-		List<String> guessess = List.of("Batman", "Superman");
+		List<String> characters = List.of("Batman", "Superman", "Apple-Man", "Bloodshot", "Kolobok", "Red Hood" );
+		List<String> questions = List.of("Am i a human?", "Am i a character from a movie?", "Am I from a fairytale?", "Am I from this planet?");
+		List<String> guessess = List.of("Batman", "Superman", "Apple-Man", "Bloodshot", "Kolobok","Red Hood" );
 		
 		Game game = new RandomGame(characters);
 		game.addPlayer(new RandomPlayer("Test1", questions, guessess));
