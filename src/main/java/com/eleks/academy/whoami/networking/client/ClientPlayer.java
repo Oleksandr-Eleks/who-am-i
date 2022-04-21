@@ -1,140 +1,98 @@
 package com.eleks.academy.whoami.networking.client;
 
-import com.eleks.academy.whoami.core.Player;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
-public class ClientPlayer implements Player, AutoCloseable {
+import com.eleks.academy.whoami.core.Player;
 
-    private BufferedReader reader;
-    private PrintStream writer;
-    private String name;
+public class ClientPlayer implements Player {
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private String name;
+	private BufferedReader reader;
+	private PrintStream writer;
 
-    public ClientPlayer(Socket socket) throws IOException {
-        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.writer = new PrintStream(socket.getOutputStream());
-    }
+	public ClientPlayer(String name, Socket socket) throws IOException {
+		this.name = name;
+		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		this.writer = new PrintStream(socket.getOutputStream());
+	}
 
-    @Override
-    public Future<String> getName() {
-        // TODO: save name for future
-        return executor.submit(this::askName);
-    }
+	@Override
+	public String getName() {
+		return this.name;
+	}
 
-    private String askName() {
-        if (this.name == null) {
-            try {
-                writer.println("Please, name yourself.");
-                this.name = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return this.name;
-    }
+	@Override
+	public String getQuestion() {
+		String question = "";
 
-    @Override
-    public String getQuestion() {
-        String question = "";
+		try {
+			writer.println("Ask your questinon: ");
+			question = reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return question;
+	}
 
-        try {
-            writer.println("Ask your questinon: ");
-            question = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return question;
-    }
+	@Override
+	public String answerQuestion(String question, String character) {
+		String answer = "";
+		
+		try {
+			writer.println("Answer second player question: " + question + "Character is:"+ character);
+			answer = reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return answer;
+	}
 
-    @Override
-    public String answerQuestion(String question, String character) {
-        String answer = "";
+	@Override
+	public String getGuess() {
+		String answer = "";
+		
+	
+		try {
+			writer.println("Write your guess: ");
+			answer = reader.readLine();
+		} catch (IOException e) {
 
-        try {
-            writer.println("Answer second player question: " + question + "Character is:" + character);
-            answer = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+			e.printStackTrace();
+		}
+		return answer;
+	}
 
-        return answer;
-    }
+	@Override
+	public boolean isReadyForGuess() {
+		String answer = "";
+		
+		try {
+			writer.println("Are you ready to guess? ");
+			answer = reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return answer.equals("Yes") ? true : false;
+	}
 
-    @Override
-    public String getGuess() {
-        String answer = "";
+	@Override
+	public String answerGuess(String guess, String character) {
+		String answer = "";
+		
+		try {
+			writer.println("Write your answer: ");
+			answer = reader.readLine();
+		} catch (IOException e) {
 
-
-        try {
-            writer.println("Write your guess: ");
-            answer = reader.readLine();
-        } catch (IOException e) {
-
-            e.printStackTrace();
-        }
-        return answer;
-    }
-
-    @Override
-    public boolean isReadyForGuess() {
-        String answer = "";
-
-        try {
-            writer.println("Are you ready to guess? ");
-            answer = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return answer.equals("Yes") ? true : false;
-    }
-
-    @Override
-    public String answerGuess(String guess, String character) {
-        String answer = "";
-
-        try {
-            writer.println("Write your answer: ");
-            answer = reader.readLine();
-        } catch (IOException e) {
-
-            e.printStackTrace();
-        }
-        return answer;
-    }
-
-    @Override
-    public Future<String> suggestCharacter() {
-        return executor.submit(this::doSuggestCharacter);
-    }
-
-    private String doSuggestCharacter() {
-        try {
-            return reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-
-    @Override
-    public void close() {
-        executor.shutdown();
-        try {
-            executor.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
+			e.printStackTrace();
+		}
+		return answer;
+	}
 
 }
