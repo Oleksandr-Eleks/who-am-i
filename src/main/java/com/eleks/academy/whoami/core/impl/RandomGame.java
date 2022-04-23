@@ -58,8 +58,8 @@ public class RandomGame implements Game {
             answers = currentTurn.getOtherPlayers().stream()
                     .map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
                     .collect(Collectors.toSet());
-            long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-            long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+            long positiveCount = answers.stream().filter(a -> YES.equalsIgnoreCase(a)).count();
+            long negativeCount = answers.stream().filter(a -> NO.equalsIgnoreCase(a)).count();
             return positiveCount > negativeCount;
         }
 

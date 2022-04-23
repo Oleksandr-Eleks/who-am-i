@@ -11,6 +11,7 @@ public class FairBotPlayer implements Player {
     private String name;
     private List<String> availableQuestions;
     private List<String> availableGuesses;
+
     public FairBotPlayer(String name, List<String> availableQuestions, List<String> availableGuesses) {
         this.name = name;
         this.availableQuestions = new ArrayList<>(availableQuestions);

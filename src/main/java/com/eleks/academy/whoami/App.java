@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.Objects;
 
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.networking.client.ClientPlayer;
@@ -43,7 +44,7 @@ public class App {
             gameStatus = !game.isFinished();
         }
 
-        server.stopServer(socket, reader);
+        server.stopServer(Objects.requireNonNull(socket), reader);
     }
 
 }

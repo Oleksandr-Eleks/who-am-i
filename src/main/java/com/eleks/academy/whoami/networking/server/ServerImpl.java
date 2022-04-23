@@ -19,17 +19,17 @@ public class ServerImpl implements Server {
 
 	private RandomGame game = new RandomGame(characters);
 	static int playersCount = 0;
+	static int livePlayers = 2;
 	private final ServerSocket serverSocket;
 
 	public ServerImpl(int port) throws IOException {
 		this.serverSocket = new ServerSocket(port);
 	}
 	public static boolean notEnoughPlayers() {
-		return playersCount < 3;
+		return playersCount < livePlayers;
 	}
 	@Override
 	public Game startGame() throws IOException {
-		game.addPlayer(new FairBotPlayer("Bot", questions, guessess));
 		System.out.println("Server starts");
 		System.out.println("Waiting for a client connect....");
 		return game;
