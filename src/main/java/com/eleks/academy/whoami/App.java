@@ -10,37 +10,37 @@ import com.eleks.academy.whoami.networking.server.ServerImpl;
 
 public class App {
 
-	public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
-		ServerImpl server = new ServerImpl(888);
+        ServerImpl server = new ServerImpl(888);
 
-		Game game = server.startGame();
+        Game game = server.startGame();
 
-		var socket = server.waitForPlayer(game);
+        var socket = server.waitForPlayer(game);
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-		boolean gameStatus = true;
+        boolean gameStatus = true;
 
-		var playerName = reader.readLine();
+        var playerName = reader.readLine();
 
-		server.addPlayer(new ClientPlayer(playerName, socket));
+        server.addPlayer(new ClientPlayer(playerName, socket));
 
-		game.assignCharacters();
+        game.assignCharacters();
 
-		game.initGame();
+        game.initGame();
 
-		while (gameStatus) {
-			boolean turnResult = game.makeTurn();
+        while (gameStatus) {
+            boolean turnResult = game.makeTurn();
 
-			while (turnResult) {
-				turnResult = game.makeTurn();
-			}
-			game.changeTurn();
-			gameStatus = !game.isFinished();
-		}
+            while (turnResult) {
+                turnResult = game.makeTurn();
+            }
+            game.changeTurn();
+            gameStatus = !game.isFinished();
+        }
 
-		server.stopServer(socket, reader);
-	}
+        server.stopServer(socket, reader);
+    }
 
 }
