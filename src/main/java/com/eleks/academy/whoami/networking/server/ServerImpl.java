@@ -20,7 +20,7 @@ public class ServerImpl implements Server {
     private List<Socket> openSockets = new ArrayList<>();
     private RandomGame game = new RandomGame(characters);
     static int playersCount = 0;
-    static int livePlayers = 2;
+    static int livePlayers = 3;
     private final ServerSocket serverSocket;
 
     public ServerImpl(int port) throws IOException {

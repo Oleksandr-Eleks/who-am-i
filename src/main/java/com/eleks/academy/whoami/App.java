@@ -15,6 +15,10 @@ import com.eleks.academy.whoami.networking.server.ServerImpl;
 
 public class App {
 
+    /**
+     * default : 3 players / it is possible to add a bot
+     * or change the number of members in the ServiceImpl class variable
+     */
     public static void main(String[] args) throws IOException {
 
         ServerImpl server = new ServerImpl(888);
