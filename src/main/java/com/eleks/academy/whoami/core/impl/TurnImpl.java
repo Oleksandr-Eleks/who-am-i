@@ -7,39 +7,38 @@ import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.Turn;
 
 public class TurnImpl implements Turn {
-	
-	private List<Player> players;
-	private int currentPlayerIndex = 0;
 
-	public int getCurrentPlayerIndex() {
-		return currentPlayerIndex;
-	}
+    private List<Player> players;
+    private int currentPlayerIndex = 0;
 
-	public void setCurrentPlayerIndex(int currentPlayerIndex) {
-		this.currentPlayerIndex = currentPlayerIndex;
-	}
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
 
-	public TurnImpl(List<Player> players) {
-		this.players = players;
-	}
-	
-	@Override
-	public Player getGuesser() {
-		return this.players.get(currentPlayerIndex);
-	}
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        this.currentPlayerIndex = currentPlayerIndex;
+    }
 
-	@Override
-	public List<Player> getOtherPlayers() {
-		return this.players.stream()
-				.filter(player -> !player.getName().equals(this.getGuesser().getName()))
-				.collect(Collectors.toList());
-	}
-	
-	@Override
-	public void changeTurn() {
-		this.currentPlayerIndex = this.currentPlayerIndex + 1 >= this.players.size() ? 0 : this.currentPlayerIndex + 1; 
-	}
-	
-	
+    public TurnImpl(List<Player> players) {
+        this.players = players;
+    }
+
+    @Override
+    public Player getGuesser() {
+        return this.players.get(currentPlayerIndex);
+    }
+
+    @Override
+    public List<Player> getOtherPlayers() {
+        return this.players.stream()
+                .filter(player -> !player.getName().equals(this.getGuesser().getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void changeTurn() {
+        this.currentPlayerIndex = this.currentPlayerIndex + 1 >= this.players.size() ? 0 : this.currentPlayerIndex + 1;
+    }
+
 
 }
