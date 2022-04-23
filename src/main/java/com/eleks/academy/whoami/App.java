@@ -16,7 +16,7 @@ import com.eleks.academy.whoami.networking.server.ServerImpl;
 public class App {
 
     /**
-     * default : 3 players / it is possible to add a bot
+     * default : 3 players / it is possible to add a bot(random or who know about your role)
      * or change the number of members in the ServiceImpl class variable
      */
     public static void main(String[] args) throws IOException {
@@ -24,14 +24,9 @@ public class App {
         ServerImpl server = new ServerImpl(888);
         BufferedReader reader;
         List<Socket> pl = new ArrayList<>();
-        List<Reader> readers = new ArrayList<>();
         Socket socket;
         try {
-
             Game game = server.startGame();
-
-            socket = null;
-            reader = null;
             while (ServerImpl.notEnoughPlayers()) {
                 socket = server.waitForPlayer(game);
                 pl.add(socket);
