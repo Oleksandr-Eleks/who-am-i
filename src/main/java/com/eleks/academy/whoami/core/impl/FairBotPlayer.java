@@ -1,20 +1,21 @@
 package com.eleks.academy.whoami.core.impl;
 
+import com.eleks.academy.whoami.core.Player;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.eleks.academy.whoami.core.Player;
+public class FairBotPlayer implements Player {
 
-public class RandomPlayer implements Player {
 
     private String name;
     private List<String> availableQuestions;
     private List<String> availableGuesses;
 
-    public RandomPlayer(String name, List<String> availableQuestions, List<String> availableGuesses) {
+    public FairBotPlayer(String name, List<String> availableQuestions, List<String> availableGuesses) {
         this.name = name;
-        this.availableQuestions = new ArrayList<String>(availableQuestions);
-        this.availableGuesses = new ArrayList<String>(availableGuesses);
+        this.availableQuestions = new ArrayList<>(availableQuestions);
+        this.availableGuesses = new ArrayList<>(availableGuesses);
     }
 
     @Override
@@ -39,9 +40,11 @@ public class RandomPlayer implements Player {
 
     @Override
     public String answerGuess(String guess, String character) {
-        String answer = Math.random() < 0.5 ? "Yes" : "No";
-        System.out.println("Player: " + name + ". Answers: " + answer);
-        return answer;
+        System.out.println(guess);
+        Integer questionChar = guess.lastIndexOf("?");
+        String substring = guess.substring(7, questionChar);
+        boolean trueGuess = substring.equals(character);
+        return trueGuess ? "Yes" : "No";
     }
 
     @Override
@@ -56,6 +59,5 @@ public class RandomPlayer implements Player {
     public boolean isReadyForGuess() {
         return availableQuestions.isEmpty();
     }
-
 
 }

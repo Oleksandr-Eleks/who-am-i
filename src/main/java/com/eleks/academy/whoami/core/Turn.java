@@ -10,4 +10,7 @@ public interface Turn {
 
 	void changeTurn();
 
+	int getCurrentPlayerIndex();
+
+	void setCurrentPlayerIndex(int i);
 }
