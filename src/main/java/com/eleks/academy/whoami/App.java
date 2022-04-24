@@ -1,9 +1,6 @@
 package com.eleks.academy.whoami;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,25 +17,24 @@ public class App {
      * or change the number of members in the ServiceImpl class variable
      */
     public static void main(String[] args) throws IOException {
-
+        int players = readPlayersArgs(args);
         ServerImpl server = new ServerImpl(888);
-        BufferedReader reader;
-        List<Socket> pl = new ArrayList<>();
-        Socket socket;
+        List<Socket> pl = new ArrayList<>(players);
+        System.out.println("Waiting for " + players + " players to start!");
         try {
             Game game = server.startGame();
-            while (ServerImpl.notEnoughPlayers()) {
-                socket = server.waitForPlayer(game);
+            for (int i = 0; i < players; i++) {
+                var socket = server.waitForPlayer(game);
                 pl.add(socket);
-
+                Thread thread = new Thread(() -> identifyPlayers(server, socket));
+                thread.start();
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            System.out.println("Waiting for " + pl.size() + " players to start!");
-            for (int i = 0; i < pl.size(); i++) {
-                reader = new BufferedReader(new InputStreamReader(pl.get(i).getInputStream()));
-                var playerName = reader.readLine();
-                server.addPlayer(new ClientPlayer(playerName, pl.get(i)));
 
-            }
             boolean gameStatus = true;
 
             game.assignCharacters();
@@ -54,10 +50,40 @@ public class App {
                 game.changeTurn();
                 gameStatus = !game.isFinished();
             }
+            System.out.println("Game is ended. First successful guesser is : " +
+                    "" + game.getListOfWinners().get(0).getName());
         } finally {
             server.stop();
         }
 
+    }
+
+    private static int readPlayersArgs(String[] args) {
+        if (args.length < 1) {
+            return 3;
+        } else {
+            try {
+                return Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.println("Cannot parse number of players. Assume 2.");
+                return 3;
+            }
+        }
+    }
+
+    public static void identifyPlayers(ServerImpl server, Socket socket) {
+        try {
+            PrintWriter toClient = new PrintWriter(socket.getOutputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            toClient.flush();
+            var playerName = reader.readLine();
+            System.out.println("Player: " + playerName + " Connected to the game!");
+            synchronized (server) {
+                server.addPlayer(new ClientPlayer(playerName, socket));
+            }
+        } catch (IOException e) {
+            System.err.println("Identification of a client failed " + e.getMessage());
+        }
     }
 
 }

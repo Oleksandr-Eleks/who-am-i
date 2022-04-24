@@ -1,5 +1,7 @@
 package com.eleks.academy.whoami.core;
 
+import java.util.List;
+
 public interface Game {
 	
 	void addPlayer(Player player);
@@ -11,6 +13,8 @@ public interface Game {
 	boolean isFinished();
 
 	void changeTurn();
+
+	List<Player> getListOfWinners();
 
 	void initGame();
 

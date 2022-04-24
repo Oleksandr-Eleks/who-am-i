@@ -1,10 +1,6 @@
 package com.eleks.academy.whoami.core.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.eleks.academy.whoami.core.Game;
@@ -17,13 +13,19 @@ public class RandomGame implements Game {
     private List<Player> players = new ArrayList<>();
     private List<String> availableCharacters;
     private Turn currentTurn;
+    private List<Player> listOfWinners = new LinkedList<>();
 
 
     private final static String YES = "Yes";
+
     private final static String NO = "No";
 
     public RandomGame(List<String> availableCharacters) {
         this.availableCharacters = new ArrayList<String>(availableCharacters);
+    }
+
+    public List<Player> getListOfWinners() {
+        return this.listOfWinners;
     }
 
     @Override
@@ -38,6 +40,7 @@ public class RandomGame implements Game {
         if (currentGuesser.isReadyForGuess()) {
             String guess = currentGuesser.getGuess();
             answers = currentTurn.getOtherPlayers().stream()
+                    .parallel()
                     .map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
                     .collect(Collectors.toSet());
             long positiveCount = answers.stream().filter(YES::equals).count();
@@ -48,6 +51,7 @@ public class RandomGame implements Game {
             if (win) {
                 if (players.size() - 1 == currentTurn.getCurrentPlayerIndex())
                     currentTurn.setCurrentPlayerIndex(currentTurn.getCurrentPlayerIndex() - 1);
+                listOfWinners.add(currentGuesser);
                 players.remove(currentGuesser);
 
             }
@@ -56,10 +60,12 @@ public class RandomGame implements Game {
         } else {
             String question = currentGuesser.getQuestion();
             answers = currentTurn.getOtherPlayers().stream()
+                    .parallel()
                     .map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
                     .collect(Collectors.toSet());
-            long positiveCount = answers.stream().filter(a -> YES.equalsIgnoreCase(a)).count();
-            long negativeCount = answers.stream().filter(a -> NO.equalsIgnoreCase(a)).count();
+            long positiveCount = answers.stream().filter(YES::equalsIgnoreCase).count();
+            long negativeCount = answers.stream().filter(NO::equalsIgnoreCase).count();
+
             return positiveCount > negativeCount;
         }
 

@@ -20,7 +20,7 @@ public class ServerImpl implements Server {
     private List<Socket> openSockets = new ArrayList<>();
     private RandomGame game = new RandomGame(characters);
     static int playersCount = 0;
-    static int livePlayers = 3;
+    static int livePlayers = 2;
     private final ServerSocket serverSocket;
 
     public ServerImpl(int port) throws IOException {
@@ -49,7 +49,7 @@ public class ServerImpl implements Server {
     @Override
     public void addPlayer(Player player) {
         game.addPlayer(player);
-        System.out.println("Player: " + player.getName() + " Connected to the game!");
+
 
     }
 
