@@ -32,7 +32,7 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public boolean answerQuestion(String question, String character) {
+	public boolean answerQuestion(String question, String playerName, String character) {
 		boolean answer = Math.random() < 0.5;
 		System.out.println(name + " answers:\n---> " + answer);
 		return answer;
@@ -47,7 +47,7 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public boolean answerGuess(String guess, String character) {
+	public boolean answerGuess(String guess, String playerName, String character) {
 		boolean answer = guess.toLowerCase().contains(character.toLowerCase());
 		System.out.println(name + " answers:\n---> " + answer);
 		return answer;

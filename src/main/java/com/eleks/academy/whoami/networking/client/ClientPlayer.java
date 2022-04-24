@@ -41,14 +41,13 @@ public class ClientPlayer implements Player {
 	}
 
 	@Override
-	public boolean answerQuestion(String question, String character) {
+	public boolean answerQuestion(String question, String playerName,  String character) {
 		String answer = "";
 
 		try {
-			writer.println("Answer other player question: " + question + " Character is: " + character);
+			writer.println("Answer " + playerName + " question: " + question + " (Character is: " + character + ")");
 			writer.flush();
 			answer = reader.readLine();
-			System.out.println(name + " answers:\n---> " + answer.toLowerCase().contentEquals("yes"));
 		} catch (IOException e) {
 			System.err.printf("Cannot get a question from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
@@ -62,7 +61,7 @@ public class ClientPlayer implements Player {
 		String answer = "";
 
 		try {
-			writer.println("Are you ready to guess? ");
+			writer.println("Are you ready to guess? [yes|no]");
 			writer.flush();
 			answer = reader.readLine();
 		} catch (IOException e) {
@@ -90,14 +89,13 @@ public class ClientPlayer implements Player {
 	}
 
 	@Override
-	public boolean answerGuess(String guess, String character) {
+	public boolean answerGuess(String guess, String playerName, String character) {
 		String answer = "";
 
 		try {
-			writer.println("Write your answer: ");
+			writer.println("[" + playerName + "] think that he is -" + guess + " (Character is: " + character + ")");
 			writer.flush();
 			answer = reader.readLine();
-			System.out.println(name + " answers:\n---> " + answer.toLowerCase().contentEquals("yes"));
 		} catch (IOException e) {
 			System.err.printf("Cannot get an answer on guess from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();

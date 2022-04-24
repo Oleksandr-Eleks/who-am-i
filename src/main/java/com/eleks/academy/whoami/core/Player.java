@@ -6,12 +6,12 @@ public interface Player {
 
 	String getQuestion();
 
-	boolean answerQuestion(String question, String character);
+	boolean answerQuestion(String question, String playerName, String character);
 
 	boolean isReadyForGuess();
 
 	String getGuess();
 
-	boolean answerGuess(String guess, String character);
+	boolean answerGuess(String guess, String playerName,  String character);
 	
 }
