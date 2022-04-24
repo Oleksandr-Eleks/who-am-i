@@ -11,25 +11,15 @@ import java.util.List;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.impl.RandomGame;
-import com.eleks.academy.whoami.core.impl.RandomPlayer;
 import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class ServerImpl implements Server {
 
 	private final ServerSocket serverSocket;
+	private final List<Socket> clients = new ArrayList<>();
 	private List<String> characters = List.of("Batman", "Superman", "Superwoman", "Robin", "Tanos");
-	private List<String> guesses = characters;
-	private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?", "Am i a male?",
-			"Am i a female?");
 	private Game game = new RandomGame(characters);
 
-	private List<Player> bots = List.of(new RandomPlayer("Test-Player #1", questions, guesses),
-			new RandomPlayer("Player-Bot #2", questions, guesses),
-			new RandomPlayer("Bot-Player #3", questions, guesses),
-			new RandomPlayer("Top-Player #4", questions, guesses),
-			new RandomPlayer("Mid-Player #5", questions, guesses));
-
-	private final List<Socket> clients = new ArrayList<>();
 
 	public ServerImpl(int port) throws IOException {
 		this.serverSocket = new ServerSocket(port);
@@ -56,9 +46,7 @@ public class ServerImpl implements Server {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			var name = reader.readLine();
 			// The same thing
-			synchronized (socket) { // <--- weak point #2
-				addPlayer(new ClientPlayer(name, socket));
-			}
+			addPlayer(new ClientPlayer(name, socket));	//<--- weak point #2
 		} catch (IOException e) {
 			System.err.println("Identification of a client failed: " + e.getMessage());
 			e.printStackTrace();
