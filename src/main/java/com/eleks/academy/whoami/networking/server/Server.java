@@ -9,7 +9,7 @@ import com.eleks.academy.whoami.core.Player;
 public interface Server {
 
 	Game startGame() throws IOException;
-
+	
 	Socket waitForPlayers(Game game) throws IOException;
 
 	void addPlayer(Player player);

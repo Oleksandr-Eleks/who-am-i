@@ -13,5 +13,5 @@ public interface Player {
 	String getGuess();
 
 	boolean answerGuess(String guess, String character);
-
+	
 }

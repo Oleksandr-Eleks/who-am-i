@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
@@ -12,18 +13,17 @@ import com.eleks.academy.whoami.core.Turn;
 public class RandomGame implements Game {
 
 	static {
-		System.out.println("\tGAME STARTED!\n");
+		System.out.println("Game created. W8 players...");
 	}
 	private Turn currentGameTurn;
 	private List<String> characters;
-	private List<Player> players;
+//	private List<Player> players = new ArrayList<>();
+	private CopyOnWriteArrayList<Player> players = new CopyOnWriteArrayList<>();
 	private Map<String, String> playersCharacters = new HashMap<>();
 	private List<String> gameResult = new ArrayList<>();
-	private int turnCount = 0;
 
-	public RandomGame(List<String> characters, List<Player> players) {
+	public RandomGame(List<String> characters) {
 		this.characters = new ArrayList<>(characters);
-		this.players = new ArrayList<>(players);
 	}
 
 	@Override
@@ -33,12 +33,11 @@ public class RandomGame implements Game {
 		start();
 
 		while (isFinished() != true) {
-			turnCount++;
-			System.out.println("\tTURN #" + turnCount + " STARTED!\n");
-			boolean isTurnEnd = makeTurn();
+			System.out.println("\tTurn started...\n");
+			boolean isTurnEnded = makeTurn();
 
-			while (isTurnEnd != true) {
-				isTurnEnd = makeTurn();
+			while (isTurnEnded != true) {
+				isTurnEnded = makeTurn();
 			}
 			endTurn();
 		}
@@ -47,7 +46,7 @@ public class RandomGame implements Game {
 
 	@Override
 	public void displayPlayers() {
-		System.out.println("PLAYERS:");
+		System.out.println("Players:");
 		players.stream().forEach(player -> System.out.println("---> " + player.getName()));
 		System.out.println();
 	}
@@ -66,13 +65,16 @@ public class RandomGame implements Game {
 	@Override
 	public void start() {
 		currentGameTurn = new TurnImpl(players);
-
 	}
 
 	@Override
 	public boolean makeTurn() {
 		Player currentPlayer = currentGameTurn.getGuesser();
-
+		/*
+		 * TODO: parallel answers -> count -> display result ->
+		 * -> peek another player(Guesser) (maybe better use some concurrent Queue)
+		 * 
+		 */
 		if (currentPlayer.isReadyForGuess()) {
 			return giveGuess(currentPlayer.getGuess(), currentPlayer);
 		} else {
@@ -122,7 +124,7 @@ public class RandomGame implements Game {
 
 	@Override
 	public void endTurn() {
-		System.out.println("\n\tTURN ENDED!");
+		System.out.println("\n\tTurn ended!");
 		currentGameTurn.changeTurn();
 	}
 
@@ -136,7 +138,8 @@ public class RandomGame implements Game {
 
 	@Override
 	public void addPlayer(Player player) {
-		this.players.add(player);
+		players.add(player);
+		System.out.println("Pl-size(): " + players.size());
 	}
 
 	@Override
@@ -146,7 +149,7 @@ public class RandomGame implements Game {
 
 	@Override
 	public void displayResults() {
-		System.out.println("\tGAME FINISHED!\n\tGAME RESULTS:\n");
+		System.out.println("\tGame finished!\n\tGame results:\n");
 		for (int i = 0; i < gameResult.size(); i++) {
 			if (i == 0) {
 				System.out.println("[WINNER]---> " + gameResult.get(i));

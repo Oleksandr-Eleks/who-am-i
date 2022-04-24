@@ -30,9 +30,11 @@ public class ClientPlayer implements Player {
 
 		try {
 			writer.println("Ask your questinon: ");
+			writer.flush();
 			question = reader.readLine();
 			System.out.println(name + " asks: " + question);
 		} catch (IOException e) {
+			System.err.printf("Cannot get an answer on question from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
 		}
 		return question;
@@ -44,9 +46,11 @@ public class ClientPlayer implements Player {
 
 		try {
 			writer.println("Answer other player question: " + question + " Character is: " + character);
+			writer.flush();
 			answer = reader.readLine();
-			System.out.println(name + " answers:\n---> " + answer);
+			System.out.println(name + " answers:\n---> " + answer.toLowerCase().contentEquals("yes"));
 		} catch (IOException e) {
+			System.err.printf("Cannot get a question from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -59,8 +63,10 @@ public class ClientPlayer implements Player {
 
 		try {
 			writer.println("Are you ready to guess? ");
+			writer.flush();
 			answer = reader.readLine();
 		} catch (IOException e) {
+			System.err.printf("Cannot check is player ready to guess. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -73,9 +79,11 @@ public class ClientPlayer implements Player {
 
 		try {
 			writer.println("Write your guess: ");
+			writer.flush();
 			guess = reader.readLine();
 			System.out.println(name + " guesses: Am I " + guess);
 		} catch (IOException e) {
+			System.err.printf("Cannot get a guess from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
 		}
 		return guess;
@@ -87,9 +95,11 @@ public class ClientPlayer implements Player {
 
 		try {
 			writer.println("Write your answer: ");
+			writer.flush();
 			answer = reader.readLine();
-			System.out.println(name + " answers:\n---> " + answer);
+			System.out.println(name + " answers:\n---> " + answer.toLowerCase().contentEquals("yes"));
 		} catch (IOException e) {
+			System.err.printf("Cannot get an answer on guess from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
 		}
 
