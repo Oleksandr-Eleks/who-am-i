@@ -17,7 +17,6 @@ public class RandomGame implements Game {
 	}
 	private Turn currentGameTurn;
 	private List<String> characters;
-//	private List<Player> players = new ArrayList<>();
 	private CopyOnWriteArrayList<Player> players = new CopyOnWriteArrayList<>();
 	private Map<String, String> playersCharacters = new HashMap<>();
 	private List<String> gameResult = new ArrayList<>();
@@ -45,34 +44,11 @@ public class RandomGame implements Game {
 	}
 
 	@Override
-	public void displayPlayers() {
-		System.out.println("Players:");
-		players.stream().forEach(player -> System.out.println("---> " + player.getName()));
-		System.out.println();
-	}
-
-	@Override
-	public void assignCharacters() {
-		players.stream().forEach(player -> playersCharacters.put(player.getName(), getRandomCharacter()));
-
-	}
-
-	private String getRandomCharacter() {
-		int randomPos = (int) (Math.random() * characters.size());
-		return characters.remove(randomPos);
-	}
-
-	@Override
-	public void start() {
-		currentGameTurn = new TurnImpl(players);
-	}
-
-	@Override
 	public boolean makeTurn() {
 		Player currentPlayer = currentGameTurn.getGuesser();
 		/*
-		 * TODO: parallel answers -> count -> display result ->
-		 * -> peek another player(Guesser) (maybe better use some concurrent Queue)
+		 * TODO: parallel answers -> count -> display result -> -> peek another
+		 * player(Guesser) (maybe better use some concurrent Queue)
 		 * 
 		 */
 		if (currentPlayer.isReadyForGuess()) {
@@ -93,24 +69,23 @@ public class RandomGame implements Game {
 		if (playerQuestion.isBlank()) {
 			return false;
 		}
-		List<Boolean> playersAnswers;
+		List<Boolean> playersAnswers = new ArrayList<>(players.size() - 1);
 
-		playersAnswers = currentGameTurn.getOtherPlayers().stream()
-				.map(player -> player.answerQuestion(playerQuestion, playersCharacters.get(currentPlayer.getName())))
-				.collect(Collectors.toList());
+		playersAnswers = currentGameTurn.getOtherPlayers().stream().parallel().map(player -> player.answerQuestion(playerQuestion,
+				currentPlayer.getName(), playersCharacters.get(currentPlayer.getName()))).collect(Collectors.toList());
 
 		long yes = playersAnswers.stream().filter(answer -> answer.equals(true)).count();
 		long no = playersAnswers.stream().filter(answer -> answer.equals(false)).count();
 
+		System.out.println("[Yes] = " + yes + " [No] = " + no);
 		return yes > no;
 	}
 
 	private boolean giveGuess(String playerGuess, Player currentPlayer) {
 		List<Boolean> playersAnswers;
 
-		playersAnswers = currentGameTurn.getOtherPlayers().stream()
-				.map(player -> player.answerGuess(playerGuess, playersCharacters.get(currentPlayer.getName())))
-				.collect(Collectors.toList());
+		playersAnswers = currentGameTurn.getOtherPlayers().stream().parallel().map(player -> player.answerGuess(playerGuess,
+				currentPlayer.getName(), playersCharacters.get(currentPlayer.getName()))).collect(Collectors.toList());
 
 		long yes = playersAnswers.stream().filter(answer -> answer.equals(true)).count();
 		long no = playersAnswers.stream().filter(answer -> answer.equals(false)).count();
@@ -119,6 +94,7 @@ public class RandomGame implements Game {
 			gameResult.add(currentPlayer.getName());
 			players.remove(currentPlayer);
 		}
+		System.out.println("[Yes] = " + yes + " [No] = " + no);
 		return true;
 	}
 
@@ -148,11 +124,34 @@ public class RandomGame implements Game {
 	}
 
 	@Override
+	public void displayPlayers() {
+		System.out.println("Players:");
+		players.stream().forEach(player -> System.out.println("---> " + player.getName()));
+		System.out.println();
+	}
+
+	@Override
+	public void assignCharacters() {
+		players.stream().forEach(player -> playersCharacters.put(player.getName(), getRandomCharacter()));
+
+	}
+
+	private String getRandomCharacter() {
+		int randomPos = (int) (Math.random() * characters.size());
+		return characters.remove(randomPos);
+	}
+
+	@Override
+	public void start() {
+		currentGameTurn = new TurnImpl(players);
+	}
+
+	@Override
 	public void displayResults() {
 		System.out.println("\tGame finished!\n\tGame results:\n");
 		for (int i = 0; i < gameResult.size(); i++) {
 			if (i == 0) {
-				System.out.println("[WINNER]---> " + gameResult.get(i));
+				System.out.println(gameResult.get(i) + " <---[WINNER]");
 				continue;
 			}
 			System.out.println("---> " + gameResult.get(i));
