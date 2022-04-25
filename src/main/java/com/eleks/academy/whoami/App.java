@@ -12,21 +12,23 @@ public class App {
         ServerImpl server = new ServerImpl(888);
 
         Game game = server.startGame();
+        if (game != null) {
 
-        boolean gameStatus = true;
+            boolean gameStatus = true;
 
-        game.assignCharacters();
+            game.assignCharacters();
 
-        game.initGame();
+            game.initGame();
 
-        while (gameStatus) {
-            boolean turnResult = game.makeTurn();
+            while (gameStatus) {
+                boolean turnResult = game.makeTurn();
 
-            while (turnResult) {
-                turnResult = game.makeTurn();
+                while (turnResult) {
+                    turnResult = game.makeTurn();
+                }
+                game.changeTurn();
+                gameStatus = !game.isFinished();
             }
-            game.changeTurn();
-            gameStatus = !game.isFinished();
         }
     }
 }

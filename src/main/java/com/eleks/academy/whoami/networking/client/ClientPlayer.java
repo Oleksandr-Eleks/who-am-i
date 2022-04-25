@@ -30,7 +30,7 @@ public class ClientPlayer implements Player {
         String question = "";
 
         try {
-            writer.println("Ask your question: ");
+            sendMessage("Ask your question: ");
             question = reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,7 +43,7 @@ public class ClientPlayer implements Player {
         String answer = "";
 
         try {
-            writer.println(name + " ask a question: " + question + " (His character is " + character + ") Yes/No");
+            sendMessage(name + " ask a question: " + question + " (His character is " + character + ") Yes/No");
             do {
                 answer = reader.readLine();
             }
@@ -59,7 +59,7 @@ public class ClientPlayer implements Player {
     public String getGuess() {
         String answer = "";
         try {
-            writer.println("Write your guess: ");
+            sendMessage("Write your guess: ");
             answer = reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
@@ -72,7 +72,7 @@ public class ClientPlayer implements Player {
         String answer = "";
 
         try {
-            writer.println("Are you ready to guess? ");
+            sendMessage("Are you ready to guess? ");
             do {
                 answer = reader.readLine();
             }
@@ -88,7 +88,7 @@ public class ClientPlayer implements Player {
         String answer = "";
 
         try {
-            writer.println(name + " answer: I think it is " + guess + ". That is true?   Yes/No");
+            sendMessage(name + " answer: I think it is " + guess + ". That is true?   Yes/No");
             do {
                 answer = reader.readLine();
             }
@@ -102,6 +102,7 @@ public class ClientPlayer implements Player {
     @Override
     public void sendMessage(String message) {
         writer.println(message);
+        writer.flush();
     }
 
     private boolean isNotCorrectAnswer(String answer) {

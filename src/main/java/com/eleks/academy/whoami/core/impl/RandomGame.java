@@ -94,7 +94,6 @@ public class RandomGame implements Game {
     @Override
     public void assignCharacters() {
         players.forEach(player -> this.playersCharacter.put(player.getName(), this.getRandomCharacter()));
-
     }
 
     @Override

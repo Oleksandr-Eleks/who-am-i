@@ -19,14 +19,16 @@ public class ConnectNewPlayer implements Runnable {
 
     @Override
     public void run() {
+        Socket socket;
+        BufferedReader reader;
         while (true) {
             try {
-                Socket socket = server.waitForPlayer(game);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                socket = server.waitForPlayer(game);
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String name = reader.readLine();
                 server.addPlayer(new ClientPlayer(name, socket));
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
                 break;
             }
         }
