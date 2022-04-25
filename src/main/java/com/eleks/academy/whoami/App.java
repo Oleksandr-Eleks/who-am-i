@@ -11,6 +11,8 @@ import com.eleks.academy.whoami.networking.server.ServerImpl;
 public class App {
 
 	public static void main(String[] args) throws IOException {
+		
+		System.out.println("HelloGamer");
 
 		ServerImpl server = new ServerImpl(888);
 
