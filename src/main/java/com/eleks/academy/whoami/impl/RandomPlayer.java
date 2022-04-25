@@ -1,85 +1,107 @@
 package com.eleks.academy.whoami.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.utils.PropertyUtils;
-import static com.eleks.academy.whoami.constants.Constants.YES;
-import static com.eleks.academy.whoami.constants.Constants.NO;
-import static com.eleks.academy.whoami.constants.Constants.GUESS_QUESTIONS;
-import static com.eleks.academy.whoami.constants.Constants.CHARACTERS;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import static com.eleks.academy.whoami.constants.Constants.*;
+
 public class RandomPlayer implements Player {
 
-	private String name;
+    private String name;
+    private String character;
 
-	private Map<String, String> guessQuestions;
-	private Map<String, String> allQuestions;
-	private Map<String, List<String>> characters;
-	private String numberQuestion;
+    private List<String> listQuestions;
+    private Map<String, String> allQuestions;
+    private Map<String, List<String>> characters;
+    private Map<String, List<String>> allCharacters;
+    private String numberQuestion;
+    private String question;
+    private String randomGuess;
 
-	public RandomPlayer(String name) {
-		this.name = "Bot-" + name;
-		this.guessQuestions = PropertyUtils.readPropertyFile(GUESS_QUESTIONS);
-		this.allQuestions = PropertyUtils.readPropertyFile(GUESS_QUESTIONS);
-		this.characters = PropertyUtils.getCharactersWithQuestions(CHARACTERS);
-	}
-	
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    public RandomPlayer(String name) {
+        this.name = "Bot-" + name;
+        this.listQuestions = new ArrayList(PropertyUtils.readPropertyFile(GUESS_QUESTIONS).values());
+        this.allQuestions = PropertyUtils.readPropertyFile(GUESS_QUESTIONS);
+        this.characters = PropertyUtils.getCharactersWithQuestions(CHARACTERS);
+        this.allCharacters = PropertyUtils.getCharactersWithQuestions(CHARACTERS);
+    }
 
-	@Override
-	public int getAssumptionOrClarification() {
-		return new Random().nextInt(2);
-	}
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-	@Override
-	public String getQuestion() {
-		int randomQuestion = new Random().nextInt(guessQuestions.size() + 1);
-		String question = guessQuestions.remove(String.valueOf(randomQuestion));
-		System.out.println("Player: " + name + ". Asks: " + question);
-		return question;
-	}
+    @Override
+    public void setCharacter(String character) {
+        this.character = character;
+    }
 
-	@Override
-	public String answerQuestion(String question, String character) {
-		return characters.get(character).stream().filter(que -> {if(allQuestions.get(que).equals(question)){
-			this.numberQuestion = que;
-			return true;
-		} else {
-			return false;
-		}
-		}).count() > 0 ? YES : NO;
-	}
+    @Override
+    public String getCharacter() {
+        return character;
+    }
 
-	@Override
-	public void removeCharacters(boolean yesOrNot) {
-		if(yesOrNot){
-			Map<String, List<String>> removeCharacters = characters.entrySet().stream().filter(character -> !character.getValue().contains(numberQuestion))
-					.collect(Collectors.toMap(characterKey -> characterKey.getKey(), characterValue -> characterValue.getValue()));
-			removeCharacters.entrySet().forEach(character -> characters.remove(character.getKey(), character.getValue()));
-		} else {
-			Map<String, List<String>> removeCharacters = characters.entrySet().stream().filter(character -> character.getValue().contains(numberQuestion))
-					.collect(Collectors.toMap(characterKey -> characterKey.getKey(), characterValue -> characterValue.getValue()));
-			removeCharacters.entrySet().forEach(character -> characters.remove(character.getKey(), character.getValue()));
-		}
-	}
+    @Override
+    public int getAssumptionOrClarification() {
+        return characters.size() == 1 ? 1 : new Random().nextInt(2);
+    }
 
-	@Override
-	public String getGuess() {
-		int randomCharacter = new Random().nextInt(characters.keySet().size());
-		String character[] = characters.keySet().toArray(new String[characters.keySet().size()]);
-		String guess = character[randomCharacter];
-		System.out.println("Player: " + name + ". Guesses: Am I " + guess + " ?");
-		return guess;
-	}
+    @Override
+    public String getQuestion() {
+        int randomQuestion = new Random().nextInt(listQuestions.size());
+        this.question = listQuestions.get(randomQuestion);
+        listQuestions.remove(randomQuestion);
+        setNumberQuestion();
+        System.out.println("Player: " + name + ". Asks: " + question);
+        return this.question;
+    }
 
-	@Override
-	public String answerGuess(String guess, String character) {
-		String answer = guess.equals(character) ? YES : NO;
-		System.out.println("Player: " + name + ". Answers: " + answer);
-		return answer;
-	}
+    @Override
+    public String answerQuestion(String question, String character) {
+        String answer = allCharacters.get(character).stream().filter(que -> allQuestions.get(que).equals(question)).count() > 0 ? YES : NO;
+        System.out.println("Player: " + name + ". Answers: " + answer);
+        return answer;
+    }
+
+    private void setNumberQuestion() {
+        this.numberQuestion = allQuestions.entrySet().stream().filter(questions -> questions.getValue().equals(this.question)).findFirst().get().getKey();
+    }
+
+    @Override
+    public void removeCharactersWithQuestions(boolean win) {
+        if (win) {
+            characters = characters.entrySet().stream().filter(character -> character.getValue().contains(numberQuestion))
+                    .collect(Collectors.toMap(characterKey -> characterKey.getKey(), characterValue -> characterValue.getValue()));
+        } else {
+            characters = characters.entrySet().stream().filter(character -> !character.getValue().contains(numberQuestion))
+                    .collect(Collectors.toMap(characterKey -> characterKey.getKey(), characterValue -> characterValue.getValue()));
+        }
+    }
+
+    @Override
+    public String getGuess() {
+        int randomCharacter = new Random().nextInt(characters.keySet().size());
+        randomGuess = characters.keySet().toArray(new String[characters.keySet().size()])[randomCharacter];
+        System.out.println("Player: " + name + ". Guesses: Am I " + randomGuess + " ?");
+        return randomGuess;
+    }
+
+    @Override
+    public String answerGuess(String guess, String character) {
+        String answer = guess.equals(character) ? YES : NO;
+        System.out.println("Player: " + name + ". Answers: " + answer);
+        return answer;
+    }
+
+    @Override
+    public void removeCharactersWithCharacter() {
+        characters = characters.entrySet().stream().filter(character -> !character.getKey().equals(this.randomGuess))
+                .collect(Collectors.toMap(characterKey -> characterKey.getKey(), characterValue -> characterValue.getValue()));
+    }
 }

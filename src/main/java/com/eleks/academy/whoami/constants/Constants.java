@@ -8,5 +8,4 @@ public class Constants {
     public final static String YES = "Yes";
     public final static String NO = "No";
 
-
 }

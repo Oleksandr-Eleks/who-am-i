@@ -15,14 +15,14 @@ public class PropertyUtils {
         return new FileInputStream(Path.of("src", "main", "resources", nameFile).toFile());
     }
 
-    public static Map<String, String> readPropertyFile(String nameFile){
+    public static Map<String, String> readPropertyFile(String nameFile) {
 
         Properties properties = new Properties();
         Map<String, String> mapQuestions = new HashMap();
         try (FileInputStream file = getPropertyFile(nameFile)) {
             properties.load(file);
 
-            for (String name: properties.stringPropertyNames())
+            for (String name : properties.stringPropertyNames())
                 mapQuestions.put(name, properties.getProperty(name));
 
         } catch (FileNotFoundException e) {
@@ -34,14 +34,14 @@ public class PropertyUtils {
         return mapQuestions;
     }
 
-    public static List<String> getCharacters(){
+    public static List<String> getCharacters() {
 
         Properties properties = new Properties();
         List<String> listCharacters = new ArrayList<>();
         try (FileInputStream file = getPropertyFile(Constants.CHARACTERS)) {
             properties.load(file);
 
-            for (String name: properties.stringPropertyNames())
+            for (String name : properties.stringPropertyNames())
                 listCharacters.add(name.replace('.', ' '));
 
         } catch (FileNotFoundException e) {
@@ -54,7 +54,8 @@ public class PropertyUtils {
 
 
     }
-    public static Map<String, List<String>> getCharactersWithQuestions(String nameFile){
+
+    public static Map<String, List<String>> getCharactersWithQuestions(String nameFile) {
         return readPropertyFile(nameFile).entrySet().stream().collect(Collectors.toMap(key -> key.getKey().replace('.', ' '), values -> Arrays.asList(values.getValue().split("\\s*,\\s*"))));
     }
 
