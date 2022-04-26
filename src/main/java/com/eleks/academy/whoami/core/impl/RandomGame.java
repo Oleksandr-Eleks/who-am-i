@@ -91,11 +91,7 @@ public class RandomGame implements Game {
 		
 	}
 
-	@Override
-	public void initGame() {
-		this.currentTurn = new TurnImpl(this.players);
-		
-	}
+
 
 	@Override
 	public int countPlayers() {
@@ -115,6 +111,11 @@ public class RandomGame implements Game {
 	@Override
 	public void changeTurn() {
 		this.currentTurn.changeTurn();
+	}
+
+	@Override
+	public void initGame() {
+
 	}
 
 }

@@ -3,8 +3,10 @@ package com.eleks.academy.whoami.networking.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.eleks.academy.whoami.core.Game;
@@ -18,7 +20,7 @@ public class ServerImpl implements Server {
 	private List<String> characters = List.of("Batman", "Superman", "Dinosaur", "Cinderella");
 	private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?", "Am I a princess?", "Do I exist?", "Am I an animal?");
 	private List<String> guessess = List.of("Batman", "Superman", "Dinosaur", "Cinderella");
-
+	private List<Socket> clients = new ArrayList<>();
 	private RandomGame game = new RandomGame(characters);
 
 	private final ServerSocket serverSocket;
@@ -29,7 +31,7 @@ public class ServerImpl implements Server {
 
 	@Override
 	public Game startGame() throws IOException {
-		game.addPlayer(new RandomPlayer("Bot", questions, guessess));
+		game.addPlayer(new RandomPlayer("Me", questions, guessess));
 		System.out.println("Server starts");
 		System.out.println("Waiting for a client connect....");
 		while (game.countPlayers() < 2) {
@@ -41,9 +43,23 @@ public class ServerImpl implements Server {
 		return game;
 	}
 
+	public void identify(Socket socket) {
+		try {
+			PrintWriter writer = new PrintWriter(socket.getOutputStream());
+			writer.println("Nickname:");
+			writer.flush();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			var nickname = reader.readLine();
+			addPlayer(new ClientPlayer(nickname, socket));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}}
+
 	@Override
 	public Socket waitForPlayer(Game game) throws IOException {
-		return serverSocket.accept();
+		Socket player = serverSocket.accept();
+		clients.add(player);
+		return player;
 	}
 
 	@Override
@@ -58,5 +74,4 @@ public class ServerImpl implements Server {
 		clientSocket.close();
 		reader.close();
 	}
-
 }

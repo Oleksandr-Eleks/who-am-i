@@ -11,13 +11,11 @@ import com.eleks.academy.whoami.core.Player;
 public class ClientPlayer implements Player {
 
 	private String name;
-	private Socket socket;
 	private BufferedReader reader;
 	private PrintStream writer;
 
 	public ClientPlayer(String name, Socket socket) throws IOException {
 		this.name = name;
-		this.socket = socket;
 		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		this.writer = new PrintStream(socket.getOutputStream());
 	}
@@ -33,7 +31,9 @@ public class ClientPlayer implements Player {
 
 		try {
 			writer.println("Ask your question: ");
+			writer.flush();
 			question = reader.readLine();
+			System.out.println(name + "'s question: " + question);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
