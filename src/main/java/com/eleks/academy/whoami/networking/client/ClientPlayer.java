@@ -95,4 +95,14 @@ public class ClientPlayer implements Player {
 		return answer;
 	}
 
+	@Override
+	public String suggestCharacter() {
+		try {
+			return reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+
 }
