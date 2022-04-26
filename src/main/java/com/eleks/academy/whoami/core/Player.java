@@ -14,10 +14,13 @@ public interface Player {
 	// TODO: return Future<String>
 	String answerQuestion(String question, String character);
 	
+	// TODO: return Future<String>
 	String getGuess();
 	
+	// TODO: return Future<String>
 	boolean isReadyForGuess();
 
+	// TODO: return Future<String>
 	String answerGuess(String guess, String character);
 	
 }
