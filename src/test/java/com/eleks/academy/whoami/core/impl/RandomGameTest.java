@@ -41,9 +41,9 @@ class RandomGameTest {
 		}
 
 		@Override
-		public String suggestCharacter() {
+		public Future<String> suggestCharacter() {
 			suggested = true;
-			return "char";
+			return CompletableFuture.completedFuture("char");
 		}
 
 		@Override
