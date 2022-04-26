@@ -113,7 +113,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String suggestCharacter() {
+	public Future<String> suggestCharacter() {
+		return executor.submit(this::doSuggestCharacter);
+	}
+
+	private String doSuggestCharacter() {
 		try {
 			return reader.readLine();
 		} catch (IOException e) {

@@ -64,8 +64,8 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public String suggestCharacter() {
-		return characterPool.iterator().next();
+	public Future<String> suggestCharacter() {
+		return CompletableFuture.completedFuture(characterPool.iterator().next());
 	}
 
 	
