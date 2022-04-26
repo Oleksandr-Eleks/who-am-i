@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import com.eleks.academy.whoami.core.Player;
 
@@ -24,8 +26,8 @@ public class RandomPlayer implements Player {
 	}
 	
 	@Override
-	public String getName() {
-		return this.name;
+	public Future<String> getName() {
+		return CompletableFuture.completedFuture(this.name);
 	}
 
 	@Override
