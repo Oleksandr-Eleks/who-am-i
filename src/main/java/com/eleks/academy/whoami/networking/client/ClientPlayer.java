@@ -10,19 +10,25 @@ import com.eleks.academy.whoami.core.Player;
 
 public class ClientPlayer implements Player {
 
-	private String name;
 	private BufferedReader reader;
 	private PrintStream writer;
 
-	public ClientPlayer(String name, Socket socket) throws IOException {
-		this.name = name;
+	public ClientPlayer(Socket socket) throws IOException {
 		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		this.writer = new PrintStream(socket.getOutputStream());
 	}
 
 	@Override
 	public String getName() {
-		return this.name;
+		String name = "";
+
+		try {
+			writer.println("Please, name yourself.");
+			name = reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return name;
 	}
 
 	@Override
