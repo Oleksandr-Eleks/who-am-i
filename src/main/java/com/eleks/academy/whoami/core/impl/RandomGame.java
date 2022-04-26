@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -34,8 +35,17 @@ public class RandomGame implements Game {
 
 	@Override
 	public void addPlayer(Player player) {
-		this.players.add(player);
-		this.availableCharacters.add(player.suggestCharacter());
+		Future<String> maybeCharacter = player.suggestCharacter();
+		try {
+			String character = maybeCharacter.get(DURATION, UNIT);
+			this.players.add(player);
+			this.availableCharacters.add(character);
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
+		}
 	}
 
 	@Override

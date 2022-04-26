@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 class ClientPlayerIT {
 
 	@Test
-	void clientReadsCharacterFromSocket() throws IOException, InterruptedException {
+	void clientReadsCharacterFromSocket() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
 
@@ -44,7 +44,7 @@ class ClientPlayerIT {
 				// TODO: refactor test to always fail after 5 seconds
 				boolean success = clientReady.await(5, TimeUnit.SECONDS);
 				assertTrue(success);
-				String character = player.suggestCharacter();
+				String character = player.suggestCharacter().get(5, TimeUnit.SECONDS);
 				assertEquals("test character", character);
 			}
 		}
