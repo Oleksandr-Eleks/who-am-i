@@ -1,10 +1,6 @@
 package com.eleks.academy.whoami;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,14 +17,13 @@ public class App {
 
 		Game game = server.startGame();
 
-		List<Socket> playerList = new ArrayList<>(players);
+		List<ClientPlayer> playerList = new ArrayList<>(players);
 		try {
 			for (int i = 0; i < players; i++) {
 				var socket = server.waitForPlayer(game);
-				playerList.add(socket);
-				Thread parallelClientWorker = new Thread(() -> identifyPlayer(server, socket));
-				parallelClientWorker.start();
-				// Start a parallel thread to process a client
+				ClientPlayer player = new ClientPlayer(socket);
+				playerList.add(player);
+				server.addPlayer(player);
 			}
 			System.out.println(String.format("Got %d players. Starting a game.", players));
 
@@ -46,21 +41,6 @@ public class App {
 			}
 		} finally {
 			server.stop();
-		}
-	}
-
-	private static void identifyPlayer(ServerImpl server, Socket socket) {
-		try {
-			PrintWriter toClient = new PrintWriter(socket.getOutputStream());
-			toClient.println("Please, name yourself.");
-			toClient.flush();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			var playerName = reader.readLine();
-			synchronized (server) {
-				server.addPlayer(new ClientPlayer(playerName, socket));
-			}
-		} catch (IOException e) {
-			System.err.println("Identification of a client failed: " + e.getMessage());
 		}
 	}
 
