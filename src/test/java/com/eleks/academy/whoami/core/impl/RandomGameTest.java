@@ -1,16 +1,14 @@
 package com.eleks.academy.whoami.core.impl;
 
-import com.eleks.academy.whoami.core.Game;
-import com.eleks.academy.whoami.core.Player;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.eleks.academy.whoami.core.Game;
+import com.eleks.academy.whoami.core.Player;
 
 class RandomGameTest {
 
@@ -38,14 +36,14 @@ class RandomGameTest {
 		}
 
 		@Override
-		public Future<String> getName() {
-			return CompletableFuture.completedFuture(name);
+		public String getName() {
+			return name;
 		}
 
 		@Override
-		public Future<String> suggestCharacter() {
+		public String suggestCharacter() {
 			suggested = true;
-			return CompletableFuture.completedFuture("char");
+			return "char";
 		}
 
 		@Override
