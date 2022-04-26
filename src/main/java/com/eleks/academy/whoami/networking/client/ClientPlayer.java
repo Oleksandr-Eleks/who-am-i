@@ -11,13 +11,11 @@ import com.eleks.academy.whoami.core.Player;
 public class ClientPlayer implements Player {
 
 	private String name;
-	private Socket socket;
 	private BufferedReader reader;
 	private PrintStream writer;
 
 	public ClientPlayer(String name, Socket socket) throws IOException {
 		this.name = name;
-		this.socket = socket;
 		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		this.writer = new PrintStream(socket.getOutputStream());
 	}
@@ -32,8 +30,10 @@ public class ClientPlayer implements Player {
 		String question = "";
 
 		try {
-			writer.println("Ask your questinon: ");
+			writer.println("Ask your question: ");
+			writer.flush();
 			question = reader.readLine();
+			System.out.println(name + "'s question: " + question);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -43,27 +43,26 @@ public class ClientPlayer implements Player {
 	@Override
 	public String answerQuestion(String question, String character) {
 		String answer = "";
-		
+
 		try {
-			writer.println("Answer second player question: " + question + "Character is:"+ character);
+			writer.println("Answer the question: " + question + "Character is:"+ character);
 			answer = reader.readLine();
+			System.out.println(name + " Answers: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		return answer;
 	}
 
 	@Override
 	public String getGuess() {
 		String answer = "";
-		
-	
+
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();
+			System.out.println(name + "Am I " + answer);
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 		return answer;
@@ -80,8 +79,9 @@ public class ClientPlayer implements Player {
 			e.printStackTrace();
 		}
 		
-		return answer.equals("Yes") ? true : false;
+		return answer.equalsIgnoreCase("yes");
 	}
+
 
 	@Override
 	public String answerGuess(String guess, String character) {

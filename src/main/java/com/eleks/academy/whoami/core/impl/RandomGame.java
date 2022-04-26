@@ -21,7 +21,11 @@ public class RandomGame implements Game {
 	
 	private final static String YES = "Yes";
 	private final static String NO = "No";
-	
+
+	static {System.out.println("Let's begin!\n");}
+
+
+
 	public RandomGame(List<String> availableCharacters) {
 		this.availableCharacters = new ArrayList<String>(availableCharacters);
 	}
@@ -40,9 +44,19 @@ public class RandomGame implements Game {
 			answers = currentTurn.getOtherPlayers().stream()
 					.map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
 					.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			
+			long positiveCount = 0L;
+			for (String answer : answers) {
+				if (YES.equals(answer)) {
+					positiveCount++;
+				}
+			}
+			long negativeCount = 0L;
+			for (String a : answers) {
+				if (NO.equals(a)) {
+					negativeCount++;
+				}
+			}
+
 			boolean win = positiveCount > negativeCount;
 			
 			if (win) {
@@ -55,8 +69,17 @@ public class RandomGame implements Game {
 			answers = currentTurn.getOtherPlayers().stream()
 				.map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
 				.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+			long positiveCount = 0L;
+			for (String answer : answers) {
+				if (YES.equals(answer)) {
+					positiveCount++;
+				}
+			}
+			long negativeCount = 0L;
+			for (String a : answers)
+				if (NO.equals(a)) {
+					negativeCount++;
+				}
 			return positiveCount > negativeCount;
 		}
 		
@@ -67,13 +90,13 @@ public class RandomGame implements Game {
 		players.stream().forEach(player -> this.playersCharacter.put(player.getName(), this.getRandomCharacter()));
 		
 	}
-	
-	@Override
-	public void initGame() {
-		this.currentTurn = new TurnImpl(this.players);
-		
-	}
 
+
+
+	@Override
+	public int countPlayers() {
+		return players.size();
+	}
 
 	@Override
 	public boolean isFinished() {
@@ -88,6 +111,11 @@ public class RandomGame implements Game {
 	@Override
 	public void changeTurn() {
 		this.currentTurn.changeTurn();
+	}
+
+	@Override
+	public void initGame() {
+
 	}
 
 }
