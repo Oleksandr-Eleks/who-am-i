@@ -41,6 +41,13 @@ public class App {
 			}
 		} finally {
 			server.stop();
+			for (ClientPlayer clientPlayer : playerList) {
+				try {
+					clientPlayer.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 

@@ -3,6 +3,8 @@ package com.eleks.academy.whoami.core.impl;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -36,8 +38,8 @@ class RandomGameTest {
 		}
 
 		@Override
-		public String getName() {
-			return name;
+		public Future<String> getName() {
+			return CompletableFuture.completedFuture(name);
 		}
 
 		@Override
