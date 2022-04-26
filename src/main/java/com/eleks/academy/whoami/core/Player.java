@@ -8,8 +8,10 @@ public interface Player {
 	
 	Future<String> suggestCharacter();
 
+	// TODO: return Future<String>
 	String getQuestion();
 	
+	// TODO: return Future<String>
 	String answerQuestion(String question, String character);
 	
 	String getGuess();
