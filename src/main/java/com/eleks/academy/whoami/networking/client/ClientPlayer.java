@@ -5,13 +5,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.eleks.academy.whoami.core.Player;
 
-public class ClientPlayer implements Player {
+public class ClientPlayer implements Player, AutoCloseable {
 
 	private BufferedReader reader;
 	private PrintStream writer;
+
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	public ClientPlayer(Socket socket) throws IOException {
 		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -19,7 +25,12 @@ public class ClientPlayer implements Player {
 	}
 
 	@Override
-	public String getName() {
+	public Future<String> getName() {
+		// TODO: save name for future
+		return executor.submit(this::askName);
+	}
+
+	private String askName() {
 		String name = "";
 
 		try {
@@ -108,6 +119,16 @@ public class ClientPlayer implements Player {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return "";
+		}
+	}
+
+	@Override
+	public void close() {
+		executor.shutdown();
+		try {
+			executor.awaitTermination(5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 	}
 

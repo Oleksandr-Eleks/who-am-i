@@ -9,11 +9,11 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.jupiter.api.Test;
-
-import com.eleks.academy.whoami.core.Player;
 
 class ClientPlayerIT {
 
@@ -30,7 +30,7 @@ class ClientPlayerIT {
 			new Thread(() -> {
 				try (Socket client = new Socket(localHost, port);
 						PrintWriter writer = new PrintWriter(client.getOutputStream())) {
-					writer.write("test character");
+					writer.println("test character");
 					writer.flush();
 					clientReady.countDown();
 				} catch (IOException e) {
@@ -39,9 +39,9 @@ class ClientPlayerIT {
 				}
 			}).start();
 
-			try (Socket client = server.accept()) {
+			try (Socket client = server.accept();
+					ClientPlayer player = new ClientPlayer(client)) {
 				// TODO: refactor test to always fail after 5 seconds
-				Player player = new ClientPlayer(client);
 				boolean success = clientReady.await(5, TimeUnit.SECONDS);
 				assertTrue(success);
 				String character = player.suggestCharacter();
@@ -51,11 +51,12 @@ class ClientPlayerIT {
 	}
 
 	@Test
-	void clientReadsPlayersNameFromSocket() throws IOException, InterruptedException {
+	void clientReadsPlayersNameFromSocket() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
 
 		CountDownLatch clientReady = new CountDownLatch(1);
+		CountDownLatch nameAppeared = new CountDownLatch(1);
 
 		try (ServerSocket server = new ServerSocket()) {
 			server.bind(new InetSocketAddress(localHost, port));
@@ -63,22 +64,26 @@ class ClientPlayerIT {
 			new Thread(() -> {
 				try (Socket client = new Socket(localHost, port);
 						PrintWriter writer = new PrintWriter(client.getOutputStream())) {
-					writer.write("Player");
-					writer.flush();
 					clientReady.countDown();
+					writer.println("Player");
+					writer.flush();
+					nameAppeared.await(5, TimeUnit.SECONDS);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
 				}
 			}).start();
 
-			try (Socket client = server.accept()) {
+			try (Socket client = server.accept();
+					ClientPlayer player = new ClientPlayer(client)) {
 				// TODO: refactor test to always fail after 5 seconds
-				Player player = new ClientPlayer(client);
 				boolean success = clientReady.await(5, TimeUnit.SECONDS);
 				assertTrue(success);
-				String character = player.getName();
+				String character = player.getName().get(5, TimeUnit.SECONDS);
 				assertEquals("Player", character);
+				nameAppeared.countDown();
 			}
 		}
 	}
