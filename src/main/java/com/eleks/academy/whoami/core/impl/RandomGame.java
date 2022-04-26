@@ -31,7 +31,7 @@ public class RandomGame implements Game {
         Set<String> answers;
         if (currentGuesser.isReadyForGuess()) {
             String guess = currentGuesser.getGuess();
-            answers = currentTurn.getOtherPlayers().stream()
+            answers = currentTurn.getOtherPlayers().stream().parallel()
                     .map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
                     .collect(Collectors.toSet());
             long positiveCount = answers.stream().filter(YES::equals).count();
@@ -46,7 +46,7 @@ public class RandomGame implements Game {
 
         } else {
             String question = currentGuesser.getQuestion();
-            answers = currentTurn.getOtherPlayers().stream()
+            answers = currentTurn.getOtherPlayers().stream().parallel()
                     .map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
                     .collect(Collectors.toSet());
             long positiveCount = answers.stream().filter(YES::equals).count();
