@@ -29,6 +29,7 @@ public class RandomGame implements Game {
 	@Override
 	public void addPlayer(Player player) {
 		this.players.add(player);
+		this.availableCharacters.add(player.suggestCharacter());
 	}
 
 	@Override
@@ -81,7 +82,8 @@ public class RandomGame implements Game {
 	}
 	
 	private String getRandomCharacter() {
-		int randomPos = (int)(Math.random() * this.availableCharacters.size()); 
+		int randomPos = (int)(Math.random() * this.availableCharacters.size());
+		// TODO: Ensure player never receives own suggested character
 		return this.availableCharacters.remove(randomPos);
 	}
 
