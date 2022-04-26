@@ -4,6 +4,8 @@ public interface Player {
 
 	String getName();
 	
+	String suggestCharacter();
+
 	String getQuestion();
 	
 	String answerQuestion(String question, String character);

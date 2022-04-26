@@ -1,20 +1,24 @@
 package com.eleks.academy.whoami.core.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import com.eleks.academy.whoami.core.Player;
 
 public class RandomPlayer implements Player {
 
 	private String name;
+	private final Collection<String> characterPool;
 	private List<String> availableQuestions;
 	private List<String> availableGuesses;
 	
-	public RandomPlayer(String name, List<String> availableQuestions, List<String> availableGuesses) {
+	public RandomPlayer(String name, Collection<String> characterPool, List<String> availableQuestions, List<String> availableGuesses) {
 		this.name = name;
-		this.availableQuestions = new ArrayList<String>(availableQuestions);
-		this.availableGuesses = new ArrayList<String>(availableGuesses);
+		this.characterPool = Objects.requireNonNull(characterPool);
+		this.availableQuestions = new ArrayList<>(availableQuestions);
+		this.availableGuesses = new ArrayList<>(availableGuesses);
 	}
 	
 	@Override
@@ -55,6 +59,11 @@ public class RandomPlayer implements Player {
 	@Override
 	public boolean isReadyForGuess() {
 		return availableQuestions.isEmpty();
+	}
+
+	@Override
+	public String suggestCharacter() {
+		return characterPool.iterator().next();
 	}
 
 	
