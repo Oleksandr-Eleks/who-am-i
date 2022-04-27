@@ -5,10 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.eleks.academy.whoami.core.*;
-import com.eleks.academy.whoami.core.impl.*;
 import com.eleks.academy.whoami.core.Character;
 import com.eleks.academy.whoami.core.CharactersBase;
+import com.eleks.academy.whoami.core.Game;
+import com.eleks.academy.whoami.core.impl.CharacterCreator;
+import com.eleks.academy.whoami.core.impl.QuestionCreator;
+import com.eleks.academy.whoami.core.impl.RandomGame;
+import com.eleks.academy.whoami.core.impl.RandomPlayer;
 
 public class App implements CharactersBase{
 	public static void main(String[] args) {
@@ -29,7 +32,7 @@ public class App implements CharactersBase{
 		for (int i = 0; i < numberOfPlayers; i++) {
 			game.addPlayer(new RandomPlayer("Test " + i, questions.getQuestions(), guessess));
 		}
-		game.assignCharacters();//+
+		game.assignCharacters();
 		game.initGame();
 		while (!game.isFinished()) {
 			boolean turnResult = game.makeTurn();

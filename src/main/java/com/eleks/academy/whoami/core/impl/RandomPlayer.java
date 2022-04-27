@@ -35,7 +35,6 @@ public class RandomPlayer implements Player, CharactersBase {
 	public String getQuestion() {
 		if(this.values.isEmpty()) {
 			if (this.keysIterator.hasNext()) {
-				System.out.println("Values is empty " + this.name);
 				this.values = new ArrayList<>(this.availableQuestions.remove(keysIterator.next()));
 			}
 		}
@@ -56,7 +55,6 @@ public class RandomPlayer implements Player, CharactersBase {
 		System.out.println("Player: " + this.name + ". Answers: " + answer);
 		return answer;
 	}
-	
 
 	@Override
 	public String answerGuess(String guess, Character character) {

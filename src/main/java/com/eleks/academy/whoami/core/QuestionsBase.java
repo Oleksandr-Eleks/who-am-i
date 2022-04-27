@@ -1,11 +1,69 @@
 package com.eleks.academy.whoami.core;
 
-import java.util.List;
-
 public interface QuestionsBase {
-	List<String> creature = List.of("human","cat", "dog");
-	List<String> reality = List.of("real","fiction");
-	List<String> gender = List.of("male");
-	List<String> age = List.of("adult");
-	List<String> hairColor = List.of("red","black","brown");
+
+	enum Creature{
+		HUMAN("human"), CAT("cat"), DOG("dog");
+		private String str;
+
+		Creature (String str){
+			this.str = str;
+		}
+
+		public String getStr(){
+			return this.str;
+		}
+	}
+
+	enum Reality{
+		REAL("real"), FICTION("fiction");
+		private String str;
+
+		Reality (String str){
+			this.str = str;
+		}
+
+		public String getStr(){
+			return this.str;
+		}
+	}
+
+	enum Gender{
+		MALE("male"), FEMALE("female");
+		private String str;
+
+		Gender(String str) {
+			this.str = str;
+		}
+
+		public String getStr() {
+			return this.str;
+		}
+	}
+
+	enum Age{
+		ADULT ("adult");
+		private String str;
+
+		Age(String str) {
+			this.str = str;
+		}
+
+		public String getStr() {
+			return this.str;
+		}
+	}
+
+	enum HairColor{
+		RED("red"), BLACK("black"), BROWN("brown");
+		private String str;
+
+		HairColor(String str) {
+			this.str = str;
+		}
+
+		public String getStr() {
+			return this.str;
+		}
+	}
 }
