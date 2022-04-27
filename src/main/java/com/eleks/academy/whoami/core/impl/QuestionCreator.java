@@ -1,17 +1,20 @@
 package com.eleks.academy.whoami.core.impl;
-import java.util.*;
 
 import com.eleks.academy.whoami.core.QuestionsBase;
 
-public class QuestionCreator implements QuestionsBase{
-	private Map <String, List <String>> questions = new HashMap<>();
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class QuestionCreator {
+	private Map<String, List<String>> questions = new HashMap<>();
 
 	public QuestionCreator() {
-		questions.put("creature", List.of(Creature.HUMAN.getStr(), Creature.CAT.getStr(),Creature.DOG.getStr()));
-		questions.put("reality", List.of(Reality.REAL.getStr(), Reality.FICTION.getStr()));
-		questions.put("gender", List.of(Gender.MALE.getStr(), Gender.FEMALE.getStr()));
-		questions.put("age", List.of(Age.ADULT.getStr()));
-		questions.put("hairColor", List.of(HairColor.RED.getStr(), HairColor.BLACK.getStr(), HairColor.BROWN.getStr()));
+		questions.put("creature", QuestionsBase.CREATURE.getCharacteristics());
+		questions.put("reality", QuestionsBase.REALITY.getCharacteristics());
+		questions.put("gender", QuestionsBase.GENDER.getCharacteristics());
+		questions.put("age", QuestionsBase.AGE.getCharacteristics());
+		questions.put("hairColor", QuestionsBase.HAIRCOLOR.getCharacteristics());
 	}
 	
 	public Map <String, List <String>> getQuestions() {

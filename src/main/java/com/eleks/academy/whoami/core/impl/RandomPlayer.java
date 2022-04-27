@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.eleks.academy.whoami.core.Character;
-import com.eleks.academy.whoami.core.CharactersBase;
 import com.eleks.academy.whoami.core.Player;
 
-public class RandomPlayer implements Player, CharactersBase {
+public class RandomPlayer implements Player {
 
 	private final String name;
 	private Map <String, List <String>> availableQuestions;
@@ -84,7 +83,7 @@ public class RandomPlayer implements Player, CharactersBase {
 				}
 			}
 			if(correct > (values.size() - 1) / 2) {
-				System.out.println("Player: "+ this.name + "Am I " + quess + "?");
+				System.out.println("Player: "+ this.name + " Am I " + quess + "?");
 				return quess;
 			}
 			correct = 0;

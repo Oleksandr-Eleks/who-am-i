@@ -1,56 +1,20 @@
 package com.eleks.academy.whoami.core;
 
-public interface CharactersBase {
+import java.util.List;
 
-	enum Batman{
-		NAME("Batman"), CREATURE("human"), REALITY("fiction"), GENDER("male"), AGE("adult"), HAIRCOLOR("black");
-		String str;
+public enum CharactersBase {
+	BATMAN(List.of("Batman", "human", "fiction", "male", "adult", "black")),
+	ARESTOWYCH(List.of("Arestowych", "human", "real", "male", "adult", "black")),
+	SCOOBYDOO(List.of("Scooby Doo", "dog", "fiction", "male", "adult", "brown")),
+	GARFIELD(List.of("Garfield", "cat", "fiction", "male", "adult", "red"));
 
-		Batman(String str) {
-			this.str = str;
-		}
+	private List <String> listOfCharacteristics;
 
-		public String getStr() {
-			return this.str;
-		}
+	CharactersBase(List<String> listOfCharacteristics) {
+		this.listOfCharacteristics = listOfCharacteristics;
 	}
 
-	enum Arestowych{
-		NAME("Arestowych"), CREATURE("human"), REALITY("real"), GENDER("male"), AGE("adult"), HAIRCOLOR("black");
-		String str;
-
-		Arestowych(String str) {
-			this.str = str;
-		}
-
-		public String getStr() {
-			return this.str;
-		}
-	}
-
-	enum ScoobyDoo{
-		NAME("Scooby Doo"), CREATURE("dog"), REALITY("fiction"), GENDER("male"), AGE("adult"), HAIRCOLOR("brown");
-		String str;
-
-		ScoobyDoo(String str) {
-			this.str = str;
-		}
-
-		public String getStr() {
-			return this.str;
-		}
-	}
-
-	enum Garfield{
-		NAME("Garfield"), CREATURE("cat"), REALITY("fiction"), GENDER("male"), AGE("adult"), HAIRCOLOR("red");
-		String str;
-
-		Garfield(String str) {
-			this.str = str;
-		}
-
-		public String getStr() {
-			return this.str;
-		}
+	public List<String> getListOfCharacteristics() {
+		return this.listOfCharacteristics;
 	}
 }

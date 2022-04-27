@@ -6,14 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.eleks.academy.whoami.core.Character;
-import com.eleks.academy.whoami.core.CharactersBase;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.impl.CharacterCreator;
 import com.eleks.academy.whoami.core.impl.QuestionCreator;
 import com.eleks.academy.whoami.core.impl.RandomGame;
 import com.eleks.academy.whoami.core.impl.RandomPlayer;
 
-public class App implements CharactersBase{
+public class App{
 	public static void main(String[] args) {
 		System.out.println("Game Init!");
 		int numberOfCharacters = 4;

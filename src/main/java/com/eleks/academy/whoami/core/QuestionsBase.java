@@ -1,69 +1,21 @@
 package com.eleks.academy.whoami.core;
 
-public interface QuestionsBase {
+import java.util.List;
 
-	enum Creature{
-		HUMAN("human"), CAT("cat"), DOG("dog");
-		private String str;
+public enum QuestionsBase {
+	CREATURE(List.of("human", "cat", "dog")),
+	REALITY(List.of("real", "fiction")),
+	GENDER(List.of("male", "female")),
+	AGE(List.of("adult")),
+	HAIRCOLOR(List.of("red", "black", "brown"));
 
-		Creature (String str){
-			this.str = str;
-		}
+	private List <String> characteristics;
 
-		public String getStr(){
-			return this.str;
-		}
+	QuestionsBase(List<String> characteristics) {
+		this.characteristics = characteristics;
 	}
 
-	enum Reality{
-		REAL("real"), FICTION("fiction");
-		private String str;
-
-		Reality (String str){
-			this.str = str;
-		}
-
-		public String getStr(){
-			return this.str;
-		}
-	}
-
-	enum Gender{
-		MALE("male"), FEMALE("female");
-		private String str;
-
-		Gender(String str) {
-			this.str = str;
-		}
-
-		public String getStr() {
-			return this.str;
-		}
-	}
-
-	enum Age{
-		ADULT ("adult");
-		private String str;
-
-		Age(String str) {
-			this.str = str;
-		}
-
-		public String getStr() {
-			return this.str;
-		}
-	}
-
-	enum HairColor{
-		RED("red"), BLACK("black"), BROWN("brown");
-		private String str;
-
-		HairColor(String str) {
-			this.str = str;
-		}
-
-		public String getStr() {
-			return this.str;
-		}
+	public List<String> getCharacteristics() {
+		return this.characteristics;
 	}
 }

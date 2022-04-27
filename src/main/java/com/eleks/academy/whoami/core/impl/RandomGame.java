@@ -45,7 +45,7 @@ public class RandomGame implements Game {
 			boolean win = positiveCount > negativeCount;
 			if (win) {
 				players.remove(currentGuesser);
-				System.out.println("Player: " + currentGuesser.getName() + " WIN!!!");
+				System.out.println("\n*** CONGRATULATION! Player " + currentGuesser.getName() + " WIN!!! ***");
 				if(isFinished()){
 					return false;
 				}
