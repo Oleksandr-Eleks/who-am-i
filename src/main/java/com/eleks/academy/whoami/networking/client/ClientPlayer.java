@@ -45,7 +45,7 @@ public class ClientPlayer implements Player {
 		String answer = "";
 		
 		try {
-			writer.println("Answer second player question: " + question + "Character is:"+ character);
+			writer.println("Answer second player question: " + question + " Character is:"+ character);
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
