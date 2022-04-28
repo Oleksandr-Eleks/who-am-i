@@ -6,6 +6,7 @@ public interface Player {
 
 	String getName();
 
+<<<<<<< Updated upstream
 	String getQuestion();
 	
 	Socket getPlayerSocket();
@@ -18,4 +19,17 @@ public interface Player {
 
 	String answerGuess(String guess, String character);
 
+=======
+	Future<String> getQuestion();
+	
+	Future<String> answerQuestion(String question, String character);
+	
+	Future<String> getGuess();
+	
+	// TODO: return Future<String>
+	boolean isReadyForGuess();
+
+	Future<String> answerGuess(String guess, String character);
+	
+>>>>>>> Stashed changes
 }
