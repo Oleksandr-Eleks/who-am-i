@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.eleks.academy.whoami.core.Game;
@@ -20,6 +21,7 @@ public class ServerImpl implements Server {
 	private RandomGame game = new RandomGame(characters);
 
 	private final ServerSocket serverSocket;
+	private final List<Socket> openSockets = new ArrayList<>();
 
 	public ServerImpl(int port) throws IOException {
 		this.serverSocket = new ServerSocket(port);
@@ -27,7 +29,7 @@ public class ServerImpl implements Server {
 
 	@Override
 	public Game startGame() throws IOException {
-		game.addPlayer(new RandomPlayer("Bot", questions, guessess));
+		game.addPlayer(new RandomPlayer("Bot", characters, questions, guessess));
 		System.out.println("Server starts");
 		System.out.println("Waiting for a client connect....");
 		return game;
@@ -35,7 +37,9 @@ public class ServerImpl implements Server {
 
 	@Override
 	public Socket waitForPlayer(Game game) throws IOException {
-		return serverSocket.accept();
+		Socket player = serverSocket.accept();
+		openSockets.add(player);
+		return player;
 	}
 
 	@Override
@@ -49,6 +53,16 @@ public class ServerImpl implements Server {
 	public void stopServer(Socket clientSocket, BufferedReader reader) throws IOException {
 		clientSocket.close();
 		reader.close();
+	}
+
+	public void stop() {
+		for (Socket s : openSockets) {
+			try {
+				s.close();
+			} catch (IOException e) {
+				System.err.println(String.format("Could not close a socket (%s)", e.getMessage()));
+			}
+		}
 	}
 
 }
