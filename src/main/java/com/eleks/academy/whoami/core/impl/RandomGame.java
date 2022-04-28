@@ -89,8 +89,7 @@ public class RandomGame implements Game {
 		
 	}
 
-	@Override
-	public void assignCharacters() {
+	private void assignCharacters() {
 		players.stream().map(Player::getName).parallel().map(f -> {
 			// TODO: extract into a configuration parameters
 			try {
@@ -109,6 +108,7 @@ public class RandomGame implements Game {
 	
 	@Override
 	public void initGame() {
+		this.assignCharacters();
 		this.currentTurn = new TurnImpl(this.players);
 		
 	}
@@ -128,6 +128,21 @@ public class RandomGame implements Game {
 	@Override
 	public void changeTurn() {
 		this.currentTurn.changeTurn();
+	}
+
+	@Override
+	public void play() {
+		boolean gameStatus = true;
+		
+		while (gameStatus) {
+			boolean turnResult = this.makeTurn();
+
+			while (turnResult) {
+				turnResult = this.makeTurn();
+			}
+			this.changeTurn();
+			gameStatus = !this.isFinished();
+		}
 	}
 
 }

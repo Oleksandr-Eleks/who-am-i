@@ -19,7 +19,7 @@ class RandomGameTest {
 		TestPlayer p1 = new TestPlayer("P1");
 		TestPlayer p2 = new TestPlayer("P2");
 		Game game = new RandomGame(List.of(p1, p2), List.of("c"));
-		game.assignCharacters();
+		game.initGame();
 		assertAll(new Executable[] {
 				() -> assertTrue(p1.suggested),
 				() -> assertTrue(p2.suggested),

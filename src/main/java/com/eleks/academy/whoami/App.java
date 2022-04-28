@@ -25,19 +25,7 @@ public class App {
 
 		try {
 			server.waitForPlayer();
-
-			boolean gameStatus = true;
-			game.assignCharacters();
-			game.initGame();
-			while (gameStatus) {
-				boolean turnResult = game.makeTurn();
-
-				while (turnResult) {
-					turnResult = game.makeTurn();
-				}
-				game.changeTurn();
-				gameStatus = !game.isFinished();
-			}
+			game.play();
 		} finally {
 			server.stop();
 		}
