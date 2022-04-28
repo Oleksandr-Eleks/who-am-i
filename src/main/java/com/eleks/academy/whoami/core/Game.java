@@ -21,4 +21,7 @@ public interface Game {
 	int countPlayers();
 	
 	void displayResults();
+
+	boolean isConcretePlayerAdded(Player checkedPlayer);
+	
 }
