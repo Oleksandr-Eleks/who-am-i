@@ -43,11 +43,15 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String getQuestion() {
+	public Future<String> getQuestion() {
+		return executor.submit(this::askQuestion);
+	}
+
+	private String askQuestion() {
 		String question = "";
 
 		try {
-			writer.println("Ask your questinon: ");
+			writer.println("Ask your question: ");
 			question = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -58,22 +62,25 @@ public class ClientPlayer implements Player, AutoCloseable {
 	@Override
 	public String answerQuestion(String question, String character) {
 		String answer = "";
-		
+
 		try {
 			writer.println("Answer second player question: " + question + "Character is:"+ character);
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return answer;
 	}
 
 	@Override
-	public String getGuess() {
+	public Future<String> getGuess() {
+		return executor.submit(this::doGuess);
+	}
+
+	private String doGuess() {
 		String answer = "";
-		
-	
+
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();
@@ -87,21 +94,21 @@ public class ClientPlayer implements Player, AutoCloseable {
 	@Override
 	public boolean isReadyForGuess() {
 		String answer = "";
-		
+
 		try {
 			writer.println("Are you ready to guess? ");
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return answer.equals("Yes") ? true : false;
+
+		return answer.equals("Yes");
 	}
 
 	@Override
 	public String answerGuess(String guess, String character) {
 		String answer = "";
-		
+
 		try {
 			writer.println("Write your answer: ");
 			answer = reader.readLine();

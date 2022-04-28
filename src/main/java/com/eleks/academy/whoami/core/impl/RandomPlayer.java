@@ -15,24 +15,24 @@ public class RandomPlayer implements Player {
 	private final Collection<String> characterPool;
 	private List<String> availableQuestions;
 	private List<String> availableGuesses;
-	
+
 	public RandomPlayer(String name, Collection<String> characterPool, List<String> availableQuestions, List<String> availableGuesses) {
 		this.name = name;
 		this.characterPool = Objects.requireNonNull(characterPool);
 		this.availableQuestions = new ArrayList<>(availableQuestions);
 		this.availableGuesses = new ArrayList<>(availableGuesses);
 	}
-	
+
 	@Override
 	public Future<String> getName() {
 		return CompletableFuture.completedFuture(this.name);
 	}
 
 	@Override
-	public String getQuestion() {
+	public Future<String> getQuestion() {
 		String question = availableQuestions.remove(0);
 		System.out.println("Player: " + name + ". Asks: " + question);
-		return question;
+		return CompletableFuture.completedFuture(question);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class RandomPlayer implements Player {
 		System.out.println("Player: " + name + ". Answers: " + answer);
 		return answer;
 	}
-	
+
 
 	@Override
 	public String answerGuess(String guess, String character) {
@@ -51,11 +51,11 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public String getGuess() {
-		int randomPos = (int)(Math.random() * this.availableGuesses.size()); 
+	public Future<String> getGuess() {
+		int randomPos = (int)(Math.random() * this.availableGuesses.size());
 		String guess = this.availableGuesses.remove(randomPos);
 		System.out.println("Player: " + name + ". Guesses: Am I " + guess);
-		return guess;
+		return CompletableFuture.completedFuture(guess);
 	}
 
 	@Override
@@ -69,6 +69,6 @@ public class RandomPlayer implements Player {
 		return CompletableFuture.completedFuture(characterPool.iterator().next());
 	}
 
-	
-	
+
+
 }
