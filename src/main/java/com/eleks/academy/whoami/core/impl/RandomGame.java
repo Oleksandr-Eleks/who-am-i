@@ -1,10 +1,14 @@
 package com.eleks.academy.whoami.core.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import com.eleks.academy.exception.GameRuntimeException;
@@ -14,18 +18,6 @@ import com.eleks.academy.whoami.core.Turn;
 
 public class RandomGame implements Game {
 
-<<<<<<< Updated upstream
-	private Map<String, String> playersCharacter = new HashMap<>();
-	private List<Player> players = new ArrayList<>();
-	private List<String> availableCharacters;
-	private Turn currentTurn;
-
-	private final static String YES = "Yes";
-	private final static String NO = "No";
-
-	public RandomGame(List<String> availableCharacters) {
-		this.availableCharacters = new ArrayList<String>(availableCharacters);
-=======
     private static final int DURATION = 2;
     private static final TimeUnit UNIT = TimeUnit.MINUTES;
 
@@ -55,74 +47,9 @@ public class RandomGame implements Game {
 	    e.printStackTrace();
 	} catch (TimeoutException e) {
 	    System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
->>>>>>> Stashed changes
 	}
     }
 
-<<<<<<< Updated upstream
-	@Override
-	public List<Player> getPlayers() {
-		return this.players;
-	}
-
-	@Override
-	public void addPlayer(Player player) {
-		this.players.add(player);
-	}
-
-	@Override
-	public boolean makeTurn() {
-		Player currentGuesser = currentTurn.getGuesser();
-		Set<String> answers;
-		if (currentGuesser.isReadyForGuess()) {
-			String guess = currentGuesser.getGuess();
-			answers = currentTurn.getOtherPlayers().stream()
-					.map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
-					.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-
-			boolean win = positiveCount > negativeCount;
-
-			if (win) {
-				players.remove(currentGuesser);
-			}
-			return win;
-
-		} else {
-			String question = currentGuesser.getQuestion();
-			answers = currentTurn.getOtherPlayers().stream()
-					.map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
-					.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			return positiveCount > negativeCount;
-		}
-
-	}
-
-	@Override
-	public void assignCharacters() {
-		players.stream().forEach(player -> this.playersCharacter.put(player.getName(), this.getRandomCharacter()));
-
-	}
-
-	@Override
-	public void initGame() {
-		this.currentTurn = new TurnImpl(this.players);
-
-	}
-
-	@Override
-	public boolean isFinished() {
-		return players.size() == 1;
-	}
-
-	private String getRandomCharacter() {
-		int randomPos = (int) (Math.random() * this.availableCharacters.size());
-		return this.availableCharacters.remove(randomPos);
-	}
-=======
     @Override
     public boolean makeTurn() {
 	Player currentGuesser = currentTurn.getGuesser();
@@ -205,7 +132,6 @@ public class RandomGame implements Game {
 		throw new GameRuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
 	    }
 	}).forEach(name -> this.playersCharacter.put(name, this.getRandomCharacter()));
->>>>>>> Stashed changes
 
     }
 

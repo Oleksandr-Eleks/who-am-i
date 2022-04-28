@@ -1,29 +1,8 @@
 package com.eleks.academy.whoami.core.impl;
 
-import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-<<<<<<< Updated upstream
-
-import com.eleks.academy.whoami.core.Player;
-
-public class RandomPlayer implements Player {
-
-	private String name;
-	private List<String> availableQuestions;
-	private List<String> availableGuesses;
-
-	public RandomPlayer(String name, List<String> availableQuestions, List<String> availableGuesses) {
-		this.name = name;
-		this.availableQuestions = new ArrayList<String>(availableQuestions);
-		this.availableGuesses = new ArrayList<String>(availableGuesses);
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
-	}
-=======
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -34,23 +13,13 @@ import java.util.concurrent.TimeUnit;
 import com.eleks.academy.whoami.core.Player;
 
 public class RandomPlayer implements Player, AutoCloseable {
->>>>>>> Stashed changes
 
     private String name;
     private final Collection<String> characterPool;
     private List<String> availableQuestions;
     private List<String> availableGuesses;
 
-<<<<<<< Updated upstream
-	@Override
-	public String answerQuestion(String question, String character) {
-		String answer = Math.random() < 0.5 ? "Yes" : "No";
-		System.out.println("Player: " + name + ". Answers: " + answer);
-		return answer;
-	}
-=======
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
->>>>>>> Stashed changes
 
     public RandomPlayer(String name, Collection<String> characterPool, List<String> availableQuestions,
 	    List<String> availableGuesses) {
@@ -60,20 +29,10 @@ public class RandomPlayer implements Player, AutoCloseable {
 	this.availableGuesses = new ArrayList<>(availableGuesses);
     }
 
-<<<<<<< Updated upstream
-	@Override
-	public String getGuess() {
-		int randomPos = (int) (Math.random() * this.availableGuesses.size());
-		String guess = this.availableGuesses.remove(randomPos);
-		System.out.println("Player: " + name + ". Guesses: Am I " + guess);
-		return guess;
-	}
-=======
     @Override
     public Future<String> getName() {
 	return CompletableFuture.completedFuture(this.name);
     }
->>>>>>> Stashed changes
 
     @Override
     public Future<String> getQuestion() {
@@ -85,12 +44,6 @@ public class RandomPlayer implements Player, AutoCloseable {
 	return executor.submit(this::doAnswerQuestion);
     }
 
-<<<<<<< Updated upstream
-	@Override
-	public Socket getPlayerSocket() {
-		// TODO Auto-generated method stub
-		return null;
-=======
     @Override
     public Future<String> answerGuess(String guess, String character) {
 	return executor.submit(this::doAnswerGuess);
@@ -118,7 +71,6 @@ public class RandomPlayer implements Player, AutoCloseable {
 	    executor.awaitTermination(5, TimeUnit.SECONDS);
 	} catch (InterruptedException e) {
 	    Thread.currentThread().interrupt();
->>>>>>> Stashed changes
 	}
     }
 

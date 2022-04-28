@@ -1,10 +1,6 @@
 package com.eleks.academy.whoami;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,55 +9,66 @@ import com.eleks.academy.whoami.networking.client.ClientPlayer;
 import com.eleks.academy.whoami.networking.server.ServerImpl;
 
 public class App {
-	
-	static final int players = 2;
 
 	public static void main(String[] args) throws IOException {
-
-		List<Socket> playersSockets = new ArrayList<>();
-
-		BufferedReader reader = null;
-
-		PrintStream writer = null;
-
-		boolean gameStatus = true;
+		int players = readPlayersArg(args);
 
 		ServerImpl server = new ServerImpl(888);
 
 		Game game = server.startGame();
 
-		for (int i = 0; i < players; i++) {
-			playersSockets.add(server.waitForPlayer(game));
-			
-			reader = new BufferedReader(new InputStreamReader(playersSockets.get(i).getInputStream()));
-
-			writer = new PrintStream(playersSockets.get(i).getOutputStream());
-
-			var playerName = reader.readLine();
-
-			server.addPlayer(new ClientPlayer(playerName, playersSockets.get(i)));
-			if (i < players - 1) {
-				writer.println("Waiting players");
+		List<ClientPlayer> playerList = new ArrayList<>(players);
+		try {
+			for (int i = 0; i < players; i++) {
+				var socket = server.waitForPlayer(game);
+				ClientPlayer player = new ClientPlayer(socket);
+				playerList.add(player);
+				server.addPlayer(player);
 			}
+			System.out.println(String.format("Got %d players. Starting a game.", players));
 
-		}
+			boolean gameStatus = true;
+			game.assignCharacters();
+			game.initGame();
+			while (gameStatus) {
+				boolean turnResult = game.makeTurn();
 
-		game.assignCharacters();
-
-		game.initGame();
-
-		while (gameStatus) {
-			boolean turnResult = game.makeTurn();
-
-			while (turnResult) {
-				turnResult = game.makeTurn();
+				while (turnResult) {
+					turnResult = game.makeTurn();
+				}
+				game.changeTurn();
+				gameStatus = !game.isFinished();
 			}
-			
-			game.changeTurn();
-			gameStatus = !game.isFinished();
+		} finally {
+			server.stop();
+			for (ClientPlayer clientPlayer : playerList) {
+				try {
+					clientPlayer.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
+	}
 
-		server.stopServer(playersSockets, reader, writer);
+	private static int readPlayersArg(String[] args) {
+		if (args.length < 1) {
+			return 2;
+		} else {
+			try {
+				int players = Integer.parseInt(args[0]);
+				if (players < 2) {
+					return 2;
+				} else if (players > 5) {
+					return 5;
+				} else {
+					return players;
+				}
+			} catch (NumberFormatException e) {
+				System.err.printf("Cannot parse number of players. Assuming 2. (%s)%n", e.getMessage());
+				return 2;
+			}
+		}
 	}
 
 }

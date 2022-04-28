@@ -1,25 +1,13 @@
 package com.eleks.academy.whoami.core;
 
-import java.net.Socket;
+import java.util.concurrent.Future;
 
 public interface Player {
 
-	String getName();
-
-<<<<<<< Updated upstream
-	String getQuestion();
+	Future<String> getName();
 	
-	Socket getPlayerSocket();
-	
-	String getGuess();
+	Future<String> suggestCharacter();
 
-	String answerQuestion(String question, String character);
-
-	boolean isReadyForGuess();
-
-	String answerGuess(String guess, String character);
-
-=======
 	Future<String> getQuestion();
 	
 	Future<String> answerQuestion(String question, String character);
@@ -31,5 +19,4 @@ public interface Player {
 
 	Future<String> answerGuess(String guess, String character);
 	
->>>>>>> Stashed changes
 }
