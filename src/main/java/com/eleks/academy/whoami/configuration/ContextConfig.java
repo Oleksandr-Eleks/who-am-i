@@ -9,7 +9,7 @@ import org.springframework.core.io.Resource;
 
 @Configuration
 public class ContextConfig {
-	
+
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer properties() {
 		PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
@@ -20,8 +20,9 @@ public class ContextConfig {
 	}
 
 	@Bean
-	ServerProperties serverProperties(@Value("${server.port}") Integer port) {
-		return new ServerProperties(port);
+	ServerProperties serverProperties(@Value("${server.port}") Integer port,
+			@Value("${game.players}") Integer players) {
+		return new ServerProperties(port, players);
 	}
 
 }

@@ -18,8 +18,7 @@ public class App {
 	public static void main(String[] args) throws IOException {
 		ApplicationContext context = new AnnotationConfigApplicationContext(ContextConfig.class);
 		ServerProperties properties = context.getBean(ServerProperties.class);
-		
-		int players = readPlayersArg(args);
+		int players = properties.getPlayers();
 
 		ServerImpl server = new ServerImpl(properties.getPort());
 
@@ -55,26 +54,6 @@ public class App {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			}
-		}
-	}
-
-	private static int readPlayersArg(String[] args) {
-		if (args.length < 1) {
-			return 2;
-		} else {
-			try {
-				int players = Integer.parseInt(args[0]);
-				if (players < 2) {
-					return 2;
-				} else if (players > 5) {
-					return 5;
-				} else {
-					return players;
-				}
-			} catch (NumberFormatException e) {
-				System.err.printf("Cannot parse number of players. Assuming 2. (%s)%n", e.getMessage());
-				return 2;
 			}
 		}
 	}
