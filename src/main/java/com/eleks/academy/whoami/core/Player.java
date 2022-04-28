@@ -10,15 +10,12 @@ public interface Player {
 
 	Future<String> getQuestion();
 	
-	// TODO: return Future<String>
 	Future<String> answerQuestion(String question, String character);
 	
 	Future<String> getGuess();
 	
-	// TODO: return Future<String>
-	boolean isReadyForGuess();
+	Future<Boolean> isReadyForGuess();
 
-	// TODO: return Future<String>
 	Future<String> answerGuess(String guess, String character);
 	
 }

@@ -35,7 +35,6 @@ public class RandomGame implements Game {
             this.players.add(player);
             this.availableCharacters.add(character);
         } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (TimeoutException e) {
             System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
@@ -47,59 +46,68 @@ public class RandomGame implements Game {
         Player currentGuesser = currentTurn.getGuesser();
         Set<String> answers;
         String guessersName;
+        boolean isReadyForGuess;
         try {
             guessersName = currentGuesser.getName().get(DURATION, UNIT);
+            isReadyForGuess = currentGuesser.isReadyForGuess().get(DURATION, UNIT);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             // TODO: Add custom runtime exception implementation
             throw new RuntimeException("Failed to obtain a player's name", e);
         }
-        if (currentGuesser.isReadyForGuess()) {
+        if (isReadyForGuess) {
+            String guess = null;
             try {
-                String guess = currentGuesser.getGuess().get(DURATION, UNIT);
-
-                answers = currentTurn.getOtherPlayers().stream()
-                        .map(player -> player.answerGuess(guess, this.playersCharacter.get(guessersName)))
-                        .collect(Collectors.toSet());
-                long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-                long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-
-                boolean win = positiveCount > negativeCount;
-
-                if (win) {
-                    players.remove(currentGuesser);
-                }
-                return win;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (TimeoutException e) {
+                guess = currentGuesser.getGuess().get(DURATION, UNIT);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
 
+            String finalGuess = guess;
+            String character = this.playersCharacter.get(guessersName);
+            answers = currentTurn.getOtherPlayers().stream()
+                    .map(player -> {
+                        try {
+                            return player.answerGuess(finalGuess, character).get(DURATION, UNIT);
+                        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }).collect(Collectors.toSet());
+
+            long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
+            long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+
+            boolean win = positiveCount > negativeCount;
+
+            if (win) {
+                players.remove(currentGuesser);
+            }
+            return win;
         } else {
+            String question = null;
             try {
-                String question = currentGuesser.getQuestion().get(DURATION, UNIT);
-
-//            Future<String> question = currentGuesser.getQuestion();
-                answers = currentTurn.getOtherPlayers().stream()
-                        .map(player -> player.answerQuestion(question, this.playersCharacter.get(guessersName)))
-                        .map(CompletableFuture::join)
-                        .collect(Collectors.toSet());
-
-                long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-                long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-
-                return positiveCount > negativeCount;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (TimeoutException e) {
+                question = currentGuesser.getQuestion().get(DURATION, UNIT);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
-        }
 
+            String finalQuestion = question;
+            String character = this.playersCharacter.get(guessersName);
+            answers = currentTurn.getOtherPlayers().stream()
+                    .map(player -> {
+                        try {
+                            return player.answerQuestion(finalQuestion, character).get(DURATION, UNIT);
+                        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }).collect(Collectors.toSet());
+
+            long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
+            long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+
+            return positiveCount > negativeCount;
+        }
     }
 
     @Override
@@ -123,9 +131,7 @@ public class RandomGame implements Game {
     @Override
     public void initGame() {
         this.currentTurn = new TurnImpl(this.players);
-
     }
-
 
     @Override
     public boolean isFinished() {

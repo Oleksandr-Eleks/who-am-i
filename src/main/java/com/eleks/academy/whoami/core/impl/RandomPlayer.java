@@ -59,8 +59,8 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
-		return availableQuestions.isEmpty();
+	public Future<Boolean> isReadyForGuess() {
+		return CompletableFuture.completedFuture(availableQuestions.isEmpty());
 	}
 
 	@Override
@@ -69,6 +69,4 @@ public class RandomPlayer implements Player {
 		return CompletableFuture.completedFuture(characterPool.iterator().next());
 	}
 
-	
-	
 }

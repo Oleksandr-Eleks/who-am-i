@@ -64,7 +64,7 @@ class RandomGameTest {
 		}
 
 		@Override
-		public boolean isReadyForGuess() {
+		public Future<Boolean> isReadyForGuess() {
 			throw new UnsupportedOperationException();
 		}
 

@@ -13,7 +13,7 @@ public class App {
 	public static void main(String[] args) throws IOException {
 		int players = readPlayersArg(args);
 
-		ServerImpl server = new ServerImpl(888);
+		ServerImpl server = new ServerImpl(1100);
 
 		Game game = server.startGame();
 
