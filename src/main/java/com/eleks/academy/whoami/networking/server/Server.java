@@ -11,9 +11,7 @@ public interface Server {
 	
 	Game startGame() throws IOException;
 	
-	Socket waitForPlayer(Game game) throws IOException;
-	
-	void addPlayer(Player player);
+	void waitForPlayer() throws IOException;
 	
 	void stopServer(Socket clientSocket, BufferedReader reader) throws IOException;
 	

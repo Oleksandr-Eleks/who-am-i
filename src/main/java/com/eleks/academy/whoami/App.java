@@ -20,19 +20,11 @@ public class App {
 		ApplicationContext context = new AnnotationConfigApplicationContext(ContextConfig.class);
 		ServerProperties properties = context.getBean(ServerProperties.class);
 		Server server = context.getBean(Server.class);
-		int players = properties.getPlayers();
 
 		Game game = server.startGame();
 
-		List<ClientPlayer> playerList = new ArrayList<>(players);
 		try {
-			for (int i = 0; i < players; i++) {
-				var socket = server.waitForPlayer(game);
-				ClientPlayer player = new ClientPlayer(socket);
-				playerList.add(player);
-				server.addPlayer(player);
-			}
-			System.out.println(String.format("Got %d players. Starting a game.", players));
+			server.waitForPlayer();
 
 			boolean gameStatus = true;
 			game.assignCharacters();
@@ -48,13 +40,6 @@ public class App {
 			}
 		} finally {
 			server.stop();
-			for (ClientPlayer clientPlayer : playerList) {
-				try {
-					clientPlayer.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
