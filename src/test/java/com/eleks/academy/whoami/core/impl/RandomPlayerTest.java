@@ -15,13 +15,13 @@ import com.eleks.academy.whoami.core.Player;
 
 class RandomPlayerTest {
 
-	@Test
-	void randomPlayerSuggestsCharacter() throws InterruptedException, ExecutionException, TimeoutException {
-		Collection<String> characterSuggestions = List.of("A", "B");
-		Player player = new RandomPlayer("P", characterSuggestions, new ArrayList<>(), new ArrayList<>());
-		String character = player.suggestCharacter().get(5, TimeUnit.SECONDS);
-		assertNotNull(character);
-		assertTrue(characterSuggestions.contains(character));
-	}
+    @Test
+    void randomPlayerSuggestsCharacter() throws InterruptedException, ExecutionException, TimeoutException {
+        Collection<String> characterSuggestions = List.of("A", "B");
+        Player player = new RandomPlayer("P", characterSuggestions, new ArrayList<>(), new ArrayList<>());
+        String character = player.suggestCharacter().get(5, TimeUnit.SECONDS);
+        assertNotNull(character);
+        assertTrue(characterSuggestions.contains(character));
+    }
 
 }
