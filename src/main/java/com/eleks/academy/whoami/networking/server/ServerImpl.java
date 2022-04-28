@@ -1,16 +1,16 @@
 package com.eleks.academy.whoami.networking.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.impl.RandomGame;
-import com.eleks.academy.whoami.core.impl.RandomPlayer;
 import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class ServerImpl implements Server {
@@ -38,6 +38,7 @@ public class ServerImpl implements Server {
 	}
 
 	@Override
+	@PostConstruct
 	public void waitForPlayer() throws IOException {
 		System.out.println("Server starts");
 		System.out.println("Waiting for a client connect....");
@@ -49,12 +50,7 @@ public class ServerImpl implements Server {
 	}
 
 	@Override
-	public void stopServer(Socket clientSocket, BufferedReader reader) throws IOException {
-		clientSocket.close();
-		reader.close();
-	}
-
-	@Override
+	@PreDestroy
 	public void stop() {
 		for(Player player: clientPlayers) {
 			try {

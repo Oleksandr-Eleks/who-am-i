@@ -22,13 +22,7 @@ public class App {
 		Server server = context.getBean(Server.class);
 
 		Game game = server.startGame();
-
-		try {
-			server.waitForPlayer();
-			game.play();
-		} finally {
-			server.stop();
-		}
+		game.play();
 	}
 
 }

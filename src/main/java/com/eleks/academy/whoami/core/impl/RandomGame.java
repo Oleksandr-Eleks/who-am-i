@@ -110,7 +110,6 @@ public class RandomGame implements Game {
 	public void initGame() {
 		this.assignCharacters();
 		this.currentTurn = new TurnImpl(this.players);
-		
 	}
 
 
