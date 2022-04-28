@@ -17,4 +17,6 @@ public interface Server {
 	
 	void stopServer(Socket clientSocket, BufferedReader reader) throws IOException;
 	
+	void stop();
+	
 }

@@ -11,6 +11,7 @@ import com.eleks.academy.whoami.configuration.ContextConfig;
 import com.eleks.academy.whoami.configuration.ServerProperties;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.networking.client.ClientPlayer;
+import com.eleks.academy.whoami.networking.server.Server;
 import com.eleks.academy.whoami.networking.server.ServerImpl;
 
 public class App {
@@ -18,9 +19,8 @@ public class App {
 	public static void main(String[] args) throws IOException {
 		ApplicationContext context = new AnnotationConfigApplicationContext(ContextConfig.class);
 		ServerProperties properties = context.getBean(ServerProperties.class);
+		Server server = context.getBean(Server.class);
 		int players = properties.getPlayers();
-
-		ServerImpl server = new ServerImpl(properties.getPort());
 
 		Game game = server.startGame();
 
