@@ -5,7 +5,7 @@ import java.util.List;
 public interface Turn {
 	
 	Player getGuesser();
-	
+
 	List<Player> getOtherPlayers();
 
 	void changeTurn();

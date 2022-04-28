@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import com.eleks.academy.whoami.core.Player;
 
@@ -43,7 +40,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String getQuestion() {
+	public Future<String> getQuestion() {
+		return executor.submit(this::takeQuestion);
+	}
+
+	private String takeQuestion(){
 		String question = "";
 
 		try {
@@ -56,24 +57,27 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String answerQuestion(String question, String character) {
+	public Future<String> answerQuestion(String question, String character) {
 		String answer = "";
-		
+
 		try {
 			writer.println("Answer second player question: " + question + "Character is:"+ character);
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return answer;
+
+		return CompletableFuture.completedFuture(answer);
 	}
 
 	@Override
-	public String getGuess() {
+	public Future<String> getGuess() {
+		return executor.submit(this::takeGuess);
+	}
+
+	private String takeGuess(){
 		String answer = "";
-		
-	
+
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();
@@ -85,21 +89,25 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
+	public Future<Boolean> isReadyForGuess() {
+		return executor.submit(this::isReadyForGuessBoolean);
+	}
+
+	public boolean isReadyForGuessBoolean(){
 		String answer = "";
-		
+
 		try {
 			writer.println("Are you ready to guess? ");
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return answer.equals("Yes") ? true : false;
+
+		return answer.equals("Yes");
 	}
 
 	@Override
-	public String answerGuess(String guess, String character) {
+	public Future<String> answerGuess(String guess, String character) {
 		String answer = "";
 		
 		try {
@@ -109,7 +117,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 			e.printStackTrace();
 		}
-		return answer;
+		return CompletableFuture.completedFuture(answer);
 	}
 
 	@Override
@@ -135,5 +143,4 @@ public class ClientPlayer implements Player, AutoCloseable {
 			Thread.currentThread().interrupt();
 		}
 	}
-
 }
