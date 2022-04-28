@@ -3,14 +3,12 @@ package com.eleks.academy.whoami.core.impl;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RandomGameTest {
 
@@ -19,18 +17,29 @@ class RandomGameTest {
 		Game game = new RandomGame(List.of("c"));
 		TestPlayer p1 = new TestPlayer("P1");
 		TestPlayer p2 = new TestPlayer("P2");
+		p1.character = "Batman";
+		p2.character = "Superman";
 		game.addPlayer(p1);
 		game.addPlayer(p2);
+
 		game.assignCharacters();
-		assertAll(new Executable[] {
-				() -> assertTrue(p1.suggested),
-				() -> assertTrue(p2.suggested),
-		});
+		assertAll(() -> assertTrue(p1.suggested),
+				() -> assertTrue(p2.suggested));
+	}
+
+	@Test
+	void notAddedPlayerWhenFailedSuggestion() {
+		Game game = new RandomGame(List.of("c"));
+		TestPlayer p1 = new TestPlayer("P1");
+		p1.character = "";
+		game.addPlayer(p1);
+		assertFalse(game.isPlayerContains(p1));
 	}
 
 	private static final class TestPlayer implements Player {
 		private final String name;
 		private boolean suggested;
+		private String character;
 
 		public TestPlayer(String name) {
 			super();
@@ -45,34 +54,34 @@ class RandomGameTest {
 		@Override
 		public Future<String> suggestCharacter() {
 			suggested = true;
-			return CompletableFuture.completedFuture("char");
+			return CompletableFuture.completedFuture(character);
 		}
 
 		@Override
-		public String getQuestion() {
+		public Future<String> getQuestion() {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public String answerQuestion(String question, String character) {
+		public Future<String> answerQuestion(String question, String character) {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public String getGuess() {
+		public Future<String> getGuess() {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public boolean isReadyForGuess() {
+		public Future<Boolean> isReadyForGuess() {
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public String answerGuess(String guess, String character) {
+		public Future<String> answerGuess(String guess, String character) {
 			throw new UnsupportedOperationException();
 		}
-		
+
 	}
 
 }

@@ -11,15 +11,21 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class ServerImpl implements Server {
 
-	private final ServerSocket serverSocket;
-	private final List<Socket> openSockets = new ArrayList<>();
 	private List<String> characters = List.of("Batman", "Superman");
 	private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?");
-	private List<String> guessess = List.of("Batman", "Superman");
+	private static final int DURATION = 2;
+	private static final TimeUnit UNIT = TimeUnit.SECONDS;
+	private final ServerSocket serverSocket;
+
 	private RandomGame game = new RandomGame(characters);
+	private final List<Socket> openSockets = new ArrayList<>();
+	private List<String> guesses = List.of("Batman", "Superman");
 
 	public ServerImpl(int port) throws IOException {
 		this.serverSocket = new ServerSocket(port);
@@ -27,7 +33,7 @@ public class ServerImpl implements Server {
 
 	@Override
 	public Game startGame() throws IOException {
-		game.addPlayer(new RandomPlayer("Bot", characters, questions, guessess));
+		game.addPlayer(new RandomPlayer("Bot", characters, questions, guesses));
 		System.out.println("Server starts");
 		System.out.println("Waiting for a client connect....");
 		return game;
@@ -42,9 +48,19 @@ public class ServerImpl implements Server {
 
 	@Override
 	public void addPlayer(Player player) {
-		game.addPlayer(player);
-		System.out.println("Player: " + player.getName() + " Connected to the game!");
-
+		String name = "";
+		try {
+			name = player.getName().get(DURATION, UNIT);
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt();
+		} catch (TimeoutException e) {
+			System.err.printf("Player did not answer within %d %s%n", DURATION, UNIT);
+		}
+		if (!name.isBlank()) {
+			game.addPlayer(player);
+			System.out.println("Player: " + name + " Connected to the game!");
+		}
 	}
 
 	@Override
@@ -58,7 +74,7 @@ public class ServerImpl implements Server {
 			try {
 				s.close();
 			} catch (IOException e) {
-				System.err.println(String.format("Could not close a socket (%s)", e.getMessage()));
+				System.err.printf("Could not close a socket (%s)%n", e.getMessage());
 			}
 		}
 	}
