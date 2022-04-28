@@ -7,13 +7,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class ClientPlayer implements Player, AutoCloseable {
-    private String name = "";
+
     private BufferedReader reader;
     private PrintStream writer;
-    private String suggestedCharacter = "";
+    private String name;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -24,100 +27,90 @@ public class ClientPlayer implements Player, AutoCloseable {
 
     @Override
     public Future<String> getName() {
+        // TODO: save name for future
         return executor.submit(this::askName);
     }
 
     private String askName() {
-        if (name.isBlank()) {
+        if (this.name == null) {
             try {
                 writer.println("Please, name yourself.");
-                name = reader.readLine();
+                this.name = reader.readLine();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return name;
+        return this.name;
     }
 
     @Override
-    public Future<String> getQuestion() {
-        Callable<String> askQuestion = () -> {
-            String question = "";
+    public String getQuestion() {
+        String question = "";
 
-            try {
-                writer.println("Ask your question: ");
-                question = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return question;
-        };
-        return executor.submit(askQuestion);
+        try {
+            writer.println("Ask your questinon: ");
+            question = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return question;
     }
 
     @Override
-    public Future<String> answerQuestion(String question, String character) {
-        Callable<String> answerQuestion = () -> {
-            String answer = "";
-            try {
-                writer.println("Answer second player question: " + question + "Character is:" + character);
-                answer = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return answer;
-        };
-        return executor.submit(answerQuestion);
+    public String answerQuestion(String question, String character) {
+        String answer = "";
+
+        try {
+            writer.println("Answer second player question: " + question + "Character is:" + character);
+            answer = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return answer;
     }
 
     @Override
-    public Future<String> getGuess() {
-        Callable<String> guess = () -> {
-            String answer = "";
+    public String getGuess() {
+        String answer = "";
 
-            try {
-                writer.println("Write your guess: ");
-                answer = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return answer;
-        };
-        return executor.submit(guess);
+
+        try {
+            writer.println("Write your guess: ");
+            answer = reader.readLine();
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        }
+        return answer;
     }
 
     @Override
-    public Future<Boolean> isReadyForGuess() {
-        Callable<Boolean> isReadyForGuess = () -> {
-            String answer = "";
+    public boolean isReadyForGuess() {
+        String answer = "";
 
-            try {
-                writer.println("Are you ready to guess? ");
-                answer = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            writer.println("Are you ready to guess? ");
+            answer = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-            return answer.equals("Yes");
-        };
-        return executor.submit(isReadyForGuess);
+        return answer.equals("Yes") ? true : false;
     }
 
     @Override
-    public Future<String> answerGuess(String guess, String character) {
-        Callable<String> answerGuess = () -> {
-            String answer = "";
+    public String answerGuess(String guess, String character) {
+        String answer = "";
 
-            try {
-                writer.println("Write your answer: ");
-                answer = reader.readLine();
-            } catch (IOException e) {
+        try {
+            writer.println("Write your answer: ");
+            answer = reader.readLine();
+        } catch (IOException e) {
 
-                e.printStackTrace();
-            }
-            return answer;
-        };
-        return executor.submit(answerGuess);
+            e.printStackTrace();
+        }
+        return answer;
     }
 
     @Override
@@ -126,15 +119,12 @@ public class ClientPlayer implements Player, AutoCloseable {
     }
 
     private String doSuggestCharacter() {
-        if (suggestedCharacter.isBlank()) {
-            try {
-                return reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            }
+        try {
+            return reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
         }
-        return suggestedCharacter;
     }
 
     @Override

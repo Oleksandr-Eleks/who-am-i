@@ -11,63 +11,64 @@ import java.util.concurrent.Future;
 
 public class RandomPlayer implements Player {
 
-    private String name;
-    private final Collection<String> characterPool;
-    private List<String> availableQuestions;
-    private List<String> availableGuesses;
+	private final Collection<String> characterPool;
+	private String name;
+	private List<String> availableQuestions;
+	private List<String> availableGuesses;
+	
+	public RandomPlayer(String name, Collection<String> characterPool, List<String> availableQuestions, List<String> availableGuesses) {
+		this.name = name;
+		this.characterPool = Objects.requireNonNull(characterPool);
+		this.availableQuestions = new ArrayList<>(availableQuestions);
+		this.availableGuesses = new ArrayList<>(availableGuesses);
+	}
+	
+	@Override
+	public Future<String> getName() {
+		return CompletableFuture.completedFuture(this.name);
+	}
 
-    public RandomPlayer(String name, Collection<String> characterPool, List<String> availableQuestions, List<String> availableGuesses) {
-        this.name = name;
-        this.characterPool = Objects.requireNonNull(characterPool);
-        this.availableQuestions = new ArrayList<>(availableQuestions);
-        this.availableGuesses = new ArrayList<>(availableGuesses);
-    }
+	@Override
+	public String getQuestion() {
+		String question = availableQuestions.remove(0);
+		System.out.println("Player: " + name + ". Asks: " + question);
+		return question;
+	}
 
-    @Override
-    public Future<String> getName() {
-        return CompletableFuture.completedFuture(this.name);
-    }
+	@Override
+	public String answerQuestion(String question, String character) {
+		String answer = Math.random() < 0.5 ? "Yes" : "No";
+		System.out.println("Player: " + name + ". Answers: " + answer);
+		return answer;
+	}
+	
 
-    @Override
-    public Future<String> getQuestion() {
-        String question = availableQuestions.remove(0);
-        System.out.println("Player: " + name + ". Asks: " + question);
-        return CompletableFuture.completedFuture(question);
-    }
+	@Override
+	public String answerGuess(String guess, String character) {
+		String answer = Math.random() < 0.5 ? "Yes" : "No";
+		System.out.println("Player: " + name + ". Answers: " + answer);
+		return answer;
+	}
 
-    @Override
-    public Future<String> answerQuestion(String question, String character) {
-        String answer = Math.random() < 0.5 ? "Yes" : "No";
-        System.out.println("Player: " + name + ". Answers: " + answer);
-        return CompletableFuture.completedFuture(answer);
-    }
+	@Override
+	public String getGuess() {
+		int randomPos = (int)(Math.random() * this.availableGuesses.size()); 
+		String guess = this.availableGuesses.remove(randomPos);
+		System.out.println("Player: " + name + ". Guesses: Am I " + guess);
+		return guess;
+	}
 
+	@Override
+	public boolean isReadyForGuess() {
+		return availableQuestions.isEmpty();
+	}
 
-    @Override
-    public Future<String> answerGuess(String guess, String character) {
-        String answer = Math.random() < 0.5 ? "Yes" : "No";
-        System.out.println("Player: " + name + ". Answers: " + answer);
-        return CompletableFuture.completedFuture(answer);
-    }
+	@Override
+	public Future<String> suggestCharacter() {
+		// TODO: remove a suggestion from the collection
+		return CompletableFuture.completedFuture(characterPool.iterator().next());
+	}
 
-    @Override
-    public Future<String> getGuess() {
-        int randomPos = (int) (Math.random() * this.availableGuesses.size());
-        String guess = this.availableGuesses.remove(randomPos);
-        System.out.println("Player: " + name + ". Guesses: Am I " + guess);
-        return CompletableFuture.completedFuture(guess);
-    }
-
-    @Override
-    public Future<Boolean> isReadyForGuess() {
-        return CompletableFuture.completedFuture(availableQuestions.isEmpty());
-    }
-
-    @Override
-    public Future<String> suggestCharacter() {
-        // TODO: remove a suggestion from the collection
-        return CompletableFuture.completedFuture(characterPool.iterator().next());
-    }
-
-
+	
+	
 }
