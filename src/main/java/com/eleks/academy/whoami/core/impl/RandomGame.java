@@ -34,12 +34,12 @@ public class RandomGame implements Game {
 	@Override
 	public boolean makeTurn() {
 		Player currentGuesser = currentTurn.getGuesser();
-		Set<String> answers;
+		List<String> answers;
 		if (currentGuesser.isReadyForGuess()) {
 			String guess = currentGuesser.getGuess();
 			answers = currentTurn.getOtherPlayers().stream()
 					.map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
-					.collect(Collectors.toSet());
+					.collect(Collectors.toList());
 			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
 			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
 			
@@ -54,7 +54,7 @@ public class RandomGame implements Game {
 			String question = currentGuesser.getQuestion();
 			answers = currentTurn.getOtherPlayers().stream()
 				.map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
-				.collect(Collectors.toSet());
+				.collect(Collectors.toList());
 			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
 			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
 			return positiveCount > negativeCount;
