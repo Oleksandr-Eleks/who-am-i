@@ -5,82 +5,49 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
 import com.eleks.academy.whoami.core.Player;
 
-public class ClientPlayer implements Player, AutoCloseable {
+public class ClientPlayer implements Player {
 
-	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private String name;
 	private BufferedReader reader;
 	private PrintStream writer;
 
-	public ClientPlayer(Socket socket) {
-		try {
-			this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			this.writer = new PrintStream(socket.getOutputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public ClientPlayer(String name, Socket socket) throws IOException {
+		this.name = name;
+		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		this.writer = new PrintStream(socket.getOutputStream());
 	}
 
 	@Override
-	public Future<String> getName() {
-		return executor.submit(this::askForNameFromClient);
-	}
-
-	private String askForNameFromClient() {
-		try {
-			writer.println("Enter your name:");
-			writer.flush();
-			return reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "";
-		}
+	public String getName() {
+		return name;
 	}
 
 	@Override
-	public Future<String> getCharacter() {
-		return executor.submit(this::askForCharacterFromClient);
-	}
+	public String getQuestion() {
+		String question = "";
 
-	private String askForCharacterFromClient() {
 		try {
-			writer.println("Enter your character:");
+			writer.println("Ask your questinon: ");
 			writer.flush();
-			return reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "getCharacterFail";
-		}
-	}
-
-	@Override
-	public Future<String> getQuestion() {
-		return executor.submit(this::askForQuestionFromClient);
-	}
-
-	private String askForQuestionFromClient() {
-		try {
-			writer.println("Ask your question:");
-			writer.flush();
-			return reader.readLine();
+			question = reader.readLine();
+			System.out.println(name + " asks: " + question);
 		} catch (IOException e) {
 			System.err.printf("Cannot get an answer on question from a player. Assuming 2. (%s)%n", e.getMessage());
-			return "getQuestionFail";
+			e.printStackTrace();
 		}
+		return question;
 	}
 
 	@Override
-	public boolean answerQuestion(String question, String playerName, String character) {
+	public boolean answerQuestion(String question, String playerName,  String character) {
 		String answer = "";
 
 		try {
-			answer = sendAndGetMessage(playerName + " question -> " + question + " (Character: " + character + ")");
+			writer.println("Answer " + playerName + " question: " + question + " (Character is: " + character + ")");
+			writer.flush();
+			answer = reader.readLine();
 		} catch (IOException e) {
 			System.err.printf("Cannot get a question from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
@@ -94,7 +61,9 @@ public class ClientPlayer implements Player, AutoCloseable {
 		String answer = "";
 
 		try {
-			answer = sendAndGetMessage("Are you ready to guess? [yes|no]");
+			writer.println("Are you ready to guess? [yes|no]");
+			writer.flush();
+			answer = reader.readLine();
 		} catch (IOException e) {
 			System.err.printf("Cannot check is player ready to guess. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
@@ -108,8 +77,10 @@ public class ClientPlayer implements Player, AutoCloseable {
 		String guess = "";
 
 		try {
-			guess = sendAndGetMessage("Write your guess: ");
-			System.out.println(" guesses: Am I " + guess);
+			writer.println("Write your guess: ");
+			writer.flush();
+			guess = reader.readLine();
+			System.out.println(name + " guesses: Am I " + guess);
 		} catch (IOException e) {
 			System.err.printf("Cannot get a guess from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
@@ -122,33 +93,15 @@ public class ClientPlayer implements Player, AutoCloseable {
 		String answer = "";
 
 		try {
-			sendAndGetMessage(playerName + " guess -> " + guess + " (Character: " + character + ")");
+			writer.println("[" + playerName + "] think that he is -" + guess + " (Character is: " + character + ")");
+			writer.flush();
+			answer = reader.readLine();
 		} catch (IOException e) {
 			System.err.printf("Cannot get an answer on guess from a player. Assuming 2. (%s)%n", e.getMessage());
-
+			e.printStackTrace();
 		}
 
 		return answer.toLowerCase().contentEquals("yes");
-	}
-
-	private String sendAndGetMessage(String messageToSend) throws IOException {
-		String messageToGet = "";
-
-		writer.println(messageToSend);
-		writer.flush();
-		messageToGet = reader.readLine();
-
-		return messageToGet;
-	}
-
-	@Override
-	public void close() {
-		executor.shutdown();
-		try {
-			executor.awaitTermination(5, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
 	}
 
 }
