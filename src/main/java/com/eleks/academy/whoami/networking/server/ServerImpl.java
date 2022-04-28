@@ -60,7 +60,7 @@ public class ServerImpl implements Server {
 			try {
 				s.close();
 			} catch (IOException e) {
-				System.err.println(String.format("Could not close a socket (%s)", e.getMessage()));
+				System.err.printf("Could not close a socket (%s)%n", e.getMessage());
 			}
 		}
 	}

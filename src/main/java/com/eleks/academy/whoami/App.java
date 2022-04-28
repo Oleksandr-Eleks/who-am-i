@@ -25,7 +25,7 @@ public class App {
 				playerList.add(player);
 				server.addPlayer(player);
 			}
-			System.out.println(String.format("Got %d players. Starting a game.", players));
+			System.out.printf("Got %d players. Starting a game.%n", players);
 
 			boolean gameStatus = true;
 			game.assignCharacters();
@@ -59,11 +59,7 @@ public class App {
 				int players = Integer.parseInt(args[0]);
 				if (players < 2) {
 					return 2;
-				} else if (players > 5) {
-					return 5;
-				} else {
-					return players;
-				}
+				} else return Math.min(players, 5);
 			} catch (NumberFormatException e) {
 				System.err.printf("Cannot parse number of players. Assuming 2. (%s)%n", e.getMessage());
 				return 2;
