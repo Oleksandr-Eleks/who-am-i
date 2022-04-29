@@ -15,16 +15,14 @@ import com.eleks.academy.whoami.core.Player;
 public class ClientPlayer implements Player, AutoCloseable {
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-	private BufferedReader reader;
-	private PrintStream writer;
+	private final BufferedReader reader;
+	private final PrintStream writer;
+	private final Socket socket;
 
-	public ClientPlayer(Socket socket) {
-		try {
-			this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			this.writer = new PrintStream(socket.getOutputStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public ClientPlayer(Socket socket) throws IOException {
+		this.socket = socket;
+		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		this.writer = new PrintStream(socket.getOutputStream());
 	}
 
 	@Override
@@ -58,7 +56,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 			return "getCharacterFail";
 		}
 	}
-	
+
 	@Override
 	public Future<String> getQuestion() {
 		return executor.submit(this::askForQuestionFromClient);
@@ -76,7 +74,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public boolean answerQuestion(String question, String playerName,  String character) {
+	public boolean answerQuestion(String question, String playerName, String character) {
 		String answer = "";
 
 		try {
@@ -151,6 +149,16 @@ public class ClientPlayer implements Player, AutoCloseable {
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
+		close(reader);
+		close(writer);
+		close(socket);
 	}
 
+	private void close(AutoCloseable closeable) {
+		try {
+			closeable.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

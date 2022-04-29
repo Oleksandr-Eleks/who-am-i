@@ -49,6 +49,11 @@
 		<artifactId>spring-expression</artifactId>
 		<version>5.3.19</version>
 	</dependency>
+	<dependency>
+		<groupId>javax.annotation</groupId>
+		<artifactId>javax.annotation-api</artifactId>
+		<version>1.3.2</version>
+	</dependency>
   </dependencies>
   
   <build>
@@ -58,7 +63,6 @@
   			<artifactId>maven-surefire-plugin</artifactId>
   			<version>3.0.0-M6</version>
   		</plugin>
-  		
   		<plugin>
   			<artifactId>maven-failsafe-plugin</artifactId>
   			<version>3.0.0-M6</version>

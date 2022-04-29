@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.impl.RandomGame;
@@ -29,6 +30,7 @@ public class ServerImpl implements Server {
 	}
 
 	@Override
+	@PostConstruct
 	public void waitForPlayers() throws IOException {
 		System.out.println("Server starts");
 		System.out.println("Waiting for a client connect....");
@@ -39,18 +41,7 @@ public class ServerImpl implements Server {
 		System.out.println(String.format("Got %d players. Starting a game.", players));
 	}
 
-	@Override
-	public void stopServer() {
-		try {
-			if (serverSocket != null) {
-				serverSocket.close();
-			}
-		} catch (Exception e) {
-			System.err.println("server.close failed: " + e.getMessage());
-		}
-	}
-	
-	@Override
+	@PreDestroy
 	public void stop() {
 		for (Player player : clientPlayers) {
 			try {
