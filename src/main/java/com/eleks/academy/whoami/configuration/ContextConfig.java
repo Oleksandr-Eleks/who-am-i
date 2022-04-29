@@ -18,7 +18,7 @@ public class ContextConfig {
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer properties() {
 		PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
-		Resource[] resources = new ClassPathResource[] {};
+		Resource[] resources = new ClassPathResource[] { new ClassPathResource("application.properties") };
 		pspc.setLocations(resources);
 		pspc.setIgnoreUnresolvablePlaceholders(true);
 		return pspc;
