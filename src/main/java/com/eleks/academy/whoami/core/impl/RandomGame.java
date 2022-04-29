@@ -18,36 +18,95 @@ import com.eleks.academy.whoami.core.Turn;
 
 public class RandomGame implements Game {
 
-	private final static int DURATION = 5;
+	private final static int DURATION = 30;
 	private final static TimeUnit UNIT = TimeUnit.SECONDS;
-	private Turn currentGameTurn;
-	private List<String> characters = new ArrayList<>();
-	private CopyOnWriteArrayList<Player> players = new CopyOnWriteArrayList<>();
+	
+	private List<Player> players;
+	private List<String> characters;
 	private Map<String, String> playersCharacters = new ConcurrentHashMap();
 	private List<String> gameResult = new ArrayList<>();
+	
+	private Turn currentGameTurn;
 
-	public RandomGame() {
-		
+	public RandomGame(List<Player> players) {
+		this.players = new ArrayList<>(players);
+		players.forEach(this::addPlayer);
+		this.characters = new ArrayList<>(players.size());
 	}
 
 	@Override
 	public void init() {
 		displayPlayers();
-		assignCharacters();
-		start();
-
-		while (isFinished() != true) {
-			System.out.println("\tTurn started...\n");
-			boolean isTurnEnded = makeTurn();
-
-			while (isTurnEnded != true) {
-				isTurnEnded = makeTurn();
-			}
-			endTurn();
+		while (players.size() != 3) {
+			
 		}
+//		assignCharacters();
+//		start();
+//
+//		while (isFinished() != true) {
+//			System.out.println("\tTurn started...\n");
+//			boolean isTurnEnded = makeTurn();
+//
+//			while (isTurnEnded != true) {
+//				isTurnEnded = makeTurn();
+//			}
+//			endTurn();
+//		}
 		displayResults();
 	}
 
+	@Override
+	public void addPlayer(Player player) {
+		Future<String> suggestedName = player.getCharacter();
+		try {
+			String name = suggestedName.get(DURATION, UNIT);
+			if (validatePlayerName(name)) {
+				characters.add(name.strip());
+				players.add(player);
+				System.out.println("Player [" + player.getName().get() + "] connected...");
+			}			
+		} catch (InterruptedException | ExecutionException e) {
+			Thread.currentThread().interrupt();
+		} catch (TimeoutException e) {
+			System.err.println("Player did not provide a nickname within %d %s".formatted(DURATION, UNIT));
+		}
+		
+	}
+	
+	private boolean validatePlayerName(String name) {
+		if (name == null || name.isBlank() || players.contains(name)) {
+			return false;
+		}
+		Pattern pattern = Pattern.compile("^\\s*[a-zA-Z0-9]+\\s*$");
+		Matcher matcher = pattern.matcher(name); 
+		return matcher.matches();
+	}
+	
+	@Override
+	public void addPlayerCharacter(Player player) {
+		Future<String> suggestedCharacter = player.getCharacter();
+		try {
+			String character = suggestedCharacter.get(DURATION, UNIT);
+			if (validateCharacter(character)) {
+				characters.add(character.strip());
+				System.out.println("Player [" + player.getName().get() + "] character added...");
+			}			
+		} catch (InterruptedException | ExecutionException e) {
+			Thread.currentThread().interrupt();
+		} catch (TimeoutException e) {
+			System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
+		}
+	}
+	
+	private boolean validateCharacter(String character) {
+		if (character == null || character.isBlank() || characters.contains(character)) {
+			return false;
+		}
+		Pattern pattern = Pattern.compile("^\\s*[a-zA-Z]+\\s*$");
+		Matcher matcher = pattern.matcher(character); 
+		return matcher.matches();
+	}
+	
 	@Override
 	public boolean makeTurn() {
 //		Player currentPlayer = currentGameTurn.getGuesser();
@@ -128,24 +187,6 @@ public class RandomGame implements Game {
 	}
 
 	@Override
-	public void addPlayer(Player player) {
-		Future<String> suggestedCharacter = player.getCharacter();
-		try {
-			String character = suggestedCharacter.get(DURATION, UNIT);
-			if (validateCharacter(character)) {
-				characters.add(character.strip());
-				players.add(player);
-				System.out.println("Player [" + player.getName().get() + "] connected...");
-			}			
-		} catch (InterruptedException | ExecutionException e) {
-			Thread.currentThread().interrupt();
-		} catch (TimeoutException e) {
-			System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
-		}
-		
-	}
-
-	@Override
 	public int countPlayers() {
 		return players.size();
 	}
@@ -185,18 +226,11 @@ public class RandomGame implements Game {
 		}
 	}
 	
-	private boolean validateCharacter(String character) {
-		if (character == null || character.isBlank() || characters.contains(character)) {
-			return false;
-		}
-		Pattern pattern = Pattern.compile("^\\s*[a-zA-Z]+\\s*$");
-		Matcher matcher = pattern.matcher(character); 
-		return matcher.matches();
+	public boolean isConcretePlayerAdded(Player player) {
+		return players.contains(player);
 	}
 	
-	@Override
-	public boolean isConcretePlayerAdded(Player checkedPlayer) {
-		return players.contains(checkedPlayer);
+	public boolean isConcreteCharacterAdded(String character) {
+		return character.contains(character);
 	}
-
 }
