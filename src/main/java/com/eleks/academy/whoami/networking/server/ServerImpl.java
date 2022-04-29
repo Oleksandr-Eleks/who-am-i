@@ -25,19 +25,21 @@ public class ServerImpl implements Server {
 
 	@Override
 	public Game startGame() {
-		Game game = new RandomGame();
+		Game game = new RandomGame(clientPlayers);
 		return game;
 	}
 
 	@Override
 	@PostConstruct
 	public void waitForPlayers() throws IOException {
-		System.out.println("Server starts");
-		System.out.println("Waiting for a client connect....");
-		for(int i = 0; i < players; i++) {
+		System.out.println("Server starts\nWaiting for a client connect....");
+		//TODO: When 3 clients connected, rest reject
+		do {
 			ClientPlayer clientPlayer = new ClientPlayer(serverSocket.accept());
 			clientPlayers.add(clientPlayer);
-		}
+			System.out.println("Sock con");
+		} while(clientPlayers.size() != players);
+		
 		System.out.println(String.format("Got %d players. Starting a game.", players));
 	}
 

@@ -18,10 +18,10 @@ public interface Game {
 
 	void addPlayer(Player player);
 	
+	void addPlayerCharacter(Player player);
+	
 	int countPlayers();
 	
 	void displayResults();
 
-	boolean isConcretePlayerAdded(Player checkedPlayer);
-	
 }

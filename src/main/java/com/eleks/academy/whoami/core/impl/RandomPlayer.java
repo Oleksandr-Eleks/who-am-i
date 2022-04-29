@@ -11,14 +11,13 @@ public class RandomPlayer implements Player {
 
 	private String name;
 	private List<String> characters = new ArrayList<>();
-	private List<String> questions;
-	private List<String> guesses;
+	private List<String> guesses = List.of("Batman", "Superman", "Superwoman", "Robin", "Tanos");
+	private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?", "Am i a male?",
+			"Am i a female?");
 
-	public RandomPlayer(String name, String character, List<String> questions, List<String> guesses) {
+	public RandomPlayer(String name, String character) {
 		this.name = name;
 		this.characters.add(character);
-		this.questions = new ArrayList<>(questions);
-		this.guesses = new ArrayList<>(guesses);
 	}
 
 	@Override
