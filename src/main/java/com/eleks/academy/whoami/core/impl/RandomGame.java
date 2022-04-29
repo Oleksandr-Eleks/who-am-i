@@ -57,11 +57,10 @@ public class RandomGame implements Game {
 
 	@Override
 	public void addPlayer(Player player) {
-		Future<String> suggestedName = player.getCharacter();
+		Future<String> suggestedName = player.getName();
 		try {
 			String name = suggestedName.get(DURATION, UNIT);
 			if (validatePlayerName(name)) {
-				characters.add(name.strip());
 				players.add(player);
 				System.out.println("Player [" + player.getName().get() + "] connected...");
 			}			
@@ -74,7 +73,7 @@ public class RandomGame implements Game {
 	}
 	
 	private boolean validatePlayerName(String name) {
-		if (name == null || name.isBlank() || players.contains(name)) {
+		if (name == null || name.isBlank()) {
 			return false;
 		}
 		Pattern pattern = Pattern.compile("^\\s*[a-zA-Z0-9]+\\s*$");
@@ -99,7 +98,7 @@ public class RandomGame implements Game {
 	}
 	
 	private boolean validateCharacter(String character) {
-		if (character == null || character.isBlank() || characters.contains(character)) {
+		if (character == null || character.isBlank()) {
 			return false;
 		}
 		Pattern pattern = Pattern.compile("^\\s*[a-zA-Z]+\\s*$");
@@ -231,6 +230,6 @@ public class RandomGame implements Game {
 	}
 	
 	public boolean isConcreteCharacterAdded(String character) {
-		return character.contains(character);
+		return characters.contains(character);
 	}
 }

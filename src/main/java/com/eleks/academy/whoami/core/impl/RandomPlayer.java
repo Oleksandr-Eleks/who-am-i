@@ -1,6 +1,5 @@
 package com.eleks.academy.whoami.core.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -8,16 +7,16 @@ import java.util.concurrent.Future;
 import com.eleks.academy.whoami.core.Player;
 
 public class RandomPlayer implements Player {
-
-	private String name;
-	private List<String> characters = new ArrayList<>();
-	private List<String> guesses = List.of("Batman", "Superman", "Superwoman", "Robin", "Tanos");
-	private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?", "Am i a male?",
+	
+	private final String name;
+	private final String character;
+	private List<String> guesses = List.of("Batman", "Superman", "Superwoman", "Robin");
+	private List<String> questions = List.of("i human?", "i character?", "i male?",
 			"Am i a female?");
-
-	public RandomPlayer(String name, String character) {
-		this.name = name;
-		this.characters.add(character);
+	
+	public RandomPlayer() {
+		this.name = generateName();
+		this.character = generateCharacter();
 	}
 
 	@Override
@@ -27,8 +26,6 @@ public class RandomPlayer implements Player {
 
 	@Override
 	public Future<String> getCharacter() {
-		String character = characters.get(0);
-//		characters.remove(0);
 		return CompletableFuture.completedFuture(character);
 	}
 	
@@ -70,9 +67,16 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-		
+	public void close() {}
+	
+	private String generateName() {
+		int token = ((int) (Math.random() * (65535 - 49152)) + 49152);
+		return "Player" + Integer.toString(token);
 	}
-
+	
+	private String generateCharacter() {
+		List<String> characters = List.of("Batman", "Superman", "Superwoman", "Robin");
+		String character = characters.remove(0);
+		return character;
+	}
 }
