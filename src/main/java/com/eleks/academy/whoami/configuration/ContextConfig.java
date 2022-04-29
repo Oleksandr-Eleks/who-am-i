@@ -32,6 +32,6 @@ public class ContextConfig {
 	
 	@Bean
 	Server server(ServerProperties serverProperties) throws IOException {
-		return new ServerImpl(serverProperties.getPort());
+		return new ServerImpl(serverProperties.getPort(), serverProperties.getPlayers());
 	}
 }

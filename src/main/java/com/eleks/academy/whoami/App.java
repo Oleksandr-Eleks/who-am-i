@@ -16,7 +16,9 @@ public class App {
 		ApplicationContext context = new AnnotationConfigApplicationContext(ContextConfig.class);
 		ServerProperties properies = context.getBean(ServerProperties.class);
 		Server server = context.getBean(Server.class);
-
+		
+		server.waitForPlayers();
+		
 		try {
 			Game game = server.startGame();
 			game.init();

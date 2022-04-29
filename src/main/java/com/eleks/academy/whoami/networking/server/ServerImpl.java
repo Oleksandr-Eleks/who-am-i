@@ -2,47 +2,41 @@ package com.eleks.academy.whoami.networking.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.impl.RandomGame;
+import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class ServerImpl implements Server {
 
 	private ServerSocket serverSocket;
-	private final List<Socket> clients = new ArrayList<>();
-	private List<String> characters = List.of("Batman", "Superman", "Superwoman", "Robin", "Tanos");
-	private Game game;
-	final int playersNumb = 2;
+	private final List<Player> clientPlayers;
+	private int players;
 
-	public ServerImpl(int port) {
-		try {
-			this.serverSocket = new ServerSocket(port);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public ServerImpl(int port, int players) throws IOException {
+		this.serverSocket = new ServerSocket(port);
+		this.players = players;
+		this.clientPlayers = new ArrayList<>(players);
 	}
 
 	@Override
 	public Game startGame() {
-		game = new RandomGame();
-		
+		Game game = new RandomGame();
 		return game;
 	}
 
 	@Override
-	public Socket waitForPlayers(Game game) throws IOException {
-		Socket player = serverSocket.accept();
-		clients.add(player);
-		return player;
-	}
-
-	@Override
-	public void addPlayer(Player player) {
-		System.out.println("Player: " + player.getName() + " connected to the game! ");
-		game.addPlayer(player);
+	public void waitForPlayers() throws IOException {
+		System.out.println("Server starts");
+		System.out.println("Waiting for a client connect....");
+		for(int i = 0; i < players; i++) {
+			ClientPlayer clientPlayer = new ClientPlayer(serverSocket.accept());
+			clientPlayers.add(clientPlayer);
+		}
+		System.out.println(String.format("Got %d players. Starting a game.", players));
 	}
 
 	@Override
@@ -58,10 +52,10 @@ public class ServerImpl implements Server {
 	
 	@Override
 	public void stop() {
-		for (Socket socket : clients) {
+		for (Player player : clientPlayers) {
 			try {
-				socket.close();
-			} catch (IOException e) {
+				player.close();
+			} catch (Exception e) {
 				System.err.println(String.format("Could not close a socket (%s)", e.getMessage()));
 			}
 		}

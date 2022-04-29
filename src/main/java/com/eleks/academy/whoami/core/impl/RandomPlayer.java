@@ -70,4 +70,10 @@ public class RandomPlayer implements Player {
 		return questions.isEmpty();
 	}
 
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

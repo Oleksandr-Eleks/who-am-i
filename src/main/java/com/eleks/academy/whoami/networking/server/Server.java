@@ -9,9 +9,7 @@ public interface Server {
 
 	Game startGame() throws IOException;
 	
-	Socket waitForPlayers(Game game) throws IOException;
-
-	void addPlayer(Player player);
+	void waitForPlayers() throws IOException;
 
 	void stopServer();
 	
