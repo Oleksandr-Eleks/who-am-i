@@ -55,7 +55,8 @@ public class ServerImpl implements Server {
 			System.err.println("server.close failed: " + e.getMessage());
 		}
 	}
-
+	
+	@Override
 	public void stop() {
 		for (Socket socket : clients) {
 			try {

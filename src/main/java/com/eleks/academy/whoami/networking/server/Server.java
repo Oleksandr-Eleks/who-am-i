@@ -14,5 +14,6 @@ public interface Server {
 	void addPlayer(Player player);
 
 	void stopServer();
-
+	
+	void stop();
 }
