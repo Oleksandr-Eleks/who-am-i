@@ -76,7 +76,6 @@ public class RandomPlayer implements Player {
 	
 	private String generateCharacter() {
 		List<String> characters = List.of("Batman", "Superman", "Superwoman", "Robin");
-		String character = characters.remove(0);
-		return character;
+		return characters.remove(0);
 	}
 }

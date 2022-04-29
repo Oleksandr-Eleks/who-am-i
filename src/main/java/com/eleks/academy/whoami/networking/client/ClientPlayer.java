@@ -18,7 +18,8 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private final BufferedReader reader;
 	private final PrintStream writer;
 	private final Socket socket;
-
+	private String name;
+	
 	public ClientPlayer(Socket socket) throws IOException {
 		this.socket = socket;
 		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -34,11 +35,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 		try {
 			writer.println("Enter your name:");
 			writer.flush();
-			return reader.readLine();
+			name = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
-			return "";
 		}
+		return name;
 	}
 
 	@Override
@@ -47,14 +48,15 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	private String askForCharacterFromClient() {
+		String character = "";
 		try {
 			writer.println("Enter your character:");
 			writer.flush();
-			return reader.readLine();
+			character = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
-			return "getCharacterFail";
 		}
+		return character;
 	}
 
 	@Override
