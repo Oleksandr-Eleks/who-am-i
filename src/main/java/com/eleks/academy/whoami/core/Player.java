@@ -18,4 +18,6 @@ public interface Player {
 
 	Future<String> answerGuess(String guess, String character);
 	
+	void close();
+	
 }
