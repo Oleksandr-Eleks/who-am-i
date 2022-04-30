@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -29,9 +28,10 @@ public class RandomGame implements Game {
 	private Turn currentGameTurn;
 
 	public RandomGame(List<Player> players) {
-		this.players = new ArrayList<>(players);
-		players.forEach(this::addPlayer);
+		this.players = new ArrayList<>(players.size());
 		this.characters = new ArrayList<>(players.size());
+		players.parallelStream().forEach(this::addPlayer);
+		this.players.parallelStream().forEach(this::addPlayerCharacter);
 	}
 
 	@Override
@@ -57,12 +57,12 @@ public class RandomGame implements Game {
 
 	@Override
 	public void addPlayer(Player player) {
-		Future<String> suggestedName = player.getName();
+		Future<String> suggestedName = player.askName();
 		try {
 			String name = suggestedName.get(DURATION, UNIT);
 			if (validatePlayerName(name)) {
 				players.add(player);
-				System.out.println("Player [" + player.getName().get() + "] connected...");
+				System.out.println("Player [" + player.getName() + "] connected...");
 			}			
 		} catch (InterruptedException | ExecutionException e) {
 			Thread.currentThread().interrupt();
@@ -83,12 +83,12 @@ public class RandomGame implements Game {
 	
 	@Override
 	public void addPlayerCharacter(Player player) {
-		Future<String> suggestedCharacter = player.getCharacter();
+		Future<String> suggestedCharacter = player.aksCharacter();
 		try {
 			String character = suggestedCharacter.get(DURATION, UNIT);
 			if (validateCharacter(character)) {
 				characters.add(character.strip());
-				System.out.println("Player [" + player.getName().get() + "] character added...");
+				System.out.println("Player [" + player.getName() + "] character added...");
 			}			
 		} catch (InterruptedException | ExecutionException e) {
 			Thread.currentThread().interrupt();
@@ -108,66 +108,14 @@ public class RandomGame implements Game {
 	
 	@Override
 	public boolean makeTurn() {
-//		Player currentPlayer = currentGameTurn.getGuesser();
-//		/*
-//		 * TODO: parallel answers -> count -> display result -> -> peek another
-//		 * player(Guesser) (maybe better use some concurrent Queue)
-//		 * 
-//		 */
-//		if (currentPlayer.isReadyForGuess()) {
-//			return giveGuess(currentPlayer.getGuess(), currentPlayer);
-//		} else {
-//			boolean streak;
-//
-//			do {
-//				String question = "";
-//				try {
-//					question = currentPlayer.getQuestion().get(5, TimeUnit.SECONDS);
-//				} catch (ExecutionException | TimeoutException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				streak = giveQuestion(question, currentPlayer);
-//			} while (streak != false);
-//
-//			return true;
-//		}
 		return true;
 	}
 
 	private boolean giveQuestion(String playerQuestion, Player currentPlayer) {
-		if (playerQuestion.isBlank()) {
-			return false;
-		}
-		List<Boolean> playersAnswers = new ArrayList<>();
-
-//		playersAnswers = currentGameTurn.getOtherPlayers().stream().parallel().map(player -> player.answerQuestion(playerQuestion,
-//				currentPlayer.getName(), playersCharacters.get(currentPlayer.getName()))).collect(Collectors.toList());
-
-		long yes = playersAnswers.stream().filter(answer -> answer.equals(true)).count();
-		long no = playersAnswers.stream().filter(answer -> answer.equals(false)).count();
-
-		System.out.println("[Yes] = " + yes + " [No] = " + no);
-		return yes > no;
+		return true;
 	}
 
 	private boolean giveGuess(String playerGuess, Player currentPlayer) {
-		List<Boolean> playersAnswers;
-
-//		playersAnswers = currentGameTurn.getOtherPlayers().stream().parallel().map(player -> player.answerGuess(playerGuess,
-//				currentPlayer.getName(), playersCharacters.get(currentPlayer.getName()))).collect(Collectors.toList());
-
-//		long yes = playersAnswers.stream().filter(answer -> answer.equals(true)).count();
-//		long no = playersAnswers.stream().filter(answer -> answer.equals(false)).count();
-
-//		if (yes > no) {
-//			gameResult.add(currentPlayer.getName());
-		players.remove(currentPlayer);
-//		}
-//		System.out.println("[Yes] = " + yes + " [No] = " + no);
 		return true;
 	}
 
@@ -179,9 +127,6 @@ public class RandomGame implements Game {
 
 	@Override
 	public boolean isFinished() {
-		if (players.size() == 1) {
-//			gameResult.add(players.get(0).getName());
-		}
 		return players.size() == 1;
 	}
 
