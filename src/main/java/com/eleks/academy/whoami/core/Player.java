@@ -12,7 +12,7 @@ public interface Player {
 
 	Future<String> answerQuestion(String question, String playerName, String character);
 
-	boolean isReadyForGuess();
+	Future<String> isReadyForGuess();
 
 	Future<String> getGuess();
 

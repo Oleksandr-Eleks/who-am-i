@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -344,9 +343,8 @@ public class ClientPlayerIT {
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
 
-				boolean answer = player.isReadyForGuess();
-				assertEquals(false, answer);
-				assertFalse(answer);
+				String answer = player.isReadyForGuess().get(DURATION, UNIT).toLowerCase();
+				assertEquals("no", answer);
 				assertNotNull(answer);
 
 				clientReadyToGuess.countDown();

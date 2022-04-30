@@ -107,7 +107,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	public Future<String> answerGuess(String guess, String playerName, String character) {
 		String answer = "";
 		try {
-			answer = sendAndGetMessage(playerName + " guess -> " + guess + " (Character: " + character + ")");
+			answer = sendAndGetMessage(playerName + " guess -> " + guess + " (Character: " + character + ")").toLowerCase();
 		} catch (IOException e) {
 			System.err.printf("Cannot get an answer on guess from a player. Assuming 2. (%s)%n", e.getMessage());
 		}
@@ -125,14 +125,14 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
+	public Future<String> isReadyForGuess() {
 		String answer = "";
 		try {
-			answer = sendAndGetMessage("Are you ready to guess? [yes|no]");
+			answer = sendAndGetMessage("Are you ready to guess? [yes|no]").toLowerCase();
 		} catch (IOException e) {
 			System.err.printf("Cannot check is player ready to guess. Assuming 2. (%s)%n", e.getMessage());
 		}
-		return answer.toLowerCase().equals("yes");
+		return CompletableFuture.completedFuture(answer);
 	}
 	
 	@Override

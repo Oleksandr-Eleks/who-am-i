@@ -66,8 +66,9 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
-		return questions.isEmpty();
+	public Future<String> isReadyForGuess() {
+		String result = questions.isEmpty() ? "yes" : "no";
+		return CompletableFuture.completedFuture(result);
 	}
 
 	@Override
