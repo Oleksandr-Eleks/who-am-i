@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -65,72 +66,52 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	private String askForQuestionFromClient() {
+		String question = "";
 		try {
-			writer.println("Ask your question:");
-			writer.flush();
-			return reader.readLine();
+			question = sendAndGetMessage("Ask your question:");
 		} catch (IOException e) {
 			System.err.printf("Cannot get an answer on question from a player. Assuming 2. (%s)%n", e.getMessage());
-			return "getQuestionFail";
 		}
+		return question;
 	}
 
 	@Override
-	public boolean answerQuestion(String question, String playerName, String character) {
-		String answer = "";
+	public Future<String> getGuess() {
+		return executor.submit(this::askForGuessFromClient);
+	}
 
+	private String askForGuessFromClient() {
+		String guess = "";
 		try {
-			writer.println("Answer " + playerName + " question: " + question + " (Character is: " + character + ")");
-			writer.flush();
-			answer = reader.readLine();
+			guess = sendAndGetMessage("Write your guess: ");
+			System.out.println("[" + name + "] guesses: Am I " + guess + " ?");
+		} catch (IOException e) {
+			System.err.printf("Cannot get a guess from a player. Assuming 2. (%s)%n", e.getMessage());
+		}
+		return guess;
+	}
+	
+	@Override
+	public Future<String> answerQuestion(String question, String playerName, String character) {
+		String answer = "";
+		try {
+			answer = sendAndGetMessage("Answer " + playerName + " question: " + question + " (Character is: " + character + ")");
 		} catch (IOException e) {
 			System.err.printf("Cannot get a question from a player. Assuming 2. (%s)%n", e.getMessage());
 			e.printStackTrace();
 		}
-
-		return answer.toLowerCase().contentEquals("yes");
+		return CompletableFuture.completedFuture(answer);
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
+	public Future<String> answerGuess(String guess, String playerName, String character) {
 		String answer = "";
-
 		try {
-			answer = sendAndGetMessage("Are you ready to guess? [yes|no]");
-		} catch (IOException e) {
-			System.err.printf("Cannot check is player ready to guess. Assuming 2. (%s)%n", e.getMessage());
-			e.printStackTrace();
-		}
-
-		return answer.toLowerCase().equals("yes");
-	}
-
-	@Override
-	public String getGuess() {
-		String guess = "";
-
-		try {
-			guess = sendAndGetMessage("Write your guess: ");
-			System.out.println(" guesses: Am I " + guess);
-		} catch (IOException e) {
-			System.err.printf("Cannot get a guess from a player. Assuming 2. (%s)%n", e.getMessage());
-			e.printStackTrace();
-		}
-		return guess;
-	}
-
-	@Override
-	public boolean answerGuess(String guess, String playerName, String character) {
-		String answer = "";
-
-		try {
-			sendAndGetMessage(playerName + " guess -> " + guess + " (Character: " + character + ")");
+			answer = sendAndGetMessage(playerName + " guess -> " + guess + " (Character: " + character + ")");
 		} catch (IOException e) {
 			System.err.printf("Cannot get an answer on guess from a player. Assuming 2. (%s)%n", e.getMessage());
-
 		}
-
-		return answer.toLowerCase().contentEquals("yes");
+		return CompletableFuture.completedFuture(answer);
 	}
 
 	private String sendAndGetMessage(String messageToSend) throws IOException {
@@ -143,6 +124,17 @@ public class ClientPlayer implements Player, AutoCloseable {
 		return messageToGet;
 	}
 
+	@Override
+	public boolean isReadyForGuess() {
+		String answer = "";
+		try {
+			answer = sendAndGetMessage("Are you ready to guess? [yes|no]");
+		} catch (IOException e) {
+			System.err.printf("Cannot check is player ready to guess. Assuming 2. (%s)%n", e.getMessage());
+		}
+		return answer.toLowerCase().equals("yes");
+	}
+	
 	@Override
 	public void close() {
 		executor.shutdown();
