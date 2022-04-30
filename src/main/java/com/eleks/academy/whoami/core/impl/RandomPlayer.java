@@ -40,25 +40,29 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public boolean answerQuestion(String question, String playerName, String character) {
-		boolean answer = Math.random() < 0.5;
+	public Future<String> answerQuestion(String question, String playerName, String character) {
+		String answer = Math.random() < 0.5 ? "yes" : "no";
 		System.out.println(name + " answers:\n---> " + answer);
-		return answer;
+		return CompletableFuture.completedFuture(answer);
 	}
 
 	@Override
-	public String getGuess() {
+	public Future<String> getGuess() {
 		int randomPos = (int) (Math.random() * guesses.size());
 		String guess = guesses.remove(randomPos);
 		System.out.println(name + " guesses: Am I " + guess);
-		return guess;
+		return CompletableFuture.completedFuture(guess);
 	}
 
 	@Override
-	public boolean answerGuess(String guess, String playerName, String character) {
-		boolean answer = guess.toLowerCase().contains(character.toLowerCase());
-		System.out.println(name + " answers:\n---> " + answer);
-		return answer;
+	public Future<String> answerGuess(String guess, String playerName, String character) {
+		if (guess.toLowerCase().contains(character.toLowerCase())) {
+			System.out.println(name + " answers:\n---> yes");
+			return CompletableFuture.completedFuture("yes");			
+		} else {
+			System.out.println(name + " answers:\n---> no");
+			return CompletableFuture.completedFuture("no");
+		}
 	}
 
 	@Override

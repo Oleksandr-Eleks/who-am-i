@@ -10,13 +10,13 @@ public interface Player {
 
 	Future<String> getQuestion();
 
-	boolean answerQuestion(String question, String playerName, String character);
+	Future<String> answerQuestion(String question, String playerName, String character);
 
 	boolean isReadyForGuess();
 
-	String getGuess();
+	Future<String> getGuess();
 
-	boolean answerGuess(String guess, String playerName,  String character);
+	Future<String> answerGuess(String guess, String playerName,  String character);
 
 	void close();
 	
