@@ -28,10 +28,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public Future<String> getName() {
+	public Future<String> askName() {
 		return executor.submit(this::askForNameFromClient);
 	}
-
+	
+	
 	private String askForNameFromClient() {
 		try {
 			writer.println("Enter your name:");
@@ -44,7 +45,12 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public Future<String> getCharacter() {
+	public String getName() {
+		return name;
+	}
+	
+	@Override
+	public Future<String> aksCharacter() {
 		return executor.submit(this::askForCharacterFromClient);
 	}
 

@@ -1,7 +1,6 @@
 package com.eleks.academy.whoami.networking.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -64,7 +63,7 @@ public class ClientPlayerIT {
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
 
-				String name = player.getName().get(DURATION, UNIT);
+				String name = player.askName().get(DURATION, UNIT);
 				assertEquals("TestUser", name);
 				assertNotNull(name);
 
@@ -109,7 +108,7 @@ public class ClientPlayerIT {
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
 
-				String character = player.getCharacter().get(DURATION, UNIT);
+				String character = player.aksCharacter().get(DURATION, UNIT);
 				assertEquals("TestCharacter", character);
 				assertNotNull(character);
 

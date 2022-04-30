@@ -4,9 +4,11 @@ import java.util.concurrent.Future;
 
 public interface Player {
 
-	Future<String> getName();
+	Future<String> askName();
 	
-	Future<String> getCharacter();
+	String getName();
+	
+	Future<String> aksCharacter();
 
 	Future<String> getQuestion();
 
@@ -19,5 +21,6 @@ public interface Player {
 	Future<String> answerGuess(String guess, String playerName,  String character);
 
 	void close();
+
 	
 }

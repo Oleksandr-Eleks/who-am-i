@@ -20,12 +20,17 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
-	public Future<String> getName() {
+	public Future<String> askName() {
 		return CompletableFuture.completedFuture(name);
 	}
-
+	
 	@Override
-	public Future<String> getCharacter() {
+	public String getName() {
+		return name;
+	}
+	
+	@Override
+	public Future<String> aksCharacter() {
 		return CompletableFuture.completedFuture(character);
 	}
 	
@@ -83,4 +88,5 @@ public class RandomPlayer implements Player {
 		List<String> characters = List.of("Batman", "Superman", "Superwoman", "Robin");
 		return characters.remove(0);
 	}
+
 }
