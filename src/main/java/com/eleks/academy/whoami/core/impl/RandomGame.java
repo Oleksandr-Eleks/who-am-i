@@ -22,9 +22,9 @@ public class RandomGame implements Game {
 	private List<Player> players;
 	private List<String> characters;
 	private Map<String, String> playersCharacters = new ConcurrentHashMap<>();
-	private List<String> gameResult = new ArrayList<>();
-	private Player cura;
+	private Player currentPlayer;
 	private List<String> playersAnswers = new ArrayList<>();
+	private List<String> gameResult = new ArrayList<>();
 
 	public RandomGame(List<Player> players) {
 		this.players = new ArrayList<>(players.size());
@@ -119,26 +119,26 @@ public class RandomGame implements Game {
 	@Override
 	public void makeTurn() {
 		boolean massYes;
-		cura = players.remove(0);
+		currentPlayer = players.remove(0);
 		try {
 
-			if (!gameResult.contains(cura.getName())) {
+			if (!gameResult.contains(currentPlayer.getName())) {
 
-				if (cura.isReadyForGuess().get(DURATION, UNIT).contentEquals("yes")) {
+				if (currentPlayer.isReadyForGuess().get(DURATION, UNIT).contentEquals("yes")) {
 					playersAnswers.removeAll(playersAnswers);
-					cura.askGuess().get(DURATION, UNIT);
+					currentPlayer.askGuess().get(DURATION, UNIT);
 					players.parallelStream().forEach(this::giveGuess);
 					massYes = countAnswers();
 
 					if (massYes) {
-						gameResult.add(cura.getName());
+						gameResult.add(currentPlayer.getName());
 					}
 
 				} else {
 
 					do {
 						playersAnswers.removeAll(playersAnswers);
-						cura.askQuestion().get(DURATION, UNIT);
+						currentPlayer.askQuestion().get(DURATION, UNIT);
 						players.parallelStream().forEach(this::giveQuestion);
 						massYes = countAnswers();
 					} while (massYes);
@@ -150,11 +150,11 @@ public class RandomGame implements Game {
 		} catch (TimeoutException e) {
 			System.err.println("Player didn't provide an answer within %d %s".formatted(DURATION, UNIT));
 		}
-		players.add(cura);
+		players.add(currentPlayer);
 	}
 
 	private void giveQuestion(Player player) {
-		Future<String> askPlayer = player.answerQuestion(cura.getName(), cura.getQuestion(), playersCharacters.get(cura.getName()));
+		Future<String> askPlayer = player.answerQuestion(currentPlayer.getName(), currentPlayer.getQuestion(), playersCharacters.get(currentPlayer.getName()));
 		try {
 			String answer = askPlayer.get(DURATION, UNIT);
 			playersAnswers.add(answer);
@@ -166,7 +166,7 @@ public class RandomGame implements Game {
 	}
 
 	private void giveGuess(Player player) {
-		Future<String> askPlayer = player.answerGuess(cura.getName(), cura.getGuess(), playersCharacters.get(cura.getName()));
+		Future<String> askPlayer = player.answerGuess(currentPlayer.getName(), currentPlayer.getGuess(), playersCharacters.get(currentPlayer.getName()));
 		try {
 			String answer = askPlayer.get(DURATION, UNIT);
 			playersAnswers.add(answer);
