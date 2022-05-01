@@ -36,7 +36,6 @@ class ClientPlayerIT {
             Thread t1 = new Thread(() -> {
                 try (Socket client = new Socket(localHost, port);
                      PrintWriter writer = new PrintWriter(client.getOutputStream())) {
-
                     writer.println("test character");
                     writer.flush();
                     clientReady.countDown();
@@ -44,7 +43,6 @@ class ClientPlayerIT {
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
-
                     Thread.currentThread().interrupt();
                 }
             });
@@ -66,10 +64,11 @@ class ClientPlayerIT {
             });
             t2.start();
             boolean timeOver = timeout.await(5, TimeUnit.SECONDS);
-            if (timeOver) {
+            if (!timeOver) {
                 t1.interrupt();
                 t2.interrupt();
             }
+            assertTrue(timeOver);
         }
     }
 
@@ -114,10 +113,11 @@ class ClientPlayerIT {
             });
             t2.start();
             boolean timeOver = timeout.await(5, TimeUnit.SECONDS);
-            if (timeOver) {
+            if (!timeOver) {
                 t1.interrupt();
                 t2.interrupt();
             }
+            assertTrue(timeOver);
         }
     }
 

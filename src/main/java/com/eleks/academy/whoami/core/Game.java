@@ -14,6 +14,6 @@ public interface Game {
 
 	void initGame();
 
-	boolean isPlayerContains(Player player);
+	boolean isPlayerPresent(Player player);
 
 }

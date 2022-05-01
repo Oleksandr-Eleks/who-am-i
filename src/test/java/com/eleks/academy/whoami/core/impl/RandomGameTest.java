@@ -33,7 +33,7 @@ class RandomGameTest {
 		TestPlayer p1 = new TestPlayer("P1");
 		p1.character = "";
 		game.addPlayer(p1);
-		assertFalse(game.isPlayerContains(p1));
+		assertFalse(game.isPlayerPresent(p1));
 	}
 
 	private static final class TestPlayer implements Player {
