@@ -8,19 +8,13 @@ public interface Game {
 	
 	void assignCharacters();
 	
-	void start();
-
 	boolean isFinished();
 
-	boolean makeTurn();
-
-	void endTurn();
+	void makeTurn();
 
 	void addPlayer(Player player);
 	
 	void addPlayerCharacter(Player player);
-	
-	int countPlayers();
 	
 	void displayResults();
 

@@ -13,19 +13,18 @@ import java.util.regex.Pattern;
 
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
-import com.eleks.academy.whoami.core.Turn;
 
 public class RandomGame implements Game {
 
-	private final static int DURATION = 30;
-	private final static TimeUnit UNIT = TimeUnit.SECONDS;
-	
+	private final static int DURATION = 2;
+	private final static TimeUnit UNIT = TimeUnit.MINUTES;
+
 	private List<Player> players;
 	private List<String> characters;
-	private Map<String, String> playersCharacters = new ConcurrentHashMap();
+	private Map<String, String> playersCharacters = new ConcurrentHashMap<>();
 	private List<String> gameResult = new ArrayList<>();
-	
-	private Turn currentGameTurn;
+	private Player cura;
+	private List<String> playersAnswers = new ArrayList<>();
 
 	public RandomGame(List<Player> players) {
 		this.players = new ArrayList<>(players.size());
@@ -37,21 +36,13 @@ public class RandomGame implements Game {
 	@Override
 	public void init() {
 		displayPlayers();
-		while (players.size() != 3) {
-			
+		assignCharacters();
+
+		while (!isFinished()) {
+			System.out.println("\tTurn started...\n");
+			makeTurn();
+			System.out.println("\n\tTurn ended!");
 		}
-//		assignCharacters();
-//		start();
-//
-//		while (isFinished() != true) {
-//			System.out.println("\tTurn started...\n");
-//			boolean isTurnEnded = makeTurn();
-//
-//			while (isTurnEnded != true) {
-//				isTurnEnded = makeTurn();
-//			}
-//			endTurn();
-//		}
 		displayResults();
 	}
 
@@ -63,76 +54,48 @@ public class RandomGame implements Game {
 			if (validatePlayerName(name)) {
 				players.add(player);
 				System.out.println("Player [" + player.getName() + "] connected...");
-			}			
+			}
 		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
 			Thread.currentThread().interrupt();
 		} catch (TimeoutException e) {
 			System.err.println("Player did not provide a nickname within %d %s".formatted(DURATION, UNIT));
 		}
-		
+
 	}
-	
+
 	private boolean validatePlayerName(String name) {
 		if (name == null || name.isBlank()) {
 			return false;
 		}
 		Pattern pattern = Pattern.compile("^\\s*[a-zA-Z0-9]+\\s*$");
-		Matcher matcher = pattern.matcher(name); 
+		Matcher matcher = pattern.matcher(name);
 		return matcher.matches();
 	}
-	
+
 	@Override
 	public void addPlayerCharacter(Player player) {
-		Future<String> suggestedCharacter = player.aksCharacter();
+		Future<String> suggestedCharacter = player.askCharacter();
 		try {
 			String character = suggestedCharacter.get(DURATION, UNIT);
 			if (validateCharacter(character)) {
 				characters.add(character.strip());
 				System.out.println("Player [" + player.getName() + "] character added...");
-			}			
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			Thread.currentThread().interrupt();
 		} catch (TimeoutException e) {
-			System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
+			System.err.println("Player did not suggest a character within %d %s".formatted(DURATION, UNIT));
 		}
 	}
-	
+
 	private boolean validateCharacter(String character) {
 		if (character == null || character.isBlank()) {
 			return false;
 		}
 		Pattern pattern = Pattern.compile("^\\s*[a-zA-Z]+\\s*$");
-		Matcher matcher = pattern.matcher(character); 
+		Matcher matcher = pattern.matcher(character);
 		return matcher.matches();
-	}
-	
-	@Override
-	public boolean makeTurn() {
-		return true;
-	}
-
-	private boolean giveQuestion(String playerQuestion, Player currentPlayer) {
-		return true;
-	}
-
-	private boolean giveGuess(String playerGuess, Player currentPlayer) {
-		return true;
-	}
-
-	@Override
-	public void endTurn() {
-		System.out.println("\n\tTurn ended!");
-		currentGameTurn.changeTurn();
-	}
-
-	@Override
-	public boolean isFinished() {
-		return players.size() == 1;
-	}
-
-	@Override
-	public int countPlayers() {
-		return players.size();
 	}
 
 	@Override
@@ -144,7 +107,7 @@ public class RandomGame implements Game {
 
 	@Override
 	public void assignCharacters() {
-//		players.stream().forEach(player -> playersCharacters.put(player.getName(), getRandomCharacter()));
+		players.stream().forEach(player -> playersCharacters.put(player.getName(), getRandomCharacter()));
 
 	}
 
@@ -154,8 +117,76 @@ public class RandomGame implements Game {
 	}
 
 	@Override
-	public void start() {
-		currentGameTurn = new TurnImpl(players);
+	public void makeTurn() {
+		boolean massYes;
+		cura = players.remove(0);
+		try {
+
+			if (!gameResult.contains(cura.getName())) {
+
+				if (cura.isReadyForGuess().get(DURATION, UNIT).contentEquals("yes")) {
+					playersAnswers.removeAll(playersAnswers);
+					cura.askGuess().get(DURATION, UNIT);
+					players.parallelStream().forEach(this::giveGuess);
+					massYes = countAnswers();
+
+					if (massYes) {
+						gameResult.add(cura.getName());
+					}
+
+				} else {
+
+					do {
+						playersAnswers.removeAll(playersAnswers);
+						cura.askQuestion().get(DURATION, UNIT);
+						players.parallelStream().forEach(this::giveQuestion);
+						massYes = countAnswers();
+					} while (massYes);
+				}
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt();
+		} catch (TimeoutException e) {
+			System.err.println("Player didn't provide an answer within %d %s".formatted(DURATION, UNIT));
+		}
+		players.add(cura);
+	}
+
+	private void giveQuestion(Player player) {
+		Future<String> askPlayer = player.answerQuestion(cura.getName(), cura.getQuestion(), playersCharacters.get(cura.getName()));
+		try {
+			String answer = askPlayer.get(DURATION, UNIT);
+			playersAnswers.add(answer);
+		} catch (InterruptedException | ExecutionException e) {
+			Thread.currentThread().interrupt();
+		} catch (TimeoutException e) {
+			System.err.println("Player didn't provide an answer within %d %s".formatted(DURATION, UNIT));
+		}
+	}
+
+	private void giveGuess(Player player) {
+		Future<String> askPlayer = player.answerGuess(cura.getName(), cura.getGuess(), playersCharacters.get(cura.getName()));
+		try {
+			String answer = askPlayer.get(DURATION, UNIT);
+			playersAnswers.add(answer);
+		} catch (InterruptedException | ExecutionException e) {
+			Thread.currentThread().interrupt();
+		} catch (TimeoutException e) {
+			System.err.println("Player didn't provide an answer within %d %s".formatted(DURATION, UNIT));
+		}
+	}
+
+	private boolean countAnswers() {
+		long yes = playersAnswers.stream().filter(ans -> ans.equals("yes")).count();
+		long no = playersAnswers.stream().filter(ans -> ans.equals("no")).count();
+		System.out.println("[YES] = " + yes + " [NO] = " + no);
+		return yes > no;
+	}
+
+	@Override
+	public boolean isFinished() {
+		return players.size() == gameResult.size();
 	}
 
 	@Override
@@ -169,12 +200,13 @@ public class RandomGame implements Game {
 			System.out.println("---> " + gameResult.get(i));
 		}
 	}
-	
+
 	public boolean isConcretePlayerAdded(Player player) {
 		return players.contains(player);
 	}
-	
+
 	public boolean isConcreteCharacterAdded(String character) {
 		return characters.contains(character);
 	}
+	
 }
