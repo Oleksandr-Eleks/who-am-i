@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.*;
 
 public class ClientPlayer implements Player, AutoCloseable {
@@ -147,4 +148,15 @@ public class ClientPlayer implements Player, AutoCloseable {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClientPlayer that)) return false;
+        return name.equals(that.name) && suggestedCharacter.equals(that.suggestedCharacter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, suggestedCharacter);
+    }
 }
