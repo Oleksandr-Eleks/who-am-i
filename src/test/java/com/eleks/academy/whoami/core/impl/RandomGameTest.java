@@ -58,10 +58,10 @@ class RandomGameTest {
 		game.addPlayerCharacter(player3);
 		game.addPlayerCharacter(player4);
 		
-		assertTrue(game.isConcreteCharacterAdded(player1.getCharacter().get(DURATION, UNIT).strip()));
-		assertTrue(game.isConcreteCharacterAdded(player2.getCharacter().get(DURATION, UNIT).strip()));
-		assertTrue(game.isConcreteCharacterAdded(player3.getCharacter().get(DURATION, UNIT).strip()));
-		assertTrue(game.isConcreteCharacterAdded(player4.getCharacter().get(DURATION, UNIT).strip()));
+		assertTrue(game.isConcreteCharacterAdded(player1.askCharacter().get(DURATION, UNIT).strip()));
+		assertTrue(game.isConcreteCharacterAdded(player2.askCharacter().get(DURATION, UNIT).strip()));
+		assertTrue(game.isConcreteCharacterAdded(player3.askCharacter().get(DURATION, UNIT).strip()));
+		assertTrue(game.isConcreteCharacterAdded(player4.askCharacter().get(DURATION, UNIT).strip()));
 	}
 	
 private final class TestPlayer implements Player {
@@ -80,17 +80,22 @@ private final class TestPlayer implements Player {
 		}
 
 		@Override
-		public Future<String> getName() {
+		public Future<String> askName() {
 			return CompletableFuture.completedFuture(name);
 		}
-
+		
 		@Override
-		public Future<String> getCharacter() {
+		public String getName() {
+			return name;
+		}
+		
+		@Override
+		public Future<String> askCharacter() {
 			return CompletableFuture.completedFuture(character);
 		}
 
 		@Override
-		public Future<String> getQuestion() {
+		public Future<String> askQuestion() {
 			if (questions.isEmpty()) {
 				return null;
 			}
@@ -100,19 +105,20 @@ private final class TestPlayer implements Player {
 		}
 
 		@Override
-		public boolean answerQuestion(String question, String playerName, String character) {
+		public Future<String> answerQuestion(String playerName, String question, String character) {
 			boolean answer = Math.random() < 0.5;
 			System.out.println(name + " answers:\n---> " + answer);
 			throw new UnsupportedOperationException();
 		}
 
 		@Override
-		public boolean isReadyForGuess() {
-			return questions.isEmpty();
+		public Future<String> isReadyForGuess() {
+			String result = questions.isEmpty() ? "yes" : "no";
+			return CompletableFuture.completedFuture(result);
 		}
 
 		@Override
-		public String getGuess() {
+		public Future<String> askGuess() {
 			int randomPos = (int) (Math.random() * guesses.size());
 			String guess = guesses.remove(randomPos);
 			System.out.println(name + " guesses: Am I " + guess);
@@ -120,16 +126,26 @@ private final class TestPlayer implements Player {
 		}
 
 		@Override
-		public boolean answerGuess(String guess, String playerName, String character) {
-			boolean answer = guess.toLowerCase().contains(character.toLowerCase());
-			System.out.println(name + " answers:\n---> " + answer);
-			return answer;
+		public Future<String> answerGuess(String playerName, String guess, String character) {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void close() {
 			throw new UnsupportedOperationException();
 		}
-		
+
+		@Override
+		public String getQuestion() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getGuess() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 }
