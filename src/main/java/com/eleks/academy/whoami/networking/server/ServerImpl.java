@@ -32,12 +32,11 @@ public class ServerImpl implements Server {
 	@Override
 	@PostConstruct
 	public void waitForPlayers() throws IOException {
-		System.out.println("Server starts\nWaiting for a client connect....");
-		//TODO: When 3 clients connected, rest reject
+		System.out.println("Server starts\nWaiting for a clients to connect....");
 		do {
 			ClientPlayer clientPlayer = new ClientPlayer(serverSocket.accept());
 			clientPlayers.add(clientPlayer);
-			System.out.println("Sock con");
+			System.out.println("Client connected...");
 		} while(clientPlayers.size() != players);
 		
 		System.out.println(String.format("Got %d players. Starting a game.", players));
@@ -45,12 +44,18 @@ public class ServerImpl implements Server {
 
 	@PreDestroy
 	public void stop() {
+		System.out.println("Stop server...");
 		for (Player player : clientPlayers) {
 			try {
 				player.close();
 			} catch (Exception e) {
 				System.err.println(String.format("Could not close a socket (%s)", e.getMessage()));
 			}
+		}
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			System.err.println(String.format("Could not close a Serversocket (%s)", e.getMessage()));
 		}
 	}
 
