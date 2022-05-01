@@ -108,7 +108,7 @@ public class ClientPlayerIT {
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
 
-				String character = player.aksCharacter().get(DURATION, UNIT);
+				String character = player.askCharacter().get(DURATION, UNIT);
 				assertEquals("TestCharacter", character);
 				assertNotNull(character);
 
@@ -136,7 +136,7 @@ public class ClientPlayerIT {
 						PrintWriter writer = new PrintWriter(client.getOutputStream())) {
 
 					clientReady.countDown();
-					writer.println("Am i a human?");
+					writer.println("Am i a superhuman?");
 					writer.flush();
 					clientGiveQuestion.await(DURATION, UNIT);
 
@@ -153,8 +153,8 @@ public class ClientPlayerIT {
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
 
-				String question = player.getQuestion().get(DURATION, UNIT);
-				assertEquals("Am i a human?", question);
+				String question = player.askQuestion().get(DURATION, UNIT);
+				assertEquals("Am i a superhuman?", question);
 				assertNotNull(question);
 
 				clientGiveQuestion.countDown();
@@ -199,7 +199,7 @@ public class ClientPlayerIT {
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
 
-				String guess = player.getQuestion().get(DURATION, UNIT);
+				String guess = player.askQuestion().get(DURATION, UNIT);
 				assertEquals("Am i a SeniorDeveloper?", guess);
 				assertNotNull(guess);
 
@@ -213,9 +213,9 @@ public class ClientPlayerIT {
 	void serverReadsClientsQuestionAnswerFromSocket() 
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		
-		String character = "Car";
 		String playerName = "Player22654";
-		String question = "Am i a Batman?";
+		String question = "am i a human?";
+		String character = "Car";
 		
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
@@ -248,7 +248,7 @@ public class ClientPlayerIT {
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
 
-				String answer = player.answerQuestion(question, playerName, character).get(DURATION, UNIT);
+				String answer = player.answerQuestion(playerName, question, character).get(DURATION, UNIT);
 				assertEquals("no", answer.toLowerCase());
 				assertNotNull(answer);
 
@@ -262,9 +262,9 @@ public class ClientPlayerIT {
 	void serverReadsClientsGuessAnswerFromSocket() 
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		
-		String character = "Car";
 		String playerName = "Player22654";
-		String guess = "Am i a Batman?";
+		String guess = "am i byke?";
+		String character = "Car";
 		
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
@@ -297,7 +297,7 @@ public class ClientPlayerIT {
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
 
-				String answer = player.answerGuess(guess, playerName, character).get(DURATION, UNIT);
+				String answer = player.answerGuess(playerName, guess, character).get(DURATION, UNIT);
 				assertEquals("no", answer.toLowerCase());
 				assertNotNull(answer);
 

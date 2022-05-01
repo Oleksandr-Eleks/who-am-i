@@ -8,17 +8,21 @@ public interface Player {
 	
 	String getName();
 	
-	Future<String> aksCharacter();
+	Future<String> askCharacter();
 
-	Future<String> getQuestion();
+	Future<String> askQuestion();
+	
+	String getQuestion();
 
-	Future<String> answerQuestion(String question, String playerName, String character);
+	Future<String> answerQuestion(String playerName, String question, String character);
 
 	Future<String> isReadyForGuess();
 
-	Future<String> getGuess();
+	Future<String> askGuess();
+	
+	String getGuess();
 
-	Future<String> answerGuess(String guess, String playerName,  String character);
+	Future<String> answerGuess(String playerName, String guess, String character);
 
 	void close();
 
