@@ -17,5 +17,6 @@ public class App {
 
 		Game game = server.startGame();
 		game.init();
+		server.stop();
 	}
 }
