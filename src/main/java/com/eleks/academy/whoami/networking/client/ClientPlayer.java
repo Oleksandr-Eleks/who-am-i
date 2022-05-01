@@ -22,7 +22,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private String name;
 	private String question;
 	private String guess;
-	
+
 	public ClientPlayer(Socket socket) throws IOException {
 		this.socket = socket;
 		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -33,8 +33,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	public Future<String> askName() {
 		return executor.submit(this::askForNameFromClient);
 	}
-	
-	
+
 	private String askForNameFromClient() {
 		try {
 			writer.println("Enter your name:");
@@ -50,7 +49,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public Future<String> askCharacter() {
 		return executor.submit(this::askForCharacterFromClient);
@@ -59,6 +58,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private String askForCharacterFromClient() {
 		String character = "";
 		try {
+			clearBuffer();
 			writer.println("Enter your character:");
 			writer.flush();
 			character = reader.readLine();
@@ -75,6 +75,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 	private String askForQuestionFromClient() {
 		try {
+			clearBuffer();
 			writer.println("Ask your question:");
 			writer.flush();
 			question = reader.readLine();
@@ -84,12 +85,12 @@ public class ClientPlayer implements Player, AutoCloseable {
 		}
 		return question;
 	}
-	
+
 	@Override
 	public String getQuestion() {
 		return question;
 	}
-	
+
 	@Override
 	public Future<String> askGuess() {
 		return executor.submit(this::askForGuessFromClient);
@@ -97,6 +98,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 	private String askForGuessFromClient() {
 		try {
+			clearBuffer();
 			writer.println("Write your guess: ");
 			writer.flush();
 			guess = reader.readLine();
@@ -106,16 +108,17 @@ public class ClientPlayer implements Player, AutoCloseable {
 		}
 		return guess;
 	}
-	
+
 	@Override
 	public String getGuess() {
 		return guess;
 	}
-	
+
 	@Override
 	public Future<String> answerQuestion(String playerName, String question, String character) {
 		String answer = "";
 		try {
+			clearBuffer();
 			writer.println("Answer [yes|no] to " + playerName + " question: " + question + " (Character: " + character + ")");
 			writer.flush();
 			answer = reader.readLine().toLowerCase();
@@ -130,6 +133,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	public Future<String> answerGuess(String playerName, String guess, String character) {
 		String answer = "";
 		try {
+			clearBuffer();
 			writer.println("Answer [yes|no] to " + playerName + " guess: " + guess + " (Character: " + character + ")");
 			writer.flush();
 			answer = reader.readLine().toLowerCase();
@@ -143,6 +147,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	public Future<String> isReadyForGuess() {
 		String answer = "";
 		try {
+			clearBuffer();
 			writer.println("Are you ready to guess? [yes|no]");
 			writer.flush();
 			answer = reader.readLine().toLowerCase();
@@ -150,6 +155,13 @@ public class ClientPlayer implements Player, AutoCloseable {
 			System.err.printf("Cannot check is player ready to guess. Assuming 2. (%s)%n", e.getMessage());
 		}
 		return CompletableFuture.completedFuture(answer);
+	}
+
+	private void clearBuffer() throws IOException {
+		while (reader.ready()) {
+			reader.readLine();
+		}
+
 	}
 
 	@Override
@@ -172,5 +184,5 @@ public class ClientPlayer implements Player, AutoCloseable {
 			e.printStackTrace();
 		}
 	}
-	
+
 }
