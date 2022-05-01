@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.Turn;
-import com.eleks.academy.whoami.networking.client.ClientPlayer;
+import com.eleks.academy.whoami.core.impl.exception.NoPlayerNameException;
 
 public class RandomGame implements Game {
 
@@ -37,10 +37,9 @@ public class RandomGame implements Game {
 			this.players.add(player);
 			this.availableCharacters.add(character);
 		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TimeoutException e) {
-			System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
+			System.err.println("Player did not suggest a character within %d %s".formatted(DURATION, UNIT));
 		}
 	}
 
@@ -48,14 +47,18 @@ public class RandomGame implements Game {
     public boolean makeTurn() {
         Player currentGuesser = currentTurn.getGuesser();
         Set<String> answers;
-        String guessersName;
-        boolean isReadyForGuess;
+        String guessersName = null;
+        boolean isReadyForGuess = false;
         try {
             guessersName = currentGuesser.getName().get(DURATION, UNIT);
             isReadyForGuess = currentGuesser.isReadyForGuess().get(DURATION, UNIT);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            // TODO: Add custom runtime exception implementation
-            throw new RuntimeException("Failed to obtain a player's name", e);
+            /*
+            Try to use isEmpty but intellij say that it can produce NullPointerException
+            */
+            if (guessersName != null) {
+                throw new NoPlayerNameException("Failed to obtain a player's name", e);
+            }
         }
         if (isReadyForGuess) {
             String guess = null;

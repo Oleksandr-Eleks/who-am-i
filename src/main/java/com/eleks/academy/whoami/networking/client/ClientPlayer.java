@@ -28,7 +28,6 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 	@Override
 	public Future<String> getName() {
-		// TODO: save name for future
 		return executor.submit(this::askName);
 	}
 
@@ -49,7 +48,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 		return executor.submit(this::askQuestion);
 	}
 
-	public String askQuestion() {
+	private String askQuestion() {
 		String question = "";
 
 		try {
@@ -66,7 +65,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 		return executor.submit(() -> doAnswerQuestion(question, character));
 	}
 
-	public String doAnswerQuestion(String question, String character) {
+	private String doAnswerQuestion(String question, String character) {
 		String answer = "";
 
 		try {
@@ -83,7 +82,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 		return executor.submit(this::tryGuess);
 	}
 
-	public String tryGuess() {
+	private String tryGuess() {
 		String answer = "";
 
 		try {
@@ -100,7 +99,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 		return executor.submit(this::pIsReadyForGuess);
 	}
 
-	public boolean pIsReadyForGuess() {
+	private boolean pIsReadyForGuess() {
 		String answer = "";
 
 		try {
@@ -117,7 +116,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	public Future<String> answerGuess(String guess, String character) {
 		return executor.submit(() -> doAnswerGuess(guess, character));
 	}
-	public String doAnswerGuess(String guess, String character) {
+	private String doAnswerGuess(String guess, String character) {
 		String answer = "";
 
 		try {
@@ -156,12 +155,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 		close(reader);
 		close(socket);
 	}
-	
+
 	private void close(AutoCloseable closeable) {
 		try {
 			closeable.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
