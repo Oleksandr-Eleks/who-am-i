@@ -18,6 +18,7 @@ public class RandomGame implements Game {
     private final List<String> availableCharacters;
     private Map<String, String> playersCharacters = new ConcurrentHashMap<>();
 	private Turn currentTurn;
+//    private final List<Player, String> playersCharacter;
 	
 	private final static String YES = "Yes";
 	private final static String NO = "No";
@@ -25,8 +26,8 @@ public class RandomGame implements Game {
 	public RandomGame(List<Player> players, List<String> availableCharacters) {
         this.availableCharacters = new ArrayList<String>(availableCharacters);
         this.players = new ArrayList<>(players.size());
-        players.forEach(this::addPlayer);
-        players.forEach(this::addCharacter);
+        players.parallelStream().forEach(this::addPlayer);
+        players.parallelStream().forEach(this::addCharacter);
 	}
 
     @Override
@@ -95,7 +96,7 @@ public class RandomGame implements Game {
 
             String finalGuess = guess;
             String character = this.playersCharacters.get(guessersName);
-            answers = currentTurn.getOtherPlayers().stream()
+            answers = currentTurn.getOtherPlayers().parallelStream()
                     .map(player -> {
                         try {
                             return player.answerGuess(finalGuess, character).get(DURATION, UNIT);
@@ -124,7 +125,7 @@ public class RandomGame implements Game {
 
             String finalQuestion = question;
             String character = this.playersCharacters.get(guessersName);
-            answers = currentTurn.getOtherPlayers().stream()
+            answers = currentTurn.getOtherPlayers().parallelStream()
                     .map(player -> {
                         try {
                             return player.answerQuestion(finalQuestion, character).get(DURATION, UNIT);
