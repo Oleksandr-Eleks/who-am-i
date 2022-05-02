@@ -7,15 +7,12 @@
   <groupId>com.eleks.academy</groupId>
   <artifactId>who-am-i</artifactId>
   <version>1.0-SNAPSHOT</version>
-
   <name>who-am-i</name>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
-
   <dependencies>
     <dependency>
         <groupId>org.junit.jupiter</groupId>
@@ -54,7 +51,6 @@
 		<version>1.3.2</version>
 	</dependency>
   </dependencies>
-
   <build>
     <plugins>
         <plugin>
@@ -67,5 +63,4 @@
         </plugin>
     </plugins>
   </build>
-
 </project>

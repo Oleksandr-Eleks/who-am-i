@@ -47,28 +47,28 @@ class RandomGameTest {
 		}
 
 		@Override
-		public String getQuestion() {
-			throw new UnsupportedOperationException();
+		public Future<String> getQuestion() {
+		    return CompletableFuture.completedFuture("char");
 		}
 
 		@Override
-		public String answerQuestion(String question, String character) {
-			throw new UnsupportedOperationException();
+		public Future<String> answerQuestion(String question, String character) {
+		    return CompletableFuture.completedFuture("char");
 		}
 
 		@Override
-		public String getGuess() {
-			throw new UnsupportedOperationException();
+		public Future<String> getGuess() {
+		    return CompletableFuture.completedFuture("char");
 		}
 
 		@Override
-		public boolean isReadyForGuess() {
-			throw new UnsupportedOperationException();
+		public Future<Boolean> isReadyForGuess() {
+		    return CompletableFuture.completedFuture(true);
 		}
 
 		@Override
-		public String answerGuess(String guess, String character) {
-			throw new UnsupportedOperationException();
+		public Future<String> answerGuess(String guess, String character) {
+		    return CompletableFuture.completedFuture("char");
 		}
 
 		@Override
