@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.Turn;
+import com.eleks.academy.whoami.exception.GameRuntimeException;
 import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class RandomGame implements Game {
@@ -26,18 +27,18 @@ public class RandomGame implements Game {
 	private final List<String> availableCharacters;
 	private Turn currentTurn;
 
-	
 	private final static String YES = "Yes";
 	private final static String NO = "No";
-	
-	public RandomGame(List<Player> players, List<String> availableCharacters) { 
+
+	public RandomGame(List<Player> players, List<String> availableCharacters) {
 		this.availableCharacters = new ArrayList<String>(availableCharacters);
 		this.players = new ArrayList<>(players.size());
 		players.forEach(this::addPlayer);
 	}
 
 	private void addPlayer(Player player) {
-		// TODO: Add test to ensure that player has not been added to the lists when failed to obtain suggestion
+		// TODO: Add test to ensure that player has not been added to the lists when
+		// failed to obtain suggestion
 		Future<String> maybeCharacter = player.suggestCharacter();
 		try {
 			String character = maybeCharacter.get(DURATION, UNIT);
@@ -56,37 +57,61 @@ public class RandomGame implements Game {
 		Player currentGuesser = currentTurn.getGuesser();
 		Set<String> answers;
 		String guessersName;
+		long negativeCount = 0;
+		long positiveCount = 0;
 		try {
 			guessersName = currentGuesser.getName().get(DURATION, UNIT);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
-			// TODO: Add custom runtime exception implementation
-			throw new RuntimeException("Failed to obtain a player's name", e);
+			throw new GameRuntimeException("Failed to obtain a player's name", e);
 		}
-		if (currentGuesser.isReadyForGuess()) {
-			String guess = currentGuesser.getGuess();
-			answers = currentTurn.getOtherPlayers().stream()
-					.map(player -> player.answerGuess(guess, this.playersCharacter.get(guessersName)))
-					.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			
-			boolean win = positiveCount > negativeCount;
-			
-			if (win) {
-				players.remove(currentGuesser);
+		try {
+			if (currentGuesser.isReadyForGuess().get(DURATION, UNIT)) {
+				boolean win = false;
+				String guess = currentGuesser.getGuess().get(DURATION, UNIT);
+				answers = currentTurn.getOtherPlayers().stream().map(player -> {
+					try {
+						return player.answerGuess(guess, this.playersCharacter.get(guessersName)).get(DURATION, UNIT);
+					} catch (InterruptedException | ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (TimeoutException e) {
+						System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
+					}
+					return "No";
+				}).collect(Collectors.toSet());
+				positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
+				negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+
+				win = positiveCount > negativeCount;
+				if (win) {
+					players.remove(currentGuesser);
+				}
+				return win;
+
+			} else {
+				String question = currentGuesser.getQuestion().get(DURATION, UNIT);
+
+				answers = currentTurn.getOtherPlayers().stream().map(player -> {
+					try {
+						return player.answerQuestion(question, this.playersCharacter.get(guessersName)).get(DURATION,
+						        UNIT);
+					} catch (InterruptedException | ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (TimeoutException e) {
+						System.err.println("Player did not suggest a answer within %d %s".formatted(DURATION, UNIT));
+					}
+					return "No";
+				}).collect(Collectors.toSet());
+				positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
+				negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
 			}
-			return win;
-			
-		} else {
-			String question = currentGuesser.getQuestion();
-			answers = currentTurn.getOtherPlayers().stream()
-				.map(player -> player.answerQuestion(question, this.playersCharacter.get(guessersName)))
-				.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			return positiveCount > negativeCount;
+		} catch (InterruptedException | ExecutionException e) {
+			throw new GameRuntimeException("Failed to obtain a player's question ", e);
+		} catch (TimeoutException e) {
+			throw new GameRuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
 		}
-		
+		return positiveCount > negativeCount;
 	}
 
 	private void assignCharacters() {
@@ -103,23 +128,22 @@ public class RandomGame implements Game {
 				throw new RuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
 			}
 		}).forEach(name -> this.playersCharacter.put(name, this.getRandomCharacter()));
-		
+
 	}
-	
+
 	@Override
 	public void initGame() {
 		this.assignCharacters();
 		this.currentTurn = new TurnImpl(this.players);
 	}
 
-
 	@Override
 	public boolean isFinished() {
 		return players.size() == 1;
 	}
-	
+
 	private String getRandomCharacter() {
-		int randomPos = (int)(Math.random() * this.availableCharacters.size());
+		int randomPos = (int) (Math.random() * this.availableCharacters.size());
 		// TODO: Ensure player never receives own suggested character
 		return this.availableCharacters.remove(randomPos);
 	}
@@ -132,7 +156,7 @@ public class RandomGame implements Game {
 	@Override
 	public void play() {
 		boolean gameStatus = true;
-		
+
 		while (gameStatus) {
 			boolean turnResult = this.makeTurn();
 

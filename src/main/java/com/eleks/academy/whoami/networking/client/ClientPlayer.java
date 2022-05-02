@@ -18,6 +18,10 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private final PrintStream writer;
 	private final Socket socket;
 
+	private String name = "";
+	private String question;
+	private String character;
+
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	public ClientPlayer(Socket socket) throws IOException {
@@ -32,100 +36,36 @@ public class ClientPlayer implements Player, AutoCloseable {
 		return executor.submit(this::askName);
 	}
 
-	private String askName() {
-		String name = "";
-
-		try {
-			writer.println("Please, name yourself.");
-			name = reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return name;
+	@Override
+	public Future<String> getQuestion() {
+		return executor.submit(this::askQuestion);
 	}
 
 	@Override
-	public String getQuestion() {
-		String question = "";
-
-		try {
-			writer.println("Ask your questinon: ");
-			question = reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return question;
+	public Future<String> answerQuestion(String question, String character) {
+		this.question = question;
+		this.character = character;
+		return executor.submit(this::doAnswerQuestion);
 	}
 
 	@Override
-	public String answerQuestion(String question, String character) {
-		String answer = "";
-		
-		try {
-			writer.println("Answer second player question: " + question + "Character is:"+ character);
-			answer = reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return answer;
+	public Future<String> getGuess() {
+		return executor.submit(this::askGuess);
 	}
 
 	@Override
-	public String getGuess() {
-		String answer = "";
-		
-	
-		try {
-			writer.println("Write your guess: ");
-			answer = reader.readLine();
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
-		return answer;
+	public Future<Boolean> isReadyForGuess() {
+		return executor.submit(this::askIsReadyForGuess);
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
-		String answer = "";
-		
-		try {
-			writer.println("Are you ready to guess? ");
-			answer = reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return answer.equals("Yes") ? true : false;
-	}
-
-	@Override
-	public String answerGuess(String guess, String character) {
-		String answer = "";
-		
-		try {
-			writer.println("Write your answer: ");
-			answer = reader.readLine();
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
-		return answer;
+	public Future<String> answerGuess(String guess, String character) {
+		return executor.submit(this::doAnswerGuess);
 	}
 
 	@Override
 	public Future<String> suggestCharacter() {
 		return executor.submit(this::doSuggestCharacter);
-	}
-
-	private String doSuggestCharacter() {
-		try {
-			return reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "";
-		}
 	}
 
 	@Override
@@ -140,7 +80,16 @@ public class ClientPlayer implements Player, AutoCloseable {
 		close(reader);
 		close(socket);
 	}
-	
+
+	private String doSuggestCharacter() {
+		try {
+			return reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+
 	private void close(AutoCloseable closeable) {
 		try {
 			closeable.close();
@@ -148,6 +97,83 @@ public class ClientPlayer implements Player, AutoCloseable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private String askGuess() {
+		String answer = "";
+
+		try {
+			writer.println("Write your guess: ");
+			answer = reader.readLine();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+		return answer;
+	}
+
+	private String askName() {
+		try {
+			writer.println("Please, name yourself.");
+			this.name = reader.readLine();
+			if (this.name.equals("")) {
+				this.name = "Player " + Math.random() * 10;
+			}
+			writer.println("Your name: " + this.name);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return this.name;
+	}
+
+	private String askQuestion() {
+		String question = "";
+
+		try {
+			writer.println("Ask your question: ");
+			question = reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return question;
+	}
+
+	private String doAnswerQuestion() {
+		String answer = "";
+		try {
+			writer.println("Answer second player question: " + this.question + "Character is:" + this.character);
+			answer = reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return answer;
+	}
+
+	private String doAnswerGuess() {
+		String answer = "";
+
+		try {
+			writer.println("Write your answer: ");
+			answer = reader.readLine();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+		return answer;
+	}
+
+	private boolean askIsReadyForGuess() {
+		String answer = "";
+
+		try {
+			writer.println("Are you ready to guess? ");
+			answer = reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return answer.equals("Yes");
 	}
 
 }
