@@ -55,63 +55,96 @@ public class RandomGame implements Game {
 	@Override
 	public boolean makeTurn() {
 		Player currentGuesser = currentTurn.getGuesser();
-		Set<String> answers;
 		String guessersName;
-		long negativeCount = 0;
-		long positiveCount = 0;
+		boolean isReadyForGuess;
 		try {
 			guessersName = currentGuesser.getName().get(DURATION, UNIT);
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			throw new GameRuntimeException("Failed to obtain a player's name", e);
 		}
 		try {
-			if (currentGuesser.isReadyForGuess().get(DURATION, UNIT)) {
-				boolean win = false;
-				String guess = currentGuesser.getGuess().get(DURATION, UNIT);
-				answers = currentTurn.getOtherPlayers().stream().map(player -> {
-					try {
-						return player.answerGuess(guess, this.playersCharacter.get(guessersName)).get(DURATION, UNIT);
-					} catch (InterruptedException | ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (TimeoutException e) {
-						System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
-					}
-					return "No";
-				}).collect(Collectors.toSet());
-				positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-				negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+			isReadyForGuess = currentGuesser.isReadyForGuess().get(DURATION, UNIT);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			throw new GameRuntimeException("Failed to obtain a player's answer", e);
+		}
+		if (isReadyForGuess) {
+			return winner(currentGuesser, guessersName);
+		} else {
+			return playerQuestion(currentGuesser, guessersName);
+		}
+	}
 
-				win = positiveCount > negativeCount;
-				if (win) {
-					players.remove(currentGuesser);
-				}
-				return win;
+	private boolean playerQuestion(Player currentGuesser, String guessersName) {
+		Set<String> answers;
+		long negativeCount = 0;
+		long positiveCount = 0;
 
-			} else {
-				String question = currentGuesser.getQuestion().get(DURATION, UNIT);
+		try {
+			String question = currentGuesser.getQuestion().get(DURATION, UNIT);
 
-				answers = currentTurn.getOtherPlayers().stream().map(player -> {
-					try {
-						return player.answerQuestion(question, this.playersCharacter.get(guessersName)).get(DURATION,
-						        UNIT);
-					} catch (InterruptedException | ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (TimeoutException e) {
-						System.err.println("Player did not suggest a answer within %d %s".formatted(DURATION, UNIT));
-					}
-					return "No";
-				}).collect(Collectors.toSet());
-				positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-				negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			}
+			answers = currentTurn.getOtherPlayers().stream()
+			        .map(player -> playerAnswerQuestion(player, question, guessersName)).collect(Collectors.toSet());
+			positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
+			negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
 		} catch (InterruptedException | ExecutionException e) {
 			throw new GameRuntimeException("Failed to obtain a player's question ", e);
 		} catch (TimeoutException e) {
 			throw new GameRuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
+		} catch (GameRuntimeException e) {
+			e.printStackTrace();
 		}
 		return positiveCount > negativeCount;
+	}
+
+	private boolean winner(Player currentGuesser, String guessersName) {
+		Set<String> answers;
+		long negativeCount = 0;
+		long positiveCount = 0;
+		boolean win = false;
+		String guess;
+
+		try {
+			guess = currentGuesser.getGuess().get(DURATION, UNIT);
+			answers = currentTurn.getOtherPlayers().stream()
+			        .map(player -> playerAnswerGuess(player, guess, guessersName)).collect(Collectors.toSet());
+			positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
+			negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new GameRuntimeException("Failed to obtain a player's answer ", e);
+		} catch (TimeoutException e) {
+			throw new GameRuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
+		} catch (GameRuntimeException e) {
+			e.printStackTrace();
+		}
+		win = positiveCount > negativeCount;
+		if (win) {
+			players.remove(currentGuesser);
+		}
+		return win;
+	}
+
+	private String playerAnswerQuestion(Player player, String question, String guessersName) {
+		try {
+			return player.answerQuestion(question, this.playersCharacter.get(guessersName)).get(DURATION, UNIT);
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			System.err.println("Player did not suggest a answer within %d %s".formatted(DURATION, UNIT));
+		}
+		return NO;
+	}
+
+	private String playerAnswerGuess(Player player, String guess, String guessersName) {
+		try {
+			return player.answerGuess(guess, this.playersCharacter.get(guessersName)).get(DURATION, UNIT);
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
+		}
+		return NO;
 	}
 
 	private void assignCharacters() {
