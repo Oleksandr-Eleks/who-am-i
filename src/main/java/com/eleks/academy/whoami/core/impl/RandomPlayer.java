@@ -1,7 +1,5 @@
 package com.eleks.academy.whoami.core.impl;
 
-import com.eleks.academy.whoami.core.Player;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,10 +7,12 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+import com.eleks.academy.whoami.core.Player;
+
 public class RandomPlayer implements Player {
 
-	private final Collection<String> characterPool;
 	private String name;
+	private final Collection<String> characterPool;
 	private List<String> availableQuestions;
 	private List<String> availableGuesses;
 	
@@ -69,6 +69,12 @@ public class RandomPlayer implements Player {
 		return CompletableFuture.completedFuture(characterPool.iterator().next());
 	}
 
-	
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+
+	}
+
+
 	
 }

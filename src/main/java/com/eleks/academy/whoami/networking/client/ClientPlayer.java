@@ -1,7 +1,5 @@
 package com.eleks.academy.whoami.networking.client;
 
-import com.eleks.academy.whoami.core.Player;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,15 +10,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.eleks.academy.whoami.core.Player;
+
 public class ClientPlayer implements Player, AutoCloseable {
 
-    private BufferedReader reader;
-    private PrintStream writer;
-    private String name;
+    private final BufferedReader reader;
+    private final PrintStream writer;
+    private final Socket socket;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public ClientPlayer(Socket socket) throws IOException {
+        this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintStream(socket.getOutputStream());
     }
@@ -32,15 +33,15 @@ public class ClientPlayer implements Player, AutoCloseable {
     }
 
     private String askName() {
-        if (this.name == null) {
-            try {
-                writer.println("Please, name yourself.");
-                this.name = reader.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        String name = "";
+
+        try {
+            writer.println("Please, name yourself.");
+            name = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return this.name;
+        return name;
     }
 
     @Override
@@ -134,6 +135,18 @@ public class ClientPlayer implements Player, AutoCloseable {
             executor.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+        close(writer);
+        close(reader);
+        close(socket);
+    }
+
+    private void close(AutoCloseable closeable) {
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

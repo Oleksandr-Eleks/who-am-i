@@ -23,4 +23,6 @@ public interface Player {
 	// TODO: return Future<String>
 	String answerGuess(String guess, String character);
 	
+	void close();
+
 }
