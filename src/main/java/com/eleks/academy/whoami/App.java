@@ -12,14 +12,19 @@ import com.eleks.academy.whoami.networking.server.Server;
 
 public class App {
 
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) {
 		ApplicationContext context = new AnnotationConfigApplicationContext(ContextConfig.class);
-		ServerProperties properies = context.getBean(ServerProperties.class);
+		ServerProperties properties = context.getBean(ServerProperties.class);
 		Server server = context.getBean(Server.class);
 
-		Game game = server.startGame();
+		Game game;
+		try {
+			game = server.startGame();
+			game.init();
+		} catch (IOException e) {
+			System.err.println(String.format("Fail to start a game (%s)", e.getMessage()));
+		}
 		
-		game.init();
 		server.stop();
 		
 	}

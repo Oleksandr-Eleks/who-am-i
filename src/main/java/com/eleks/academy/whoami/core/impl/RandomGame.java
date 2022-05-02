@@ -16,8 +16,8 @@ import com.eleks.academy.whoami.core.Player;
 
 public class RandomGame implements Game {
 
-	private final static int DURATION = 2;
-	private final static TimeUnit UNIT = TimeUnit.MINUTES;
+	private static final int DURATION = 2;
+	private static final TimeUnit UNIT = TimeUnit.MINUTES;
 
 	private List<Player> players;
 	private List<String> characters;
@@ -107,7 +107,7 @@ public class RandomGame implements Game {
 
 	@Override
 	public void assignCharacters() {
-		players.stream().forEach(player -> playersCharacters.put(player.getName(), getRandomCharacter()));
+		players.forEach(player -> playersCharacters.put(player.getName(), getRandomCharacter()));
 	}
 
 	private String getRandomCharacter() {

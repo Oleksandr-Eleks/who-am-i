@@ -18,7 +18,7 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-public class ClientPlayerIT {
+class ClientPlayerIT {
 
 	private static final int DURATION = 5;
 	private static final TimeUnit UNIT = TimeUnit.SECONDS;
@@ -28,7 +28,7 @@ public class ClientPlayerIT {
 	}
 
 	@Test
-	@Timeout(value = 5, unit = TimeUnit.SECONDS)
+	@Timeout(value = 5)
 	void serverReadsClientsNameFromSocket()
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
 
@@ -57,8 +57,7 @@ public class ClientPlayerIT {
 				}
 			}).start();
 
-			try (Socket client = server.accept(); 
-					ClientPlayer player = new ClientPlayer(client)) {
+			try (Socket client = server.accept(); ClientPlayer player = new ClientPlayer(client)) {
 
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
@@ -73,7 +72,7 @@ public class ClientPlayerIT {
 	}
 
 	@Test
-	@Timeout(value = 5, unit = TimeUnit.SECONDS)
+	@Timeout(value = 5)
 	void serverReadsClientCharacterFromSocket()
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
 
@@ -91,6 +90,7 @@ public class ClientPlayerIT {
 						PrintWriter writer = new PrintWriter(client.getOutputStream())) {
 
 					clientReady.countDown();
+					writer.println("random");
 					writer.println("TestCharacter");
 					writer.flush();
 					clientGiveCharacter.await(DURATION, UNIT);
@@ -102,8 +102,7 @@ public class ClientPlayerIT {
 				}
 			}).start();
 
-			try (Socket client = server.accept(); 
-					ClientPlayer player = new ClientPlayer(client)) {
+			try (Socket client = server.accept(); ClientPlayer player = new ClientPlayer(client)) {
 
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
@@ -118,7 +117,7 @@ public class ClientPlayerIT {
 	}
 
 	@Test
-	@Timeout(value = 5, unit = TimeUnit.SECONDS)
+	@Timeout(value = 5)
 	void serverReadsClientsQuestionFromSocket()
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
 
@@ -137,6 +136,7 @@ public class ClientPlayerIT {
 
 					clientReady.countDown();
 					writer.println("Am i a superhuman?");
+					writer.println("Am i a superhuman?");
 					writer.flush();
 					clientGiveQuestion.await(DURATION, UNIT);
 
@@ -147,8 +147,7 @@ public class ClientPlayerIT {
 				}
 			}).start();
 
-			try (Socket client = server.accept(); 
-					ClientPlayer player = new ClientPlayer(client)) {
+			try (Socket client = server.accept(); ClientPlayer player = new ClientPlayer(client)) {
 
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
@@ -164,10 +163,10 @@ public class ClientPlayerIT {
 	}
 
 	@Test
-	@Timeout(value = 5, unit = TimeUnit.SECONDS)
-	void serverReadsClientsGuessFromSocket() 
+	@Timeout(value = 5)
+	void serverReadsClientsGuessFromSocket()
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
-		
+
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
 
@@ -183,6 +182,7 @@ public class ClientPlayerIT {
 
 					clientReady.countDown();
 					writer.println("Am i a SeniorDeveloper?");
+					writer.println("Am i a SeniorDeveloper?");
 					writer.flush();
 					clientGiveGuess.await(DURATION, UNIT);
 
@@ -193,8 +193,7 @@ public class ClientPlayerIT {
 				}
 			}).start();
 
-			try (Socket client = server.accept(); 
-					ClientPlayer player = new ClientPlayer(client)) {
+			try (Socket client = server.accept(); ClientPlayer player = new ClientPlayer(client)) {
 
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
@@ -207,16 +206,16 @@ public class ClientPlayerIT {
 			}
 		}
 	}
-	
+
 	@Test
-	@Timeout(value = 5, unit = TimeUnit.SECONDS)
-	void serverReadsClientsQuestionAnswerFromSocket() 
+	@Timeout(value = 5)
+	void serverReadsClientsQuestionAnswerFromSocket()
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
-		
+
 		String playerName = "Player22654";
 		String question = "am i a human?";
 		String character = "Car";
-		
+
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
 
@@ -232,6 +231,7 @@ public class ClientPlayerIT {
 
 					clientReady.countDown();
 					writer.println("No");
+					writer.println("No");
 					writer.flush();
 					clientGiveQuestionAnswer.await(DURATION, UNIT);
 
@@ -242,8 +242,7 @@ public class ClientPlayerIT {
 				}
 			}).start();
 
-			try (Socket client = server.accept(); 
-					ClientPlayer player = new ClientPlayer(client)) {
+			try (Socket client = server.accept(); ClientPlayer player = new ClientPlayer(client)) {
 
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
@@ -256,16 +255,16 @@ public class ClientPlayerIT {
 			}
 		}
 	}
-	
+
 	@Test
-	@Timeout(value = 5, unit = TimeUnit.SECONDS)
-	void serverReadsClientsGuessAnswerFromSocket() 
+	@Timeout(value = 5)
+	void serverReadsClientsGuessAnswerFromSocket()
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
-		
+
 		String playerName = "Player22654";
 		String guess = "am i byke?";
 		String character = "Car";
-		
+
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
 
@@ -281,6 +280,7 @@ public class ClientPlayerIT {
 
 					clientReady.countDown();
 					writer.println("No");
+					writer.println("No");
 					writer.flush();
 					clientGiveGuessAnswer.await(DURATION, UNIT);
 
@@ -291,8 +291,7 @@ public class ClientPlayerIT {
 				}
 			}).start();
 
-			try (Socket client = server.accept(); 
-					ClientPlayer player = new ClientPlayer(client)) {
+			try (Socket client = server.accept(); ClientPlayer player = new ClientPlayer(client)) {
 
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
@@ -305,12 +304,12 @@ public class ClientPlayerIT {
 			}
 		}
 	}
-	
+
 	@Test
-	@Timeout(value = 5, unit = TimeUnit.SECONDS)
-	void serverReadsClientIsReadyForGuessFromSocket() 
+	@Timeout(value = 5)
+	void serverReadsClientIsReadyForGuessFromSocket()
 			throws IOException, InterruptedException, ExecutionException, TimeoutException {
-		
+
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
 
@@ -326,6 +325,7 @@ public class ClientPlayerIT {
 
 					clientReady.countDown();
 					writer.println("No");
+					writer.println("No");
 					writer.flush();
 					clientReadyToGuess.await(DURATION, UNIT);
 
@@ -336,8 +336,7 @@ public class ClientPlayerIT {
 				}
 			}).start();
 
-			try (Socket client = server.accept(); 
-					ClientPlayer player = new ClientPlayer(client)) {
+			try (Socket client = server.accept(); ClientPlayer player = new ClientPlayer(client)) {
 
 				boolean success = clientReady.await(DURATION, UNIT);
 				assertTrue(success);
