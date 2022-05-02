@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -15,6 +16,8 @@ import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 
 class RandomGameTest {
+
+	private RandomGame game = new RandomGame(List.of(), List.of());
 
 	@Test
 	void askAllPlayersForCharacterSuggestions() {
@@ -30,13 +33,16 @@ class RandomGameTest {
 
 	@Test
 	void addPlayerFailedObtainSuggestion() {
-		TestPlayer p1 = new TestPlayer("P2", "");
-		RandomGame game = new RandomGame(List.of(p1), List.of());
-		game.addCharacter(p1);
-		assertAll(new Executable[] {
-				() -> assertFalse(game.isPlayerAdded(p1))
-		});
+		Player p1 = new TestPlayer("P1", "");
+		Player p2 = new TestPlayer("P2", "text");
 
+		game.addCharacter(p1);
+		game.addCharacter(p2);
+
+		assertAll(new Executable[] {
+				() -> assertFalse(game.isPlayerAdded(p1)),
+				() -> assertFalse(game.isPlayerAdded(p2))
+		});
 	}
 
 	private static final class TestPlayer implements Player {
@@ -63,7 +69,7 @@ class RandomGameTest {
 		@Override
 		public Future<String> suggestCharacter() {
 			suggested = true;
-			return CompletableFuture.completedFuture("char");
+			return CompletableFuture.completedFuture(character);
 		}
 
 		@Override

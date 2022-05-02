@@ -31,7 +31,6 @@ public class RandomGame implements Game {
 
     @Override
 	public void addPlayer(Player player) {
-		// TODO: Add test to ensure that player has not been added to the lists when failed to obtain suggestion
 		Future<String> maybeCharacter = player.suggestCharacter();
 		try {
 			String character = maybeCharacter.get(DURATION, UNIT);
