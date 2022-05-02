@@ -35,6 +35,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private String askName() {
 		try {
 			writer.println("Please, name yourself.");
+			writer.flush();
 			name = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -57,6 +58,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 		try {
 			writer.println("Ask your questinon: ");
+			writer.flush();
 			question = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -73,7 +75,8 @@ public class ClientPlayer implements Player, AutoCloseable {
 		String answer = "";
 
 		try {
-			writer.println("Answer second player question: " + question + "Character is:"+ character);
+			writer.println("Answer second player question: " + question + " Character is:"+ character);
+			writer.flush();
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -91,6 +94,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 		try {
 			writer.println("Write your guess: ");
+			writer.flush();
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -125,6 +129,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 		try {
 			writer.println("Write your answer: ");
+			writer.flush();
 			answer = reader.readLine();
 		} catch (IOException e) {
 
@@ -140,6 +145,8 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 	private String doSuggestCharacter() {
 		try {
+			writer.println("Enter your character");
+			writer.flush();
 			return reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();

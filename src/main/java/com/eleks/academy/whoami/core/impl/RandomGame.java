@@ -14,47 +14,58 @@ public class RandomGame implements Game {
 	private static final int DURATION = 2;
 	private static final TimeUnit UNIT = TimeUnit.MINUTES;
 
-	private Map<String, String> playersCharacter = new ConcurrentHashMap<>();
-	private final List<Player> players;
-	private final List<String> availableCharacters;
+    private final List<Player> players;
+    private final List<String> availableCharacters;
+    private Map<String, String> playersCharacters = new ConcurrentHashMap<>();
 	private Turn currentTurn;
-
 	
 	private final static String YES = "Yes";
 	private final static String NO = "No";
 	
 	public RandomGame(List<Player> players, List<String> availableCharacters) {
-		this.availableCharacters = new ArrayList<String>(availableCharacters);
-		this.players = new ArrayList<>(players.size());
-		players.forEach(this::addPlayer);
+        this.availableCharacters = new ArrayList<String>(availableCharacters);
+        this.players = new ArrayList<>(players.size());
+        players.forEach(this::addPlayer);
+        players.forEach(this::addCharacter);
 	}
 
     @Override
 	public void addPlayer(Player player) {
-		Future<String> maybeCharacter = player.suggestCharacter();
+		Future<String> suggestedName = player.getName();
 		try {
-			String character = maybeCharacter.get(DURATION, UNIT);
-			this.players.add(player);
-			this.availableCharacters.add(character);
+			String name = suggestedName.get(DURATION, UNIT);
+            if (this.correctWord(name)) {
+                this.players.add(player);
+            }
+            System.out.println("Player " + player.getNameOnly() + " added");
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		} catch (TimeoutException e) {
 			System.err.println("Player did not suggest a character within %d %s".formatted(DURATION, UNIT));
 		}
-	}
+    }
 
     @Override
     public void addCharacter(Player player) {
         Future<String> maybeCharacter = player.suggestCharacter();
         try {
             String character = maybeCharacter.get(DURATION, UNIT);
-            this.availableCharacters.add(character);
-            System.out.println("Player [" + player.getNameOnly() + "] character added...");
+            if (this.correctWord(character)) {
+                this.availableCharacters.add(character);
+            }
+            System.out.println("Player " + player.getNameOnly() + " added character " + character);
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
             System.err.println("Player did not suggest a character within %d %s".formatted(DURATION, UNIT));
         }
+    }
+
+    private boolean correctWord(String word) {
+        if (word.isBlank()) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -64,7 +75,7 @@ public class RandomGame implements Game {
         String guessersName = null;
         boolean isReadyForGuess = false;
         try {
-            guessersName = currentGuesser.getName().get(DURATION, UNIT);
+            guessersName = currentGuesser.getNameOnly()/*.get(DURATION, UNIT)*/;
             isReadyForGuess = currentGuesser.isReadyForGuess().get(DURATION, UNIT);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             /*
@@ -83,7 +94,7 @@ public class RandomGame implements Game {
             }
 
             String finalGuess = guess;
-            String character = this.playersCharacter.get(guessersName);
+            String character = this.playersCharacters.get(guessersName);
             answers = currentTurn.getOtherPlayers().stream()
                     .map(player -> {
                         try {
@@ -112,7 +123,7 @@ public class RandomGame implements Game {
             }
 
             String finalQuestion = question;
-            String character = this.playersCharacter.get(guessersName);
+            String character = this.playersCharacters.get(guessersName);
             answers = currentTurn.getOtherPlayers().stream()
                     .map(player -> {
                         try {
@@ -131,20 +142,8 @@ public class RandomGame implements Game {
     }
 
 	private void assignCharacters() {
-		players.stream().map(Player::getName).parallel().map(f -> {
-			// TODO: extract into a configuration parameters
-			try {
-				return f.get(DURATION, UNIT);
-			} catch (InterruptedException | ExecutionException e) {
-				Thread.currentThread().interrupt();
-				// TODO: Add custom runtime exception implementation
-				throw new RuntimeException("Failed to obtain a player's name", e);
-			} catch (TimeoutException e) {
-				// TODO: Choose a name from a pool of names, i.e. Anonymous Badger etc.
-				throw new RuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
-			}
-		}).forEach(name -> this.playersCharacter.put(name, this.getRandomCharacter()));
-	}
+        players.stream().forEach(player -> playersCharacters.put(player.getNameOnly(), getRandomCharacter()));
+    }
 
 	@Override
 	public void initGame() {
