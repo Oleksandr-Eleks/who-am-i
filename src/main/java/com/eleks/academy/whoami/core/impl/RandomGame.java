@@ -1,5 +1,9 @@
 package com.eleks.academy.whoami.core.impl;
 
+import com.eleks.academy.whoami.core.Game;
+import com.eleks.academy.whoami.core.Player;
+import com.eleks.academy.whoami.core.Turn;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,15 +26,13 @@ public class RandomGame implements Game {
 	private static final TimeUnit UNIT = TimeUnit.MINUTES;
 
 	private Map<String, String> playersCharacter = new ConcurrentHashMap<>();
-	private final List<Player> players;
-	private final List<String> availableCharacters;
-	private Turn currentTurn;
-
-	
 	private final static String YES = "Yes";
 	private final static String NO = "No";
-	
-	public RandomGame(List<Player> players, List<String> availableCharacters) { 
+	private Turn currentTurn;
+	private final List<Player> players;
+	private final List<String> availableCharacters;
+
+	public RandomGame(List<Player> players, List<String> availableCharacters) {
 		this.availableCharacters = new ArrayList<String>(availableCharacters);
 		this.players = new ArrayList<>(players.size());
 		players.forEach(this::addPlayer);
@@ -110,6 +112,7 @@ public class RandomGame implements Game {
 	public void initGame() {
 		this.assignCharacters();
 		this.currentTurn = new TurnImpl(this.players);
+		
 	}
 
 
@@ -132,7 +135,7 @@ public class RandomGame implements Game {
 	@Override
 	public void play() {
 		boolean gameStatus = true;
-		
+
 		while (gameStatus) {
 			boolean turnResult = this.makeTurn();
 
