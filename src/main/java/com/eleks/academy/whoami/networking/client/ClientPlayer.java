@@ -17,6 +17,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private final BufferedReader reader;
 	private final PrintStream writer;
 	private final Socket socket;
+	private String name = "";
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -32,8 +33,6 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	private String askName() {
-		String name = "";
-
 		try {
 			writer.println("Please, name yourself.");
 			name = reader.readLine();
@@ -41,6 +40,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 			e.printStackTrace();
 		}
 		return name;
+	}
+
+	@Override
+	public String getNameOnly() {
+		return this.name;
 	}
 
 	@Override

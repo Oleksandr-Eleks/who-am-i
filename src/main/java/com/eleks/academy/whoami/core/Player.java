@@ -5,6 +5,8 @@ import java.util.concurrent.Future;
 public interface Player {
 
 	Future<String> getName();
+
+	String getNameOnly();
 	
 	Future<String> suggestCharacter();
 

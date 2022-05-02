@@ -36,6 +36,11 @@ public class RandomPlayer implements Player {
 	}
 
 	@Override
+	public String getNameOnly() {
+		return this.name;
+	}
+
+	@Override
 	public Future<String> answerQuestion(String question, String character) {
 		String answer = Math.random() < 0.5 ? "Yes" : "No";
 		System.out.println("Player: " + name + ". Answers: " + answer);

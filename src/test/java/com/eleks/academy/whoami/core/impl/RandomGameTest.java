@@ -2,6 +2,8 @@ package com.eleks.academy.whoami.core.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -16,9 +18,9 @@ class RandomGameTest {
 
 	@Test
 	void askAllPlayersForCharacterSuggestions() {
-		TestPlayer p1 = new TestPlayer("P1");
-		TestPlayer p2 = new TestPlayer("P2");
-		Game game = new RandomGame(List.of(p1, p2), List.of("c"));
+		TestPlayer p1 = new TestPlayer("P1", "c");
+		TestPlayer p2 = new TestPlayer("P2", "c");
+		Game game = new RandomGame(List.of(p1, p2), List.of());
 		game.initGame();
 		assertAll(new Executable[] {
 				() -> assertTrue(p1.suggested),
@@ -26,18 +28,36 @@ class RandomGameTest {
 		});
 	}
 
+	@Test
+	void addPlayerFailedObtainSuggestion() {
+		TestPlayer p1 = new TestPlayer("P2", "");
+		RandomGame game = new RandomGame(List.of(p1), List.of());
+		game.addCharacter(p1);
+		assertAll(new Executable[] {
+				() -> assertFalse(game.isPlayerAdded(p1))
+		});
+
+	}
+
 	private static final class TestPlayer implements Player {
 		private final String name;
 		private boolean suggested;
+		private String character;
 
-		public TestPlayer(String name) {
+		public TestPlayer(String name, String character) {
 			super();
 			this.name = name;
+			this.character = character;
 		}
 
 		@Override
 		public Future<String> getName() {
 			return CompletableFuture.completedFuture(name);
+		}
+
+		@Override
+		public String getNameOnly() {
+			return this.name;
 		}
 
 		@Override

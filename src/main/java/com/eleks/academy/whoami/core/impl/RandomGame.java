@@ -29,7 +29,8 @@ public class RandomGame implements Game {
 		players.forEach(this::addPlayer);
 	}
 
-	private void addPlayer(Player player) {
+    @Override
+	public void addPlayer(Player player) {
 		// TODO: Add test to ensure that player has not been added to the lists when failed to obtain suggestion
 		Future<String> maybeCharacter = player.suggestCharacter();
 		try {
@@ -42,6 +43,20 @@ public class RandomGame implements Game {
 			System.err.println("Player did not suggest a character within %d %s".formatted(DURATION, UNIT));
 		}
 	}
+
+    @Override
+    public void addCharacter(Player player) {
+        Future<String> maybeCharacter = player.suggestCharacter();
+        try {
+            String character = maybeCharacter.get(DURATION, UNIT);
+            this.availableCharacters.add(character);
+            System.out.println("Player [" + player.getNameOnly() + "] character added...");
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            System.err.println("Player did not suggest a character within %d %s".formatted(DURATION, UNIT));
+        }
+    }
 
     @Override
     public boolean makeTurn() {
@@ -130,7 +145,6 @@ public class RandomGame implements Game {
 				throw new RuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
 			}
 		}).forEach(name -> this.playersCharacter.put(name, this.getRandomCharacter()));
-
 	}
 
 	@Override
@@ -138,7 +152,6 @@ public class RandomGame implements Game {
 		this.assignCharacters();
 		this.currentTurn = new TurnImpl(this.players);
 	}
-
 
     @Override
     public boolean isFinished() {
@@ -170,5 +183,9 @@ public class RandomGame implements Game {
 			gameStatus = !this.isFinished();
 		}
 	}
+
+    public boolean isPlayerAdded(Player player) {
+        return players.contains(player);
+    }
 
 }
