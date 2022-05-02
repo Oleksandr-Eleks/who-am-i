@@ -60,6 +60,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 			writer.println("Ask your questinon: ");
 			writer.flush();
 			question = reader.readLine();
+			System.out.println("Player " + this.getNameOnly() + " Ask: " + question);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -78,6 +79,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 			writer.println("Answer second player question: " + question + " Character is:"+ character);
 			writer.flush();
 			answer = reader.readLine();
+			System.out.println("Player " + getNameOnly() + " say: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -96,6 +98,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 			writer.println("Write your guess: ");
 			writer.flush();
 			answer = reader.readLine();
+			System.out.println("Player " + getNameOnly() + " Try to guess: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -131,6 +134,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 			writer.println("Write your answer: ");
 			writer.flush();
 			answer = reader.readLine();
+			System.out.println("Player " + getNameOnly() + " say: " + answer);
 		} catch (IOException e) {
 
 			e.printStackTrace();
