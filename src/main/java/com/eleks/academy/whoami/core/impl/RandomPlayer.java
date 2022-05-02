@@ -74,9 +74,9 @@ public class RandomPlayer implements Player {
 	@Override
 	public void close() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	
+
 	
 }
