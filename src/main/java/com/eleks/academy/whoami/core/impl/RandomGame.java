@@ -8,8 +8,15 @@ import com.eleks.academy.whoami.exception.PlayerAnswerException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import java.util.Optional;
 import java.util.concurrent.*;
+
+
+import com.eleks.academy.whoami.core.Game;
+import com.eleks.academy.whoami.core.Player;
+import com.eleks.academy.whoami.core.Turn;
+import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class RandomGame implements Game {
 
@@ -191,3 +198,4 @@ public class RandomGame implements Game {
     }
 
 }
+

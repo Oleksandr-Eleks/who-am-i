@@ -21,6 +21,10 @@ public interface Player {
 	Future<Boolean> isReadyForGuess();
 
 	// TODO: return Future<String>
-	Future<String> answerGuess(String guess, String character);
+
+	String answerGuess(String guess, String character);
+	
+	void close();
 
 }
+

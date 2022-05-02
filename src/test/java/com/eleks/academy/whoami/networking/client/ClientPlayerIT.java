@@ -1,8 +1,10 @@
 package com.eleks.academy.whoami.networking.client;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,10 +14,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 class ClientPlayerIT {
+
     InetAddress localHost;
     int port;
 
@@ -30,15 +32,19 @@ class ClientPlayerIT {
         CountDownLatch clientReady = new CountDownLatch(1);
         CountDownLatch timeout = new CountDownLatch(2);
 
+
         try (ServerSocket server = new ServerSocket()) {
             server.bind(new InetSocketAddress(localHost, port));
 
+
             Thread t1 = new Thread(() -> {
+
                 try (Socket client = new Socket(localHost, port);
                      PrintWriter writer = new PrintWriter(client.getOutputStream())) {
                     writer.println("test character");
                     writer.flush();
                     clientReady.countDown();
+
                     timeout.countDown();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
@@ -69,25 +75,30 @@ class ClientPlayerIT {
                 t2.interrupt();
             }
             assertTrue(timeOver);
+
         }
     }
 
     @Test
+
     void clientReadsPlayersNameFromSocket() throws IOException, InterruptedException {
         CountDownLatch clientReady = new CountDownLatch(1);
         CountDownLatch nameAppeared = new CountDownLatch(1);
         CountDownLatch timeout = new CountDownLatch(2);
 
+
         try (ServerSocket server = new ServerSocket()) {
             server.bind(new InetSocketAddress(localHost, port));
 
             Thread t1 = new Thread(() -> {
+
                 try (Socket client = new Socket(localHost, port);
                      PrintWriter writer = new PrintWriter(client.getOutputStream())) {
                     clientReady.countDown();
                     writer.println("Player");
                     writer.flush();
                     nameAppeared.await(5, TimeUnit.SECONDS);
+
                     timeout.countDown();
                 } catch (IOException | InterruptedException e) {
                     // TODO Auto-generated catch block
@@ -118,6 +129,7 @@ class ClientPlayerIT {
                 t2.interrupt();
             }
             assertTrue(timeOver);
+
         }
     }
 

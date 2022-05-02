@@ -4,9 +4,9 @@ public interface Game {
 
 	void addPlayer(Player player);
 
-	boolean makeTurn();
-
 	void assignCharacters();
+
+	boolean makeTurn();
 
 	boolean isFinished();
 
@@ -16,4 +16,7 @@ public interface Game {
 
 	boolean isPlayerPresent(Player player);
 
+	void play();
+
 }
+

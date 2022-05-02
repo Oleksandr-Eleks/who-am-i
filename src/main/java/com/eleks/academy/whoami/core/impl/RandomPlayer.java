@@ -1,13 +1,13 @@
 package com.eleks.academy.whoami.core.impl;
 
-import com.eleks.academy.whoami.core.Player;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+
+import com.eleks.academy.whoami.core.Player;
 
 public class RandomPlayer implements Player {
 
@@ -70,4 +70,10 @@ public class RandomPlayer implements Player {
 	}
 
 
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+
+	}
 }
+
