@@ -1,9 +1,6 @@
 package com.eleks.academy.whoami.core.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -11,70 +8,91 @@ import com.eleks.academy.whoami.core.Player;
 
 public class RandomPlayer implements Player {
 
-	private String name;
-	private final Collection<String> characterPool;
-	private List<String> availableQuestions;
-	private List<String> availableGuesses;
-	
-	public RandomPlayer(String name, Collection<String> characterPool, List<String> availableQuestions, List<String> availableGuesses) {
-		this.name = name;
-		this.characterPool = Objects.requireNonNull(characterPool);
-		this.availableQuestions = new ArrayList<>(availableQuestions);
-		this.availableGuesses = new ArrayList<>(availableGuesses);
-	}
-	
-	@Override
-	public Future<String> getName() {
-		return CompletableFuture.completedFuture(this.name);
+	private final String name;
+	private final String character;
+	private List<String> guesses = List.of("Batman", "Superman", "Superwoman", "Robin");
+	private List<String> questions = List.of("i human?", "i character?", "i male?", "Am i a female?");
+
+	public RandomPlayer() {
+		this.name = generateName();
+		this.character = generateCharacter();
 	}
 
 	@Override
-	public String getQuestion() {
-		String question = availableQuestions.remove(0);
-		System.out.println("Player: " + name + ". Asks: " + question);
-		return question;
+	public Future<String> askName() {
+		return CompletableFuture.completedFuture(name);
 	}
 
 	@Override
-	public String answerQuestion(String question, String character) {
-		String answer = Math.random() < 0.5 ? "Yes" : "No";
-		System.out.println("Player: " + name + ". Answers: " + answer);
-		return answer;
-	}
-	
-
-	@Override
-	public String answerGuess(String guess, String character) {
-		String answer = Math.random() < 0.5 ? "Yes" : "No";
-		System.out.println("Player: " + name + ". Answers: " + answer);
-		return answer;
+	public String getName() {
+		return name;
 	}
 
 	@Override
-	public String getGuess() {
-		int randomPos = (int)(Math.random() * this.availableGuesses.size()); 
-		String guess = this.availableGuesses.remove(randomPos);
-		System.out.println("Player: " + name + ". Guesses: Am I " + guess);
-		return guess;
+	public Future<String> askCharacter() {
+		return CompletableFuture.completedFuture(character);
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
-		return availableQuestions.isEmpty();
+	public Future<String> askQuestion() {
+		if (questions.isEmpty()) {
+			return null;
+		}
+		String question = questions.remove(0);
+		System.out.println(name + " asks: " + question);
+		return null;
 	}
 
 	@Override
-	public Future<String> suggestCharacter() {
-		// TODO: remove a suggestion from the collection
-		return CompletableFuture.completedFuture(characterPool.iterator().next());
+	public Future<String> answerQuestion(String playerName, String question, String character) {
+		String answer = Math.random() < 0.5 ? "yes" : "no";
+		System.out.println(name + " answers:\n---> " + answer);
+		return CompletableFuture.completedFuture(answer);
+	}
+
+	@Override
+	public Future<String> askGuess() {
+		int randomPos = (int) (Math.random() * guesses.size());
+		String guess = guesses.remove(randomPos);
+		System.out.println(name + " guesses: Am I " + guess);
+		return CompletableFuture.completedFuture(guess);
+	}
+
+	@Override
+	public Future<String> answerGuess(String playerName, String guess, String character) {
+		String answer = Math.random() < 0.5 ? "yes" : "no";
+		System.out.println(name + " answers:\n---> " + answer);
+		return CompletableFuture.completedFuture(answer);
+	}
+
+	@Override
+	public Future<String> isReadyForGuess() {
+		String result = questions.isEmpty() ? "yes" : "no";
+		return CompletableFuture.completedFuture(result);
 	}
 
 	@Override
 	public void close() {
-		// TODO Auto-generated method stub
-		
 	}
 
-	
-	
+	private String generateName() {
+		int token = ((int) (Math.random() * (65535 - 49152)) + 49152);
+		return "Player" + Integer.toString(token);
+	}
+
+	private String generateCharacter() {
+		List<String> characters = List.of("Batman", "Superman", "Superwoman", "Robin");
+		return characters.remove(0);
+	}
+
+	@Override
+	public String getQuestion() {
+		return null;
+	}
+
+	@Override
+	public String getGuess() {
+		return null;
+	}
+
 }

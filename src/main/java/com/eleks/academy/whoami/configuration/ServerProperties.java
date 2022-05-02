@@ -2,26 +2,19 @@ package com.eleks.academy.whoami.configuration;
 
 public class ServerProperties {
 
-	private static final int NOT_ALLOWED_PORT_VALUE = 1024;
-
+	private static final int RESERVED_PORTS = 1024;
 	private final int port;
 	private final int players;
-
+	
 	public ServerProperties(int port, int players) {
 		super();
-		if (port < 0) {
-			throw new IllegalArgumentException(String.format("Port value cannot be negative value: %d", port));
-		}
-		if (port <= NOT_ALLOWED_PORT_VALUE) {
+		if (port <= RESERVED_PORTS) {
 			throw new IllegalArgumentException(
-					String.format("Port value cannot be less than %d, but provided %d", NOT_ALLOWED_PORT_VALUE, port));
+					String.format("Port value cannot be %d or less, but provided %d", RESERVED_PORTS, port));
 		}
-		if (players < 0) {
-			throw new IllegalArgumentException(String.format("Players value cannot be negative value: %d", players));
-		}
-		if (players <= 2) {
+		if (players < 2) {
 			throw new IllegalArgumentException(
-					String.format("Players value should be greater then %d, but provided %d", 2, players));
+					String.format("Players value should be at least %d or greater, but provided %d", 2, players));
 		}
 		this.port = port;
 		this.players = players;
