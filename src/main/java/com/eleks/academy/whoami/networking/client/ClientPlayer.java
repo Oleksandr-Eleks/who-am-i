@@ -17,7 +17,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private final BufferedReader reader;
 	private final PrintStream writer;
 	private final Socket socket;
-	private String name = "";
+	private String name;
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 

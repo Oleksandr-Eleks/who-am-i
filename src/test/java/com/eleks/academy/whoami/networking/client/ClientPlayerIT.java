@@ -44,8 +44,6 @@ class ClientPlayerIT {
 				// TODO: refactor test to always fail after 5 seconds
 				boolean success = clientReady.await(5, TimeUnit.SECONDS);
 				assertTrue(success);
-//				assertTimeoutPreemptively(Duration.ofSeconds(5), () -> clientReady.await(5, TimeUnit.SECONDS));
-				assertTimeoutPreemptively(Duration.ofSeconds(5), () -> Thread.sleep(6000));
 				String character = player.suggestCharacter().get(5, TimeUnit.SECONDS);
 				assertEquals("test character", character);
 			}

@@ -1,7 +1,14 @@
 package com.eleks.academy.whoami.core.impl;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import com.eleks.academy.whoami.core.Game;
@@ -16,10 +23,9 @@ public class RandomGame implements Game {
 
     private final List<Player> players;
     private final List<String> availableCharacters;
-    private Map<String, String> playersCharacters = new ConcurrentHashMap<>();
+    private final Map<String, String> playersCharacters = new ConcurrentHashMap<>();
 	private Turn currentTurn;
-//    private final List<Player, String> playersCharacter;
-	
+
 	private final static String YES = "Yes";
 	private final static String NO = "No";
 	
@@ -27,34 +33,39 @@ public class RandomGame implements Game {
         this.availableCharacters = new ArrayList<String>(availableCharacters);
         this.players = new ArrayList<>(players.size());
         players.parallelStream().forEach(this::addPlayer);
-        players.parallelStream().forEach(this::addCharacter);
 	}
 
-    @Override
-	public void addPlayer(Player player) {
+	private void addPlayer(Player player) {
+        // TODO: Add test to ensure that player has not been added to the lists when failed to obtain suggestion
 		Future<String> suggestedName = player.getName();
 		try {
 			String name = suggestedName.get(DURATION, UNIT);
             if (this.correctWord(name)) {
                 this.players.add(player);
+            } else {
+                this.addPlayer(player);
+                return;
             }
-            System.out.println("Player " + player.getNameOnly() + " added");
-		} catch (InterruptedException | ExecutionException e) {
+            System.out.println("Player \"" + player.getNameOnly() + "\" added");
+            this.addCharacter(player);
+        } catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		} catch (TimeoutException e) {
 			System.err.println("Player did not suggest a character within %d %s".formatted(DURATION, UNIT));
 		}
     }
 
-    @Override
-    public void addCharacter(Player player) {
+    private void addCharacter(Player player) {
         Future<String> maybeCharacter = player.suggestCharacter();
         try {
             String character = maybeCharacter.get(DURATION, UNIT);
             if (this.correctWord(character)) {
                 this.availableCharacters.add(character);
+            } else {
+                this.addCharacter(player);
+                return;
             }
-            System.out.println("Player " + player.getNameOnly() + " added character " + character);
+            System.out.println("Player \"" + player.getNameOnly() + "\" added character \"" + character + "\"");
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
@@ -63,10 +74,7 @@ public class RandomGame implements Game {
     }
 
     private boolean correctWord(String word) {
-        if (word.isBlank()) {
-            return false;
-        }
-        return true;
+        return !word.isBlank();
     }
 
     @Override
@@ -79,9 +87,6 @@ public class RandomGame implements Game {
             guessersName = currentGuesser.getNameOnly()/*.get(DURATION, UNIT)*/;
             isReadyForGuess = currentGuesser.isReadyForGuess().get(DURATION, UNIT);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            /*
-            Try to use isEmpty but intellij say that it can produce NullPointerException
-            */
             if (guessersName != null) {
                 throw new NoPlayerNameException("Failed to obtain a player's name", e);
             }
@@ -182,9 +187,4 @@ public class RandomGame implements Game {
 			gameStatus = !this.isFinished();
 		}
 	}
-
-    public boolean isPlayerAdded(Player player) {
-        return players.contains(player);
-    }
-
 }

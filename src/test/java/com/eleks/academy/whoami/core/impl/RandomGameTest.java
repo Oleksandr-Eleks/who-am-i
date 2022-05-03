@@ -31,20 +31,6 @@ class RandomGameTest {
 		});
 	}
 
-	@Test
-	void addPlayerFailedObtainSuggestion() {
-		Player p1 = new TestPlayer("P1", "");
-		Player p2 = new TestPlayer("P2", "text");
-
-		game.addCharacter(p1);
-		game.addCharacter(p2);
-
-		assertAll(new Executable[] {
-				() -> assertFalse(game.isPlayerAdded(p1)),
-				() -> assertFalse(game.isPlayerAdded(p2))
-		});
-	}
-
 	private static final class TestPlayer implements Player {
 		private final String name;
 		private boolean suggested;
