@@ -45,7 +45,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String getQuestion() {
+	public Future<String> getQuestion() {
+		return executor.submit(this::aksQuestion);
+	}
+
+	public String aksQuestion() {
 		String question = "";
 
 		try {
@@ -58,24 +62,32 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String answerQuestion(String question, String character) {
+	public Future<String> answerQuestion(String question, String character) {
+
+		return executor.submit(() -> askForAnswer(question, character));
+	}
+
+	private String askForAnswer(String question, String character) {
 		String answer = "";
-		
+
 		try {
 			writer.println("Answer second player question: " + question + "Character is:"+ character);
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return answer;
 	}
 
 	@Override
-	public String getGuess() {
+	public Future<String> getGuess() {
+		return executor.submit(this::aksForGuess);
+	}
+
+	private String aksForGuess() {
 		String answer = "";
-		
-	
+
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();
@@ -87,23 +99,30 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
+	public Future<Boolean> isReadyForGuess() {
+		return executor.submit(this::askIfReadyForGuess);
+	}
+	private boolean askIfReadyForGuess() {
 		String answer = "";
-		
+
 		try {
 			writer.println("Are you ready to guess? ");
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return answer.equals("Yes") ? true : false;
+
+		return answer.equals("Yes");
 	}
 
 	@Override
-	public String answerGuess(String guess, String character) {
+	public Future<String> answerGuess(String guess, String character) {
+		return executor.submit(() -> doAnswerGuess(guess, character));
+	}
+
+	private String doAnswerGuess(String guess, String character) {
 		String answer = "";
-		
+
 		try {
 			writer.println("Write your answer: ");
 			answer = reader.readLine();
