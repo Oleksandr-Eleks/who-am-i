@@ -45,7 +45,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String getQuestion() {
+	public Future<String> getQuestion() {
+		return executor.submit(this::askQuestion);
+	}
+	
+	private String askQuestion() {
 		String question = "";
 
 		try {
@@ -72,10 +76,14 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String getGuess() {
+	public Future<String> getGuess() {
+		return executor.submit(this::askGuess);
+	}
+
+	private String askGuess() {
 		String answer = "";
 		
-	
+		
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();

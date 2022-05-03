@@ -78,7 +78,7 @@ public class RandomGame implements Game {
 			return win;
 			
 		} else {
-			String question = currentGuesser.getQuestion();
+			Future<String> question = currentGuesser.getQuestion();
 			answers = currentTurn.getOtherPlayers().stream()
 				.map(player -> player.answerQuestion(question, this.playersCharacter.get(guessersName)))
 				.collect(Collectors.toSet());
