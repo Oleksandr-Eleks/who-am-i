@@ -37,15 +37,13 @@ public class RandomGame implements Game {
 
 	private void addPlayer(Player player) {
         // TODO: Add test to ensure that player has not been added to the lists when failed to obtain suggestion
-		Future<String> suggestedName = player.getName();
 		try {
-			String name = suggestedName.get(DURATION, UNIT);
-            if (this.correctWord(name)) {
-                this.players.add(player);
-            } else {
-                this.addPlayer(player);
-                return;
-            }
+            String name;
+            do {
+                Future<String> suggestedName = player.getName();
+                name = suggestedName.get(DURATION, UNIT);
+            } while (!this.correctWord(name));
+			this.players.add(player);
             System.out.println("Player \"" + player.getNameOnly() + "\" added");
             this.addCharacter(player);
         } catch (InterruptedException | ExecutionException e) {
@@ -56,15 +54,13 @@ public class RandomGame implements Game {
     }
 
     private void addCharacter(Player player) {
-        Future<String> maybeCharacter = player.suggestCharacter();
         try {
-            String character = maybeCharacter.get(DURATION, UNIT);
-            if (this.correctWord(character)) {
-                this.availableCharacters.add(character);
-            } else {
-                this.addCharacter(player);
-                return;
-            }
+            String character;
+            do {
+                Future<String> maybeCharacter = player.suggestCharacter();
+                character = maybeCharacter.get(5, TimeUnit.SECONDS);
+            } while (!this.correctWord(character));
+            this.availableCharacters.add(character);
             System.out.println("Player \"" + player.getNameOnly() + "\" added character \"" + character + "\"");
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -147,7 +143,7 @@ public class RandomGame implements Game {
         }
     }
 
-	private void assignCharacters() {
+    private void assignCharacters() {
         players.stream().forEach(player -> playersCharacters.put(player.getNameOnly(), getRandomCharacter()));
     }
 
