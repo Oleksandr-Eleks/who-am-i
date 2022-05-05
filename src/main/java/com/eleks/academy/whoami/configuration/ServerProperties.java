@@ -1,5 +1,9 @@
 package com.eleks.academy.whoami.configuration;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
+
+@ConfigurationProperties(prefix = "game")
 public class ServerProperties {
 
 	private static final int NOT_ALLOWED_PORT_VALUE = 1024;
@@ -7,6 +11,7 @@ public class ServerProperties {
 	private final int port;
 	private final int players;
 
+	@ConstructorBinding
 	public ServerProperties(int port, int players) {
 		super();
 		if (port < 0) {

@@ -1,0 +1,8 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/@api.version@
+
+game:
+  port: 2000
+  players: 4
