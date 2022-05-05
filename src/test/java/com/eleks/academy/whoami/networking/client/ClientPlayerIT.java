@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,6 @@ class ClientPlayerIT {
 					writer.flush();
 					clientReady.countDown();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}).start();
@@ -69,7 +69,6 @@ class ClientPlayerIT {
 					writer.flush();
 					nameAppeared.await(5, TimeUnit.SECONDS);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();

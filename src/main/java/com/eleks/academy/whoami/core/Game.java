@@ -1,7 +1,7 @@
 package com.eleks.academy.whoami.core;
 
 public interface Game {
-	
+
 	boolean makeTurn();
 	
 	boolean isFinished();

@@ -17,6 +17,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private final BufferedReader reader;
 	private final PrintStream writer;
 	private final Socket socket;
+	private String name;
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -28,15 +29,13 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 	@Override
 	public Future<String> getName() {
-		// TODO: save name for future
 		return executor.submit(this::askName);
 	}
 
 	private String askName() {
-		String name = "";
-
 		try {
 			writer.println("Please, name yourself.");
+			writer.flush();
 			name = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -45,12 +44,23 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String getQuestion() {
+	public String getNameOnly() {
+		return this.name;
+	}
+
+	@Override
+	public Future<String> getQuestion() {
+		return executor.submit(this::askQuestion);
+	}
+
+	private String askQuestion() {
 		String question = "";
 
 		try {
 			writer.println("Ask your questinon: ");
+			writer.flush();
 			question = reader.readLine();
+			System.out.println("Player " + this.getNameOnly() + " Ask: " + question);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -58,55 +68,73 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	@Override
-	public String answerQuestion(String question, String character) {
+	public Future<String> answerQuestion(String question, String character) {
+		return executor.submit(() -> doAnswerQuestion(question, character));
+	}
+
+	private String doAnswerQuestion(String question, String character) {
 		String answer = "";
-		
+
 		try {
-			writer.println("Answer second player question: " + question + "Character is:"+ character);
+			writer.println("Answer second player question: " + question + " Character is:"+ character);
+			writer.flush();
 			answer = reader.readLine();
+			System.out.println("Player " + getNameOnly() + " say: " + answer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		return answer;
 	}
 
 	@Override
-	public String getGuess() {
+	public Future<String> getGuess() {
+		return executor.submit(this::tryGuess);
+	}
+
+	private String tryGuess() {
 		String answer = "";
-		
-	
+
 		try {
 			writer.println("Write your guess: ");
+			writer.flush();
 			answer = reader.readLine();
+			System.out.println("Player " + getNameOnly() + " Try to guess: " + answer);
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 		return answer;
 	}
 
 	@Override
-	public boolean isReadyForGuess() {
+	public Future<Boolean> isReadyForGuess() {
+		return executor.submit(this::pIsReadyForGuess);
+	}
+
+	private boolean pIsReadyForGuess() {
 		String answer = "";
-		
+
 		try {
 			writer.println("Are you ready to guess? ");
 			answer = reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return answer.equals("Yes") ? true : false;
 	}
 
 	@Override
-	public String answerGuess(String guess, String character) {
+	public Future<String> answerGuess(String guess, String character) {
+		return executor.submit(() -> doAnswerGuess(guess, character));
+	}
+	private String doAnswerGuess(String guess, String character) {
 		String answer = "";
-		
+
 		try {
 			writer.println("Write your answer: ");
+			writer.flush();
 			answer = reader.readLine();
+			System.out.println("Player " + getNameOnly() + " say: " + answer);
 		} catch (IOException e) {
 
 			e.printStackTrace();
@@ -121,6 +149,8 @@ public class ClientPlayer implements Player, AutoCloseable {
 
 	private String doSuggestCharacter() {
 		try {
+			writer.println("Enter your character");
+			writer.flush();
 			return reader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -140,12 +170,11 @@ public class ClientPlayer implements Player, AutoCloseable {
 		close(reader);
 		close(socket);
 	}
-	
+
 	private void close(AutoCloseable closeable) {
 		try {
 			closeable.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
