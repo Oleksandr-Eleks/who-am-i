@@ -1,14 +1,20 @@
 package com.eleks.academy.whoami.core.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor(staticName = "of")
+@RequiredArgsConstructor(staticName = "of")
 public class GameCharacter {
 
-	private String character;
+	private final String character;
 
-	private String author;
+	private final String author;
+
+	private boolean taken;
+
+	public void markTaken() {
+		this.taken = Boolean.TRUE;
+	}
 
 }

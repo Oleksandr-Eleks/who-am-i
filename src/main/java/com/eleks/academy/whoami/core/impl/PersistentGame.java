@@ -6,11 +6,12 @@ import com.eleks.academy.whoami.core.Player;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.eleks.academy.whoami.core.impl.GameStatus.SUGGESTING_CHARACTERS;
 import static com.eleks.academy.whoami.core.impl.GameStatus.WAITING_FOR_PLAYERS;
-import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
 public class PersistentGame implements Game {
@@ -89,9 +90,9 @@ public class PersistentGame implements Game {
 
 	@Override
 	public void startGame() {
-		this.assignCharacters();
-
 		this.setStatus(GameStatus.WAITING_FOR_QUESTION);
+
+		this.assignCharacters();
 
 		this.currentPlayerIndex = 0;
 	}
@@ -155,24 +156,53 @@ public class PersistentGame implements Game {
 		this.gameStatus = status;
 	}
 
-	//TODO: Optimize
+	/**
+	 * The term author is referred to a player who suggested at least one character
+	 * <p>
+	 * Basic algorithm description:
+	 * 1) Collect all randomly-ordered authors into a form of cyclic oriented graph.
+	 * 2) Assign to each author a random character suggested by the next author (next graph node)
+	 * 3) Randomly assign all the suggested characters that are left disregarding the author to
+	 * all the non-author players
+	 */
 	private void assignCharacters() {
-		final var allCharacters = this.suggestedCharacters
-				.values()
+		Function<String, Integer> randomAuthorOrderComparator = value ->
+				Double.valueOf(Math.random() * 1000).intValue();
+
+		final var authors =
+				this.suggestedCharacters.keySet()
+						.stream()
+						.sorted(Comparator.comparing(randomAuthorOrderComparator))
+						.collect(Collectors.toList());
+
+		authors.forEach(author -> {
+			final var character = this.getRandomCharacter()
+					.apply(this.suggestedCharacters.get(this.<String>cyclicNext().apply(authors, author)));
+
+			character.markTaken();
+
+			this.playerCharacterMap.put(author, character.getCharacter());
+		});
+
+		final var authorsSet = new HashSet<>(authors);
+
+		final var nonTakenCharacters = this.suggestedCharacters.values()
 				.stream()
 				.flatMap(Collection::stream)
+				.filter(character -> !character.isTaken())
 				.collect(toList());
 
 		this.players.keySet()
+				.stream()
+				.filter(player -> !authorsSet.contains(player))
 				.forEach(player -> {
-					final var assignedCharacter =
-							allCharacters.stream()
-									.filter(character -> !Objects.equals(character.getAuthor(), player))
-									.collect(collectingAndThen(toList(), getRandomCharacter()));
+					final var character = this.getRandomCharacter().apply(nonTakenCharacters);
 
-					this.playerCharacterMap.put(player, assignedCharacter.getCharacter());
+					character.markTaken();
 
-					allCharacters.remove(assignedCharacter);
+					this.playerCharacterMap.put(player, character.getCharacter());
+
+					nonTakenCharacters.remove(character);
 				});
 	}
 
@@ -182,6 +212,17 @@ public class PersistentGame implements Game {
 
 			return gameCharacters.get(randomPos);
 		};
-
 	}
+
+	private <T> BiFunction<List<T>, T, T> cyclicNext() {
+		return (list, item) -> {
+			final var index = list.indexOf(item);
+
+			return Optional.of(index)
+					.filter(i -> i + 1 < list.size())
+					.map(i -> list.get(i + 1))
+					.orElseGet(() -> list.get(0));
+		};
+	}
+
 }
