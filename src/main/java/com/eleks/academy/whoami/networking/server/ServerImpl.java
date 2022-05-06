@@ -8,14 +8,14 @@ import java.util.List;
 
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
+import com.eleks.academy.whoami.core.impl.BotPlayer;
 import com.eleks.academy.whoami.core.impl.RandomGame;
-import com.eleks.academy.whoami.core.impl.RandomPlayer;
+import com.eleks.academy.whoami.data.GameCharacters;
 
 public class ServerImpl implements Server {
+	private List<String> characters = GameCharacters.Characters();
 
-	private List<String> characters = List.of("Batman", "Superman");
-	private List<String> questions = List.of("Am i a human?", "Am i a character from a movie?");
-	private List<String> guessess = List.of("Batman", "Superman");
+	private static List<Socket> sockets;
 
 	private RandomGame game = new RandomGame(characters);
 
@@ -27,9 +27,9 @@ public class ServerImpl implements Server {
 
 	@Override
 	public Game startGame() throws IOException {
-		game.addPlayer(new RandomPlayer("Bot", questions, guessess));
+		game.addPlayer(new BotPlayer());
 		System.out.println("Server starts");
-		System.out.println("Waiting for a client connect....");
+		System.out.println("Waiting for a clients to connect....");
 		return game;
 	}
 
@@ -40,9 +40,7 @@ public class ServerImpl implements Server {
 
 	@Override
 	public void addPlayer(Player player) {
-		game.addPlayer(player);
 		System.out.println("Player: " + player.getName() + " Connected to the game!");
-
 	}
 
 	@Override
@@ -51,4 +49,13 @@ public class ServerImpl implements Server {
 		reader.close();
 	}
 
+	public void stop() {
+		for (Socket s : sockets) {
+			try {
+				s.close();
+			} catch (IOException e) {
+				throw new RuntimeException();
+			}
+		}
+	}
 }

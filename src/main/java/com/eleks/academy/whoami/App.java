@@ -1,5 +1,8 @@
 package com.eleks.academy.whoami;
 
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,31 +19,40 @@ public class App {
 
 		Game game = server.startGame();
 
-		var socket = server.waitForPlayer(game);
+		int maxPlayers = 3;
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		List<Socket> playerList = new ArrayList<>(maxPlayers);
+		List<BufferedReader> clientBR = new ArrayList<BufferedReader>(maxPlayers);
 
-		boolean gameStatus = true;
-
-		var playerName = reader.readLine();
-
-		server.addPlayer(new ClientPlayer(playerName, socket));
-
-		game.assignCharacters();
-
-		game.initGame();
-
-		while (gameStatus) {
-			boolean turnResult = game.makeTurn();
-
-			while (turnResult) {
-				turnResult = game.makeTurn();
+		try {
+			for (int i = 0; i < maxPlayers; i++) {
+				Socket socket = server.waitForPlayer(game);
+				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				clientBR.add(br);
+				String name = br.readLine();
+				game.addPlayer(new ClientPlayer(name, socket));
+				playerList.add(socket);
 			}
-			game.changeTurn();
-			gameStatus = !game.isFinished();
+			System.out.println(String.format("%d Players connected", maxPlayers));
+
+			boolean gameStatus = true;
+
+			game.assignCharacters();
+
+			game.initGame();
+
+			while (gameStatus) {
+				boolean turnResult = game.makeTurn();
+
+				while (turnResult) {
+					turnResult = game.makeTurn();
+				}
+				game.changeTurn();
+				gameStatus = !game.isFinished();
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+			server.stop();
 		}
-
-		server.stopServer(socket, reader);
 	}
-
 }

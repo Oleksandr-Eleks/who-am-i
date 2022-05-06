@@ -1,16 +1,17 @@
 package com.eleks.academy.whoami.networking.client;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 
 import com.eleks.academy.whoami.core.Player;
+import com.eleks.academy.whoami.data.GameCharacters;
+import com.eleks.academy.whoami.services.RandomizerService;
 
 public class ClientPlayer implements Player {
 
 	private String name;
+
+	private String character;
 	private Socket socket;
 	private BufferedReader reader;
 	private PrintStream writer;
@@ -20,6 +21,7 @@ public class ClientPlayer implements Player {
 		this.socket = socket;
 		this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		this.writer = new PrintStream(socket.getOutputStream());
+		this.character = RandomizerService.getRandomString(GameCharacters.Characters());
 	}
 
 	@Override
@@ -32,8 +34,9 @@ public class ClientPlayer implements Player {
 		String question = "";
 
 		try {
-			writer.println("Ask your questinon: ");
+			writer.println("Ask your question: ");
 			question = reader.readLine();
+			System.out.println(String.format("%s asks: %s\tCharacter is: %s", name, question, character));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -45,25 +48,24 @@ public class ClientPlayer implements Player {
 		String answer = "";
 		
 		try {
-			writer.println("Answer second player question: " + question + "Character is:"+ character);
+			writer.println(String.format("Answer the question: %s\tCharacter is: %s", question, character));
 			answer = reader.readLine();
+			System.out.println(name + " Answers: " + answer + "\t");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		return answer;
 	}
 
 	@Override
 	public String getGuess() {
 		String answer = "";
-		
-	
+
 		try {
 			writer.println("Write your guess: ");
 			answer = reader.readLine();
+			System.out.println(String.format("%s Am I %s?\tCharacter is: ", name, answer, character));
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 		return answer;
@@ -76,11 +78,15 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Are you ready to guess? ");
 			answer = reader.readLine();
+			if (answer.equalsIgnoreCase("yes")){
+				System.out.println(name + " ready for guess!");
+			} else {
+				System.out.println(name + " not ready for guessing...");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		return answer.equals("Yes") ? true : false;
+		return answer.equalsIgnoreCase("Yes") ? true : false;
 	}
 
 	@Override
@@ -90,11 +96,11 @@ public class ClientPlayer implements Player {
 		try {
 			writer.println("Write your answer: ");
 			answer = reader.readLine();
+			System.out.println(String.format("%s. Answers: %s\t", name, answer));
 		} catch (IOException e) {
 
 			e.printStackTrace();
 		}
 		return answer;
 	}
-
 }

@@ -18,12 +18,10 @@ public class RandomGame implements Game {
 	private List<String> availableCharacters;
 	private Turn currentTurn;
 
-	
 	private final static String YES = "Yes";
-	private final static String NO = "No";
-	
+
 	public RandomGame(List<String> availableCharacters) {
-		this.availableCharacters = new ArrayList<String>(availableCharacters);
+		this.availableCharacters = new ArrayList<>(availableCharacters);
 	}
 
 	@Override
@@ -40,8 +38,8 @@ public class RandomGame implements Game {
 			answers = currentTurn.getOtherPlayers().stream()
 					.map(player -> player.answerGuess(guess, this.playersCharacter.get(currentGuesser.getName())))
 					.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+			long positiveCount = answers.stream().filter(a -> YES.equalsIgnoreCase(a)).count();
+			long negativeCount = answers.stream().filter(a -> !YES.equalsIgnoreCase(a)).count();
 			
 			boolean win = positiveCount > negativeCount;
 			
@@ -55,25 +53,22 @@ public class RandomGame implements Game {
 			answers = currentTurn.getOtherPlayers().stream()
 				.map(player -> player.answerQuestion(question, this.playersCharacter.get(currentGuesser.getName())))
 				.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
+			long positiveCount = answers.stream().filter(a -> YES.equalsIgnoreCase(a)).count();
+			long negativeCount = answers.stream().filter(a -> !YES.equalsIgnoreCase(a)).count();
 			return positiveCount > negativeCount;
 		}
-		
 	}
 
 	@Override
 	public void assignCharacters() {
 		players.stream().forEach(player -> this.playersCharacter.put(player.getName(), this.getRandomCharacter()));
-		
+
 	}
 	
 	@Override
 	public void initGame() {
 		this.currentTurn = new TurnImpl(this.players);
-		
 	}
-
 
 	@Override
 	public boolean isFinished() {
@@ -89,5 +84,4 @@ public class RandomGame implements Game {
 	public void changeTurn() {
 		this.currentTurn.changeTurn();
 	}
-
 }

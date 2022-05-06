@@ -18,27 +18,27 @@ public class BotPlayer implements Player {
     @Override
     public String getQuestion() {
         String question = RandomizerService.getRandomString(availableQuestions);
-        System.out.println("Player: " + botName + ". Asks: " + question);
+        System.out.println(botName + ". Asks: " + question + "\t");
         return question;
     }
     @Override
     public String answerQuestion(String question, String character) {
         String answer = Math.random() > 0.5 ? "Yes" : "No";
-        System.out.println("Player: " + botName + ". Answers: " + answer);
+        System.out.println(botName + ". Answers: " + answer + "\t");
         return answer;
     }
 
     @Override
     public String getGuess() {
         String guess = RandomizerService.getRandomString(availableGuesses);
-        System.out.println("Player: " + botName + ". Guesses: Am I " + guess);
+        System.out.println(botName + ". Guesses: Am I " + guess + "\t");
         return guess;
     }
 
     @Override
     public String answerGuess(String guess, String character) {
         String answer = (character.equals(guess)) ? "Yes" : "No";
-        System.out.println("Player: " + getName() + ". Answers: " + answer);
+        System.out.println(botName + ". Answers: " + answer + "\t");
         return answer;
     }
 
