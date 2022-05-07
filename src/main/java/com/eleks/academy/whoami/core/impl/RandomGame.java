@@ -3,17 +3,15 @@ package com.eleks.academy.whoami.core.impl;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.Turn;
+import com.eleks.academy.whoami.exception.PlayerAnswerException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
+
+import java.util.Optional;
+import java.util.concurrent.*;
+
 
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.Player;
@@ -22,129 +20,182 @@ import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class RandomGame implements Game {
 
-	private static final int DURATION = 2;
-	private static final TimeUnit UNIT = TimeUnit.MINUTES;
+    private static final int DURATION = 2;
+    private static final TimeUnit UNIT = TimeUnit.MINUTES;
+    private static final String YES = "Yes";
+    private static final String NO = "No";
+    private static final String NO_ANSWER = "Player did not answer within ";
+    private Map<String, String> playersCharacter = new ConcurrentHashMap<>();
+    private List<Player> players = new ArrayList<>();
+    private List<String> availableCharacters;
+    private Turn currentTurn;
 
-	private Map<String, String> playersCharacter = new ConcurrentHashMap<>();
-	private final static String YES = "Yes";
-	private final static String NO = "No";
-	private Turn currentTurn;
-	private final List<Player> players;
-	private final List<String> availableCharacters;
+    public RandomGame(List<String> availableCharacters) {
+        this.availableCharacters = new ArrayList<>(availableCharacters);
+    }
 
-	public RandomGame(List<Player> players, List<String> availableCharacters) {
-		this.availableCharacters = new ArrayList<String>(availableCharacters);
-		this.players = new ArrayList<>(players.size());
-		players.forEach(this::addPlayer);
-	}
+    @Override
+    public boolean isPlayerPresent(Player player) {
+        return this.players.contains(player);
+    }
 
-	private void addPlayer(Player player) {
-		// TODO: Add test to ensure that player has not been added to the lists when failed to obtain suggestion
-		Future<String> maybeCharacter = player.suggestCharacter();
-		try {
-			String character = maybeCharacter.get(DURATION, UNIT);
-			this.players.add(player);
-			this.availableCharacters.add(character);
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			System.err.println("Player did not suggest a charatern within %d %s".formatted(DURATION, UNIT));
-		}
-	}
+    @Override
+    public void addPlayer(Player player) {
+        // TODO: Add test to ensure that player has not been added to the lists when failed to obtain suggestion
+        Future<String> maybeCharacter = player.suggestCharacter();
+        try {
+            String character = maybeCharacter.get(DURATION, UNIT);
+            if (!character.isBlank()) {
+                this.players.add(player);
+                this.availableCharacters.add(character);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public boolean makeTurn() {
-		Player currentGuesser = currentTurn.getGuesser();
-		Set<String> answers;
-		String guessersName;
-		try {
-			guessersName = currentGuesser.getName().get(DURATION, UNIT);
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
-			// TODO: Add custom runtime exception implementation
-			throw new RuntimeException("Failed to obtain a player's name", e);
-		}
-		if (currentGuesser.isReadyForGuess()) {
-			String guess = currentGuesser.getGuess();
-			answers = currentTurn.getOtherPlayers().stream()
-					.map(player -> player.answerGuess(guess, this.playersCharacter.get(guessersName)))
-					.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			
-			boolean win = positiveCount > negativeCount;
-			
-			if (win) {
-				players.remove(currentGuesser);
-			}
-			return win;
-			
-		} else {
-			String question = currentGuesser.getQuestion();
-			answers = currentTurn.getOtherPlayers().stream()
-				.map(player -> player.answerQuestion(question, this.playersCharacter.get(guessersName)))
-				.collect(Collectors.toSet());
-			long positiveCount = answers.stream().filter(a -> YES.equals(a)).count();
-			long negativeCount = answers.stream().filter(a -> NO.equals(a)).count();
-			return positiveCount > negativeCount;
-		}
-		
-	}
+    @Override
+    public boolean makeTurn() {
+        Player currentGuesser = currentTurn.getGuesser();
+        String guessersName = null;
+        boolean isReadyGuess = false;
 
-	private void assignCharacters() {
-		players.stream().map(Player::getName).parallel().map(f -> {
-			// TODO: extract into a configuration parameters
-			try {
-				return f.get(DURATION, UNIT);
-			} catch (InterruptedException | ExecutionException e) {
-				Thread.currentThread().interrupt();
-				// TODO: Add custom runtime exception implementation
-				throw new RuntimeException("Failed to obtain a player's name", e);
-			} catch (TimeoutException e) {
-				// TODO: Choose a name from a pool of names, i.e. Anonymous Badger etc.
-				throw new RuntimeException("Player did not provide a name within %d %s".formatted(DURATION, UNIT));
-			}
-		}).forEach(name -> this.playersCharacter.put(name, this.getRandomCharacter()));
-		
-	}
-	
-	@Override
-	public void initGame() {
-		this.assignCharacters();
-		this.currentTurn = new TurnImpl(this.players);
-		
-	}
+        try {
+            guessersName = currentGuesser.getName().get();
+            isReadyGuess = currentGuesser.isReadyForGuess().get(DURATION, UNIT);
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO: Add custom runtime exception implementation
+            Thread.currentThread().interrupt();
+        } catch (TimeoutException e) {
+            throw new PlayerAnswerException(NO_ANSWER + DURATION + " " + UNIT, e);
+        }
+        List<String> answers;
+        String guess = null;
+        if (isReadyGuess) {
+            try {
+                guess = currentGuesser.getGuess().get(DURATION, UNIT);
+            } catch (InterruptedException | TimeoutException | ExecutionException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
+            String finalGuess = guess;
+            String finalGuessersName = guessersName;
+            answers = currentTurn.getOtherPlayers().stream().parallel()
+                    .map(player -> {
+                        try {
+                            return player.answerGuess(finalGuess, this.playersCharacter.get(finalGuessersName)).get(DURATION, UNIT);
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                            Thread.currentThread().interrupt();
+                        } catch (TimeoutException ex) {
+                            throw new PlayerAnswerException(NO_ANSWER + DURATION + " " + UNIT, ex);
+                        }
+                        return null;
+                    }).toList();
 
+            long positiveCount = answers.stream().filter(YES::equals).count();
+            long negativeCount = answers.stream().filter(NO::equals).count();
 
-	@Override
-	public boolean isFinished() {
-		return players.size() == 1;
-	}
-	
-	private String getRandomCharacter() {
-		int randomPos = (int)(Math.random() * this.availableCharacters.size());
-		// TODO: Ensure player never receives own suggested character
-		return this.availableCharacters.remove(randomPos);
-	}
+            boolean win = positiveCount > negativeCount;
 
-	@Override
-	public void changeTurn() {
-		this.currentTurn.changeTurn();
-	}
+            if (win) {
+                players.remove(currentGuesser);
+            }
+            return false;
 
-	@Override
-	public void play() {
-		boolean gameStatus = true;
+        } else {
+            String question = null;
+            try {
+                question = currentGuesser.getQuestion().get(DURATION, UNIT);
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            } catch (TimeoutException ex) {
+                throw new PlayerAnswerException(NO_ANSWER + DURATION + " " + UNIT, ex);
+            }
+            String finalGuessersName1 = guessersName;
+            String finalQuestion = question;
+            answers = currentTurn.getOtherPlayers().stream()
+                    .map(player -> {
+                        try {
+                            return player.answerQuestion(finalQuestion, this.playersCharacter.get(finalGuessersName1)).get(DURATION, UNIT);
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                            Thread.currentThread().interrupt();
+                        } catch (TimeoutException ex) {
+                            throw new PlayerAnswerException(NO_ANSWER + DURATION + " " + UNIT, ex);
+                        }
+                        return null;
+                    }).toList();
 
-		while (gameStatus) {
-			boolean turnResult = this.makeTurn();
+            long positiveCount = answers.stream().filter(YES::equals).count();
+            long negativeCount = answers.stream().filter(NO::equals).count();
+            return positiveCount > negativeCount;
+        }
 
-			while (turnResult) {
-				turnResult = this.makeTurn();
-			}
-			this.changeTurn();
-			gameStatus = !this.isFinished();
-		}
-	}
+    }
+
+    @Override
+    public void assignCharacters() {
+        players.stream().map(Player::getName).parallel().map(f -> {
+            // TODO: extract into a configuration parameters
+            try {
+                return f.get();
+            } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                return null;
+            }
+        }).forEach(name -> this.playersCharacter.put(name, this.getRandomCharacter(name)));
+    }
+
+    @Override
+    public void initGame() {
+        this.currentTurn = new TurnImpl(this.players);
+    }
+
+    @Override
+    public boolean isFinished() {
+        return players.size() == 1;
+    }
+
+    private String getRandomCharacter(String name) {
+        int randomPos;
+        Optional<Player> currentPlayer = players.stream().filter(p -> {
+
+            try {
+                return p.getName().get().equals(name);
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                return false;
+            }
+
+        }).findFirst();
+        String character = "";
+        if (currentPlayer.isPresent()) {
+            try {
+                character = currentPlayer.get().suggestCharacter().get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
+        }
+        int indexOf = availableCharacters.indexOf(character);
+        do {
+            randomPos = (int) (Math.random() * this.availableCharacters.size());
+            // TODO: Ensure player never receives own suggested character
+        } while (randomPos != indexOf);
+        return this.availableCharacters.remove(randomPos);
+    }
+
+    @Override
+    public void changeTurn() {
+        this.currentTurn.changeTurn();
+    }
 
 }
+

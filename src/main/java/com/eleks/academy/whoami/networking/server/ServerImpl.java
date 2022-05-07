@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -14,6 +18,7 @@ import com.eleks.academy.whoami.core.impl.RandomGame;
 import com.eleks.academy.whoami.networking.client.ClientPlayer;
 
 public class ServerImpl implements Server {
+
 
     private final ServerSocket serverSocket;
     private final List<Player> clientPlayers;
@@ -58,5 +63,6 @@ public class ServerImpl implements Server {
             }
         }
     }
+
 
 }

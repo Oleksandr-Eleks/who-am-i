@@ -1,82 +1,90 @@
 package com.eleks.academy.whoami.core.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
+
+import com.eleks.academy.whoami.core.Game;
+import com.eleks.academy.whoami.core.Player;
+import org.junit.jupiter.api.Test;
+
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
-import com.eleks.academy.whoami.core.Game;
-import com.eleks.academy.whoami.core.Player;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RandomGameTest {
 
-    @Test
-    void askAllPlayersForCharacterSuggestions() {
-        TestPlayer p1 = new TestPlayer("P1");
-        TestPlayer p2 = new TestPlayer("P2");
-        Game game = new RandomGame(List.of(p1, p2), List.of("c"));
-        game.initGame();
-        assertAll(new Executable[]{
-                () -> assertTrue(p1.suggested),
-                () -> assertTrue(p2.suggested),
-        });
-    }
+	@Test
+	void askAllPlayersForCharacterSuggestions() {
+		Game game = new RandomGame(List.of("c"));
+		TestPlayer p1 = new TestPlayer("P1");
+		TestPlayer p2 = new TestPlayer("P2");
+		p1.character = "Batman";
+		p2.character = "Superman";
+		game.addPlayer(p1);
+		game.addPlayer(p2);
 
-    private static final class TestPlayer implements Player {
-        private final String name;
-        private boolean suggested;
+		game.assignCharacters();
+		assertAll(() -> assertTrue(p1.suggested),
+				() -> assertTrue(p2.suggested));
+	}
 
-        public TestPlayer(String name) {
-            super();
-            this.name = name;
-        }
+	@Test
+	void notAddedPlayerWhenFailedSuggestion() {
+		Game game = new RandomGame(List.of("c"));
+		TestPlayer p1 = new TestPlayer("P1");
+		p1.character = "";
+		game.addPlayer(p1);
+		assertFalse(game.isPlayerPresent(p1));
+	}
 
-        @Override
-        public Future<String> getName() {
-            return CompletableFuture.completedFuture(name);
-        }
+	private static final class TestPlayer implements Player {
+		private final String name;
+		private boolean suggested;
+		private String character;
 
-        @Override
-        public Future<String> suggestCharacter() {
-            suggested = true;
-            return CompletableFuture.completedFuture("char");
-        }
+		public TestPlayer(String name) {
+			super();
+			this.name = name;
+		}
 
-        @Override
-        public String getQuestion() {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		public Future<String> getName() {
+			return CompletableFuture.completedFuture(name);
+		}
 
-        @Override
-        public String answerQuestion(String question, String character) {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		public Future<String> suggestCharacter() {
+			suggested = true;
+			return CompletableFuture.completedFuture(character);
+		}
 
-        @Override
-        public String getGuess() {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		public Future<String> getQuestion() {
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        public boolean isReadyForGuess() {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		public Future<String> answerQuestion(String question, String character) {
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        public String answerGuess(String guess, String character) {
-            throw new UnsupportedOperationException();
-        }
+		@Override
+		public Future<String> getGuess() {
+			throw new UnsupportedOperationException();
+		}
 
-        @Override
-        public void close() {
-            // TODO Auto-generated method stub
+		@Override
+		public Future<Boolean> isReadyForGuess() {
+			throw new UnsupportedOperationException();
+		}
 
-        }
+		@Override
+		public Future<String> answerGuess(String guess, String character) {
+			throw new UnsupportedOperationException();
+		}
 
-    }
+	}
 
 }
