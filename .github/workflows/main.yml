@@ -19,7 +19,7 @@ jobs:
           java-version: 17
 
       - name: Run Test Coverage
-        run: mvn -B --file pom.xml
+        run: mvn -B test --file pom.xml
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.0.0
@@ -27,3 +27,12 @@ jobs:
           name: jacoco-report
           path: ${{ github.workspace }}/target/site/jacoco/
 
+      - name: Add Coverage to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.2
+        with:
+          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 40
+          min-coverage-changed-files: 60
+          debug-mode: false
