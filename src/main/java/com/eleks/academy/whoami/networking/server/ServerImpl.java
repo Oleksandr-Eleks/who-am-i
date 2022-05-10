@@ -21,6 +21,7 @@ public class ServerImpl implements Server {
 	private List<String> guessess = List.of("Batman", "Superman");
 	private RandomGame game = new RandomGame(characters);
 
+
 	public ServerImpl(int port) throws IOException {
 		this.serverSocket = new ServerSocket(port);
 	}
