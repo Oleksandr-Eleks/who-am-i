@@ -1,10 +1,4 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
-
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the developname: Who-am-I-CI
 
 on:
   push:
@@ -19,7 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        -
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
 
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Run Test Coverage
+        run: mvn -B --file pom.xml
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: jacoco-report
+          path: ${{ github.workspace }}/target/site/jacoco/
 
