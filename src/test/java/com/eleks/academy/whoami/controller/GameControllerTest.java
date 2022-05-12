@@ -5,12 +5,14 @@ import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.service.impl.GameServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -22,6 +24,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -83,6 +86,46 @@ class GameControllerTest {
 	}
 
 	@Test
+	void findById() throws Exception {
+		MvcResult mvcResult = this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games")
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON)
+								.content("4"))
+				.andExpect(status().isOk()).andReturn();
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		var gameDetails = objectMapper.readValue(
+				mvcResult.getResponse().getContentAsString(), GameDetails.class);
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.get("/games/{id}", gameDetails.getId())
+								.header("X-Player", "player")
+								.accept(APPLICATION_JSON))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void enrollToGame() throws Exception {
+		MvcResult mvcResult = this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games")
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON)
+								.content("2"))
+				.andExpect(status().isOk()).andReturn();
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		var gameDetails = objectMapper.readValue(
+				mvcResult.getResponse().getContentAsString(), GameDetails.class);
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/players", gameDetails.getId())
+								.header("X-Player", "player")
+								.header("X-Player", "player2"))
+				.andExpect(status().isNoContent());
+	}
+
+	@Test
 	void suggestCharacter() throws Exception {
 		doNothing().when(gameService).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
 		this.mockMvc.perform(
@@ -94,5 +137,67 @@ class GameControllerTest {
 										"}"))
 				.andExpect(status().isOk());
 		verify(gameService, times(1)).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
+	}
+
+	@Test
+	void startGame() throws Exception {
+		// TODO: Fix startGame. Expected: 200 Actual: 400.
+		MvcResult mvcResult = this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games")
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON)
+								.content("2"))
+				.andExpect(status().isOk()).andReturn();
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		var gameDetails = objectMapper.readValue(
+				mvcResult.getResponse().getContentAsString(), GameDetails.class);
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/players", gameDetails.getId())
+								.header("X-Player", "player")
+								.accept(APPLICATION_JSON))
+				.andExpect(status().isNoContent());
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON)
+								.content("\"Hero1\""))
+				.andExpect(status().isNoContent());
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON)
+								.content("\"Hero2\""))
+				.andExpect(status().isNoContent());
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON)
+								.content("\"Hero3\""))
+				.andExpect(status().isNoContent());
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON)
+								.content("\"Hero4\""))
+				.andExpect(status().isNoContent());
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON)
+								.content("\"Hero5\""))
+				.andExpect(status().isNoContent());
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}", gameDetails.getId())
+								.header("X-Player", "player")
+								.contentType(APPLICATION_JSON))
+				.andExpect(status().isOk());
 	}
 }
