@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, feature/tests ]
   pull_request:
-    branches: [ develop ]
+    branches: [ develop, feature/tests ]
 
   workflow_dispatch:
 
