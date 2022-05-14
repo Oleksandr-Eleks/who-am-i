@@ -1,28 +1,26 @@
 package com.eleks.academy.whoami.core.state;
 
-import com.eleks.academy.whoami.core.Player;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.exception.GameException;
 import com.eleks.academy.whoami.core.impl.Answer;
 import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 public final class WaitingForPlayers extends AbstractGameState {
 
-	private final Lock lock = new ReentrantLock();
+	private final Map<String, SynchronousPlayer> players;
 
-	private final Integer maxPlayers;
-	private final Map<String, Player> players;
+	public WaitingForPlayers(int maxPlayers) {
+		super(0, maxPlayers);
+		this.players = new HashMap<>();
+	}
 
-	public WaitingForPlayers(Integer maxPlayers) {
-		super(null, maxPlayers);
-
-		this.maxPlayers = maxPlayers;
-		this.players = new HashMap<>(this.maxPlayers);
+	private WaitingForPlayers(int maxPlayers, Map<String, SynchronousPlayer> players) {
+		super(players.size(), maxPlayers);
+		this.players = players;
 	}
 
 	@Override
@@ -32,40 +30,24 @@ public final class WaitingForPlayers extends AbstractGameState {
 
 	@Override
 	public GameState makeTurn(Answer answer) {
-		this.lock.lock();
+		Map<String, SynchronousPlayer> nextPlayers = new HashMap<>(this.players);
 
-		try {
-			Optional.of(this.players)
-					.filter(map -> map.size() < this.maxPlayers)
-					.filter(map -> !map.containsKey(answer.getPlayer()))
-					.ifPresentOrElse(
-							map -> map.put(answer.getPlayer(), new PersistentPlayer(answer.getPlayer())),
-							() -> {
-								throw new GameException("Cannot enroll to the game");
-							}
-					);
+		if (nextPlayers.containsKey(answer.getPlayer())) {
+			throw new GameException("Cannot enroll to the game");
+		} else {
+			nextPlayers.put(answer.getPlayer(), new PersistentPlayer(answer.getPlayer()));
+		}
 
-			return Optional.of(this)
-					.filter(WaitingForPlayers::finished)
-					.map(WaitingForPlayers::next)
-					.orElse(this);
-		} finally {
-			this.lock.unlock();
+		if (players.size() == getMaxPlayers()) {
+			return new SuggestingCharacters(players);
+		} else {
+			return new WaitingForPlayers(getMaxPlayers(), nextPlayers);
 		}
 	}
 
 	@Override
-	public boolean hasPlayer(String player) {
-		return this.players.containsKey(player);
-	}
-
-	@Override
-	public Integer getPlayersInGame() {
-		return this.players.size();
-	}
-
-	private Boolean finished() {
-		return this.players.size() >= this.maxPlayers;
+	public Optional<SynchronousPlayer> findPlayer(String player) {
+		return Optional.ofNullable(players.get(player));
 	}
 
 }

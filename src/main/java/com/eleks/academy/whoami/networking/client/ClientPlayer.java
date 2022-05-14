@@ -97,7 +97,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 			e.printStackTrace();
 		}
 		
-		return answer.equals("Yes") ? true : false;
+		return answer.equals("Yes");
 	}
 
 	@Override

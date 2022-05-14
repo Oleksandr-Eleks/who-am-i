@@ -3,4 +3,4 @@ server:
 
 game:
   port: 2200
-  players: 4
+  players: 3
