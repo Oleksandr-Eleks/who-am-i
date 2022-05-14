@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.eleks.academy.whoami.configuration.GameControllerAdvice;
@@ -35,43 +35,39 @@ class GameControllerTest {
 	private final GameController gameContoroller = new GameController(gameService);
 	private final NewGameRequest gameRequest = new NewGameRequest();
 	private MockMvc mockMvc;
-
+	
 	@BeforeEach
 	void setMockMvc() {
 		mockMvc = MockMvcBuilders.standaloneSetup(gameContoroller)
-				.setControllerAdvice(new GameControllerAdvice()).build();
-		gameRequest.setMaxPlayers(2);
+				.setControllerAdvice(new GameControllerAdvice())
+				.build();
+		gameRequest.setMaxPlayers(3);
 	}
 	
 	@Test
-	void findAvailableGames() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.get("/games").header("X-Player", "player"))
-			.andExpect(status().isOk())
-			.andExpect(MockMvcResultMatchers.jsonPath("$[0]").doesNotHaveJsonPath());
-	}
-
-	@Test
 	void createGame() throws Exception {
 		GameDetails gameDetails = new GameDetails();
+		
 		gameDetails.setId("12613126");
 		gameDetails.setStatus("WaitingForPlayers");
+		
 		when(gameService.createGame(eq("player"), any(NewGameRequest.class))).thenReturn(gameDetails);
-		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games")
+		
+		mockMvc.perform(MockMvcRequestBuilders.post("/games")
 								.header("X-Player", "player")
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("{\n" +
 										"    \"maxPlayers\": 2\n" +
 										"}"))
 				.andExpect(status().isCreated())
+				.andDo(print())
 				.andExpect(jsonPath("id").value("12613126"))
 				.andExpect(jsonPath("status").value("WaitingForPlayers"));
 	}
 	
 	@Test
 	void createGameFailedWithException() throws Exception {
-		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games")
+		mockMvc.perform(MockMvcRequestBuilders.post("/games")
 								.header("X-Player", "player")
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("{\n" +
@@ -81,7 +77,34 @@ class GameControllerTest {
 				.andExpect(content().string("{\"message\":\"Validation failed!\"," +
 						"\"details\":[\"maxPlayers must not be null\"]}"));
 	}
-
+	
+	@Test
+	void findAvailableGames() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.get("/games").header("X-Player", "player"))
+			.andExpect(status().isOk());
+	}
+	
+	@Test
+	void findById() throws Exception {
+		GameDetails gameDetails = new GameDetails();  
+		gameDetails.setId("12345");
+		gameDetails.setStatus("WaitingForPlayers");
+		when(gameService.createGame(eq("player"), any(NewGameRequest.class))).thenReturn(gameDetails);
+		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", gameDetails.getId())
+				.header("X-Player", "player"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("id").value(gameDetails.getId()));
+	}
+	
+	@Test
+	void findByIdFailedWithNotFound() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.get("/games/123456789")
+				.header("X-Player", "player"))
+				.andExpect(status().isNotFound());
+		
+	}
+	
 	@Test
 	void suggestCharacter() throws Exception {
 		doNothing().when(gameService).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));

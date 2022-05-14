@@ -22,29 +22,24 @@ public class GameController {
 
 	private final GameService gameService;
 	
+	@PostMapping
+	@ResponseStatus(code = HttpStatus.CREATED)
+	public GameDetails createGame(@RequestHeader(PLAYER) String player, @Valid @RequestBody NewGameRequest gameRequest) {
+		return this.gameService.createGame(player, gameRequest);
+	}
+	
 	@GetMapping
 	@ResponseStatus(code = HttpStatus.OK)
 	public List<GameLight> findAvailableGames(@RequestHeader(PLAYER) String player) {
 		return this.gameService.findAvailableGames(player);
 	}
 
-	@PostMapping
-	@ResponseStatus(code = HttpStatus.CREATED)
-	public GameDetails createGame(@RequestHeader(PLAYER) String player, @Valid @RequestBody NewGameRequest gameRequest) {
-		return this.gameService.createGame(player, gameRequest);
-	}
-
 	@GetMapping("/{id}")
+	@ResponseStatus(code = HttpStatus.OK)
 	public ResponseEntity<GameDetails> findById(@PathVariable("id") String id, @RequestHeader(PLAYER) String player) {
 		return this.gameService.findByIdAndPlayer(id, player)
 				.map(ResponseEntity::ok)
 				.orElseGet(() -> ResponseEntity.notFound().build());
-	}
-
-	@PostMapping("/{id}/players")
-	@ResponseStatus(code = HttpStatus.OK)
-	public void enrollToGame(@PathVariable("id") String id, @RequestHeader(PLAYER) String player) {
-		this.gameService.enrollToGame(id, player);
 	}
 
 	@PostMapping("/{id}/characters")
@@ -53,6 +48,12 @@ public class GameController {
 		this.gameService.suggestCharacter(id, player, suggestion);
 	}
 
+	@PostMapping("/{id}/players")
+	@ResponseStatus(code = HttpStatus.OK)
+	public void enrollToGame(@PathVariable("id") String id, @RequestHeader(PLAYER) String player) {
+		this.gameService.enrollToGame(id, player);
+	}
+	
 	@PostMapping("/{id}")
 	public ResponseEntity<GameDetails> startGame(@PathVariable("id") String id, @RequestHeader(PLAYER) String player) {
 		return this.gameService.startGame(id, player).map(ResponseEntity::ok)
