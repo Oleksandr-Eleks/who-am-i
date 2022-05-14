@@ -86,15 +86,13 @@ class GameControllerTest {
 	
 	@Test
 	void findById() throws Exception {
-		GameDetails gameDetails = new GameDetails();  
-		gameDetails.setId("12345");
-		gameDetails.setStatus("WaitingForPlayers");
-		when(gameService.createGame(eq("player"), any(NewGameRequest.class))).thenReturn(gameDetails);
-		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", gameDetails.getId())
+		GameDetails game = gameService.createGame("player", new NewGameRequest(3));
+		game.setId("123");
+		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", game.getId())
 				.header("X-Player", "player"))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("id").value(gameDetails.getId()));
+				.andExpect(jsonPath("id").value(game.getId()));
 	}
 	
 	@Test
