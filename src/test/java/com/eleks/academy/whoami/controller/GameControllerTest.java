@@ -67,7 +67,7 @@ class GameControllerTest {
 	}
 
 	@Test
-	void createGameFailedWithException() throws Exception {
+	void createGame_FailedWithException() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders.post("/games")
 								.header("X-Player", "player")
 								.contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +108,7 @@ class GameControllerTest {
 	}
 
 	@Test
-	void findByIdFailedWithNotFound() throws Exception {
+	void findById_FailedWithNotFound() throws Exception {
 		Optional<GameDetails> myOptional = Optional.empty();
 
 		when(gameServiceMock.findByIdAndPlayer(eq("54321"), eq("player"))).thenReturn(myOptional);
@@ -146,5 +146,35 @@ class GameControllerTest {
 				.andExpect(status().isOk());
 
 		verify(gameServiceMock, times(1)).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
+	}
+
+	@Test
+	void startGame() throws Exception {
+		GameDetails gameDetails = new GameDetails();
+		gameDetails.setId("7777");
+
+		Optional<GameDetails> myOptional = Optional.of(gameDetails);
+
+		when(gameServiceMock.startGame(eq("7777"), eq("player"))).thenReturn(myOptional);
+		
+		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}", gameDetails.getId())
+				.header("X-Player", "player"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("id").value(gameDetails.getId()));
+
+		verify(gameServiceMock, times(1)).startGame(eq("7777"), eq("player"));
+	}
+
+	@Test
+	void startGame_FailedWithNotFound() throws Exception {
+		Optional<GameDetails> myOptional = Optional.empty();
+
+		when(gameServiceMock.startGame(eq("7777"), eq("player"))).thenReturn(myOptional);
+
+		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}", "7777")
+				.header("X-Player", "player"))
+				.andExpect(status().isNotFound());
+
+		verify(gameServiceMock, times(1)).startGame(eq("7777"), eq("player"));
 	}
 }
