@@ -83,6 +83,8 @@ class GameControllerTest {
 	void findAvailableGames() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders.get("/games").header("X-Player", "player"))
 			.andExpect(status().isOk());
+		
+		verify(gameService, times(1)).findAvailableGames(any(String.class));
 	}
 	
 	@Test
