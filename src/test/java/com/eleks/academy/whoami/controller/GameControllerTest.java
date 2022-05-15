@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,7 @@ import com.eleks.academy.whoami.configuration.GameControllerAdvice;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
+import com.eleks.academy.whoami.model.response.GameLight;
 import com.eleks.academy.whoami.service.impl.GameServiceImpl;
 
 
@@ -81,7 +83,8 @@ class GameControllerTest {
 
 	@Test
 	void findAvailableGames() throws Exception {
-		when(gameServiceMock.findAvailableGames(eq("player"))).thenReturn(null);
+		List<GameLight> gameList = List.of();
+		when(gameServiceMock.findAvailableGames(eq("player"))).thenReturn(gameList);
 
 		mockMvc.perform(MockMvcRequestBuilders.get("/games").header("X-Player", "player"))
 			.andExpect(status().isOk());
