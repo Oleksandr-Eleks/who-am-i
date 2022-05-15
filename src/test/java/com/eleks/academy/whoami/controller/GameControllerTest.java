@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,11 +50,11 @@ class GameControllerTest {
 	void createGame() throws Exception {
 		GameDetails gameDetails = new GameDetails();
 		
-		gameDetails.setId("12613126");
+		gameDetails.setId("12345");
 		gameDetails.setStatus("WaitingForPlayers");
 		
 		when(gameService.createGame(eq("player"), any(NewGameRequest.class))).thenReturn(gameDetails);
-		
+
 		mockMvc.perform(MockMvcRequestBuilders.post("/games")
 								.header("X-Player", "player")
 								.contentType(MediaType.APPLICATION_JSON)
@@ -60,9 +62,8 @@ class GameControllerTest {
 										"    \"maxPlayers\": 2\n" +
 										"}"))
 				.andExpect(status().isCreated())
-				.andDo(print())
-				.andExpect(jsonPath("id").value("12613126"))
-				.andExpect(jsonPath("status").value("WaitingForPlayers"));
+				.andExpect(jsonPath("id").value(gameDetails.getId()))
+				.andExpect(jsonPath("status").value(gameDetails.getStatus()));
 	}
 	
 	@Test
@@ -86,19 +87,34 @@ class GameControllerTest {
 	
 	@Test
 	void findById() throws Exception {
-		GameDetails game = gameService.createGame("player", new NewGameRequest(3));
-		game.setId("123");
-		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", game.getId())
+		GameDetails gameDetails = new GameDetails();
+		gameDetails.setId("12345");
+
+		Optional<GameDetails> myOptional = Optional.of(gameDetails);
+		
+		when(gameService.findByIdAndPlayer(eq("12345"), eq("player"))).thenReturn(myOptional);
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", gameDetails.getId())
 				.header("X-Player", "player"))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("id").value(game.getId()));
+				.andExpect(jsonPath("id").value(gameDetails.getId()));
+		
+		verify(gameService, times(1)).findByIdAndPlayer(eq("12345"), eq("player"));
 	}
 	
 	@Test
 	void findByIdFailedWithNotFound() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.get("/games/123456789")
+		GameDetails gameDetails = new GameDetails();
+		gameDetails.setId("12345");
+
+		Optional<GameDetails> myOptional = Optional.of(gameDetails);
+		
+		when(gameService.findByIdAndPlayer(eq("12345"), eq("player"))).thenReturn(myOptional);
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", "54321")
 				.header("X-Player", "player"))
+				.andDo(print())
 				.andExpect(status().isNotFound());
 		
 	}
