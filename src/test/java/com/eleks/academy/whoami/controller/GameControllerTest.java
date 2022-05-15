@@ -81,6 +81,8 @@ class GameControllerTest {
 
 	@Test
 	void findAvailableGames() throws Exception {
+		when(gameServiceMock.findAvailableGames(eq("player"))).thenReturn(null);
+
 		mockMvc.perform(MockMvcRequestBuilders.get("/games").header("X-Player", "player"))
 			.andExpect(status().isOk());
 		
@@ -121,23 +123,26 @@ class GameControllerTest {
 
 	@Test
 	void enrollToGame() throws Exception {
+		doNothing().when(gameServiceMock).enrollToGame(eq("44444"), eq("EnrollPlayer"));
+
 		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}/players", "44444")
-			.header("X-Player", "Enrollplayer"))
+			.header("X-Player", "EnrollPlayer"))
 			.andDo(print())
 			.andExpect(status().isOk());
+		
+		verify(gameServiceMock, times(1)).enrollToGame(eq("44444"), eq("EnrollPlayer"));
 	}
 
 	@Test
 	void suggestCharacter() throws Exception {
 		doNothing().when(gameServiceMock).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
 
-		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}/characters", "1234")
-								.header("X-Player", "player")
-								.contentType(MediaType.APPLICATION_JSON)
-								.content("{\n" +
-										"    \"character\": \" char\"\n" +
-										"}"))
+		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}/characters", "1234")
+				.header("X-Player", "player")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\n" +
+						"    \"character\": \" char\"\n" +
+						"}"))
 				.andExpect(status().isOk());
 
 		verify(gameServiceMock, times(1)).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
