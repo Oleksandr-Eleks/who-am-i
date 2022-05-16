@@ -12,6 +12,4 @@ public interface Server {
 
 	void stop();
 	
-	void stop();
-	
 }

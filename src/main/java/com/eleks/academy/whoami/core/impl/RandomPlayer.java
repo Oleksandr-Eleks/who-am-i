@@ -9,8 +9,6 @@ import java.util.concurrent.Future;
 
 import com.eleks.academy.whoami.core.Player;
 
-import com.eleks.academy.whoami.core.Player;
-
 public class RandomPlayer implements Player {
 
 	private String name;
@@ -74,9 +72,9 @@ public class RandomPlayer implements Player {
 	@Override
 	public void close() {
 		// TODO Auto-generated method stub
-
+		
 	}
 
-
+	
 	
 }
