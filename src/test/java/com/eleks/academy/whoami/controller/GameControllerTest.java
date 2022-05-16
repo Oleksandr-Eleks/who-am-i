@@ -87,7 +87,7 @@ class GameControllerTest {
 		when(gameServiceMock.findAvailableGames(eq("player"))).thenReturn(gameList);
 
 		mockMvc.perform(MockMvcRequestBuilders.get("/games").header("X-Player", "player"))
-			.andExpect(status().isOk());
+				.andExpect(status().isOk());
 		
 		verify(gameServiceMock, times(1)).findAvailableGames(any(String.class));
 	}
@@ -129,9 +129,9 @@ class GameControllerTest {
 		doNothing().when(gameServiceMock).enrollToGame(eq("44444"), eq("EnrollPlayer"));
 
 		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}/players", "44444")
-			.header("X-Player", "EnrollPlayer"))
-			.andDo(print())
-			.andExpect(status().isOk());
+				.header("X-Player", "EnrollPlayer"))
+				.andDo(print())
+				.andExpect(status().isOk());
 		
 		verify(gameServiceMock, times(1)).enrollToGame(eq("44444"), eq("EnrollPlayer"));
 	}
@@ -149,6 +149,19 @@ class GameControllerTest {
 				.andExpect(status().isOk());
 
 		verify(gameServiceMock, times(1)).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
+	}
+
+	@Test
+	void suggestCharacter_FailedValidation() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}/characters", "787878")
+				.header("X-Player", "player")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\n" +
+						"    \"character\": \"\"\n" +
+						"}"))
+				.andExpect(status().isBadRequest())
+				.andExpect(content().string("{\"message\":\"Validation failed!\"," +
+						"\"details\":[\"character must be not blank\"]}"));
 	}
 
 	@Test
