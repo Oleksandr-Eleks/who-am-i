@@ -95,4 +95,18 @@ class GameControllerTest {
 				.andExpect(status().isOk());
 		verify(gameService, times(1)).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
 	}
+
+	@Test
+	void suggestCharacterWithException() throws Exception {
+		doNothing().when(gameService).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/1234/characters")
+								.header("X-Player", "player")
+								.contentType(MediaType.APPLICATION_JSON)
+								.content("{\n" +
+										"    \"character\":\"   \"\n" +
+										"}"))
+				.andExpect(status().isBadRequest())
+				.andExpect(content().string("{\"message\":\"Validation failed!\",\"details\":[\"must not be blank\"]}"));
+	}
 }
