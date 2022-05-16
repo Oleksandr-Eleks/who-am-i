@@ -52,7 +52,6 @@ public class GameController {
 	@PostMapping("/{id}/characters")
 	@ResponseStatus(code = HttpStatus.OK)
 	public void suggestCharacter(@PathVariable("id") String id, @RequestHeader(PLAYER) String player, @Valid @RequestBody CharacterSuggestion suggestion) {
-
 		this.gameService.suggestCharacter(id, player, suggestion);
 	}
 

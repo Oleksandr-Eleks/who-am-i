@@ -36,13 +36,13 @@ import com.eleks.academy.whoami.service.impl.GameServiceImpl;
 class GameControllerTest {
 
 	private final GameServiceImpl gameServiceMock = mock(GameServiceImpl.class);
-	private final GameController gameContoroller = new GameController(gameServiceMock);
+	private final GameController gameController = new GameController(gameServiceMock);
 	private final NewGameRequest gameRequest = new NewGameRequest();
 	private MockMvc mockMvc;
 
 	@BeforeEach
 	void setMockMvc() {
-		mockMvc = MockMvcBuilders.standaloneSetup(gameContoroller)
+		mockMvc = MockMvcBuilders.standaloneSetup(gameController)
 				.setControllerAdvice(new GameControllerAdvice())
 				.build();
 		gameRequest.setMaxPlayers(3);
@@ -99,7 +99,7 @@ class GameControllerTest {
 
 		Optional<GameDetails> myOptional = Optional.of(gameDetails);
 
-		when(gameServiceMock.findByIdAndPlayer(eq("12345"), eq("player"))).thenReturn(myOptional);
+		when(gameServiceMock.findByIdAndPlayer(eq(gameDetails.getId()), eq("player"))).thenReturn(myOptional);
 
 		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", gameDetails.getId())
 				.header("X-Player", "player"))
@@ -107,40 +107,42 @@ class GameControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("id").value(gameDetails.getId()));
 		
-		verify(gameServiceMock, times(1)).findByIdAndPlayer(eq("12345"), eq("player"));
+		verify(gameServiceMock, times(1)).findByIdAndPlayer(eq(gameDetails.getId()), eq("player"));
 	}
 
 	@Test
 	void findById_FailedWithNotFound() throws Exception {
 		Optional<GameDetails> myOptional = Optional.empty();
+		String gameId = "54321";
+		when(gameServiceMock.findByIdAndPlayer(eq(gameId), eq("player"))).thenReturn(myOptional);
 
-		when(gameServiceMock.findByIdAndPlayer(eq("54321"), eq("player"))).thenReturn(myOptional);
-
-		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", "54321")
+		mockMvc.perform(MockMvcRequestBuilders.get("/games/{id}", gameId)
 				.header("X-Player", "player"))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 		
-		verify(gameServiceMock, times(1)).findByIdAndPlayer(eq("54321"), eq("player"));
+		verify(gameServiceMock, times(1)).findByIdAndPlayer(eq(gameId), eq("player"));
 	}
 
 	@Test
 	void enrollToGame() throws Exception {
-		doNothing().when(gameServiceMock).enrollToGame(eq("44444"), eq("EnrollPlayer"));
+		String gameId = "44444";
+		doNothing().when(gameServiceMock).enrollToGame(eq(gameId), eq("EnrollPlayer"));
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}/players", "44444")
+		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}/players", gameId)
 				.header("X-Player", "EnrollPlayer"))
 				.andDo(print())
 				.andExpect(status().isOk());
 		
-		verify(gameServiceMock, times(1)).enrollToGame(eq("44444"), eq("EnrollPlayer"));
+		verify(gameServiceMock, times(1)).enrollToGame(eq(gameId), eq("EnrollPlayer"));
 	}
 
 	@Test
 	void suggestCharacter() throws Exception {
-		doNothing().when(gameServiceMock).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
+		String gameId = "1234";
+		doNothing().when(gameServiceMock).suggestCharacter(eq(gameId), eq("player"), any(CharacterSuggestion.class));
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}/characters", "1234")
+		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}/characters", gameId)
 				.header("X-Player", "player")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("{\n" +
@@ -148,7 +150,7 @@ class GameControllerTest {
 						"}"))
 				.andExpect(status().isOk());
 
-		verify(gameServiceMock, times(1)).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
+		verify(gameServiceMock, times(1)).suggestCharacter(eq(gameId), eq("player"), any(CharacterSuggestion.class));
 	}
 
 	@Test
@@ -171,26 +173,27 @@ class GameControllerTest {
 
 		Optional<GameDetails> myOptional = Optional.of(gameDetails);
 
-		when(gameServiceMock.startGame(eq("7777"), eq("player"))).thenReturn(myOptional);
+		when(gameServiceMock.startGame(eq(gameDetails.getId()), eq("player"))).thenReturn(myOptional);
 		
 		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}", gameDetails.getId())
 				.header("X-Player", "player"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("id").value(gameDetails.getId()));
 
-		verify(gameServiceMock, times(1)).startGame(eq("7777"), eq("player"));
+		verify(gameServiceMock, times(1)).startGame(eq(gameDetails.getId()), eq("player"));
 	}
 
 	@Test
 	void startGame_FailedWithNotFound() throws Exception {
 		Optional<GameDetails> myOptional = Optional.empty();
+		String gameId = "1234";
+		
+		when(gameServiceMock.startGame(eq(gameId), eq("player"))).thenReturn(myOptional);
 
-		when(gameServiceMock.startGame(eq("7777"), eq("player"))).thenReturn(myOptional);
-
-		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}", "7777")
+		mockMvc.perform(MockMvcRequestBuilders.post("/games/{id}", gameId)
 				.header("X-Player", "player"))
 				.andExpect(status().isNotFound());
 
-		verify(gameServiceMock, times(1)).startGame(eq("7777"), eq("player"));
+		verify(gameServiceMock, times(1)).startGame(eq(gameId), eq("player"));
 	}
 }
