@@ -11,10 +11,10 @@ import com.eleks.academy.whoami.core.Player;
 
 public class RandomPlayer implements Player {
 
-	private String name;
+	private final String name;
 	private final Collection<String> characterPool;
-	private List<String> availableQuestions;
-	private List<String> availableGuesses;
+	private final List<String> availableQuestions;
+	private final List<String> availableGuesses;
 	
 	public RandomPlayer(String name, Collection<String> characterPool, List<String> availableQuestions, List<String> availableGuesses) {
 		this.name = name;
