@@ -28,7 +28,7 @@ public class RandomGame implements Game {
 	private static final String NO = "No";
 
 	public RandomGame(List<Player> players, List<String> availableCharacters) {
-		this.availableCharacters = new ArrayList<String>(availableCharacters);
+		this.availableCharacters = new ArrayList<>(availableCharacters);
 		this.players = new ArrayList<>(players.size());
 		players.forEach(this::addPlayer);
 	}
@@ -65,6 +65,7 @@ public class RandomGame implements Game {
 			answers = currentTurn.getOtherPlayers().stream()
 					.map(player -> player.answerGuess(guess, this.playersCharacter.get(guessersName)))
 					.collect(Collectors.toList());
+
 			long positiveCount = answers.stream().filter(YES::equals).count();
 			long negativeCount = answers.stream().filter(NO::equals).count();
 
@@ -80,6 +81,7 @@ public class RandomGame implements Game {
 			answers = currentTurn.getOtherPlayers().stream()
 					.map(player -> player.answerQuestion(question, this.playersCharacter.get(guessersName)))
 					.collect(Collectors.toList());
+
 			long positiveCount = answers.stream().filter(YES::equals).count();
 			long negativeCount = answers.stream().filter(NO::equals).count();
 			return positiveCount > negativeCount;

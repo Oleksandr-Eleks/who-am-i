@@ -10,8 +10,8 @@ import java.util.Optional;
 // TODO: Implement makeTurn(...) and next() methods, pass a turn to next player
 public final class ProcessingQuestion extends AbstractGameState {
 
-	private final Map<String, SynchronousPlayer> players;
 	private final String currentPlayer;
+	private final Map<String, SynchronousPlayer> players;
 
 	public ProcessingQuestion(Map<String, SynchronousPlayer> players) {
 		super(players.size(), players.size());

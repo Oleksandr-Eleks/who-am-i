@@ -15,7 +15,7 @@ public final class WaitingForPlayers extends AbstractGameState {
 
 	public WaitingForPlayers(int maxPlayers) {
 		super(0, maxPlayers);
-		this.players = new HashMap<>();
+		this.players = new HashMap<>(maxPlayers);
 	}
 
 	private WaitingForPlayers(int maxPlayers, Map<String, SynchronousPlayer> players) {
@@ -36,14 +36,13 @@ public final class WaitingForPlayers extends AbstractGameState {
 			throw new GameException("Cannot enroll to the game");
 		} else {
 			nextPlayers.put(answer.getPlayer(), new PersistentPlayer(answer.getPlayer()));
-		}
 
+		}
 		if (players.size() == getMaxPlayers()) {
 			return new SuggestingCharacters(players);
 		} else {
 			return new WaitingForPlayers(getMaxPlayers(), nextPlayers);
 		}
-	}
 
 	@Override
 	public Optional<SynchronousPlayer> findPlayer(String player) {

@@ -6,6 +6,8 @@ import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.exception.GameException;
 import com.eleks.academy.whoami.core.impl.Answer;
 
+import java.util.Optional;
+
 public sealed interface GameState permits AbstractGameState {
 
 	static GameState start(String player, Integer maxPlayers) {

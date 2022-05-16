@@ -11,7 +11,7 @@ import com.eleks.academy.whoami.model.request.CharacterSuggestion;
  * Implementation MainGameLoop will be bases on GameState`s
  */
 public class MainGameLoop {
-	
+
 	private CompletableFuture<List<SynchronousPlayer>> syncPlayers = new CompletableFuture<>();
 	private CompletableFuture<List<CharacterSuggestion>> charactersList = new CompletableFuture<>();
 
@@ -20,4 +20,5 @@ public class MainGameLoop {
 		this.syncPlayers = syncPlayers;
 		this.charactersList = charactersList;
 	}
+
 }
