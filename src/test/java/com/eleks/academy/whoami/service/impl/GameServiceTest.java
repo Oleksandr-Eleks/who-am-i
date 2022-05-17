@@ -3,6 +3,7 @@ package com.eleks.academy.whoami.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
@@ -71,15 +74,28 @@ class GameServiceTest {
 		final String player = "player";
 		final String id = "12345";
 		Optional<SynchronousGame> myOptional = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
-		
+
 		when(mockGameRepository.findById(id)).thenReturn(myOptional);
-		
+
 		Optional<GameDetails> game = gameService.findByIdAndPlayer(id, player);
-		
+
 		assertThat(game).isNotNull();
 		assertThat(game).isNotEmpty();
 		assertThat(game).isEqualTo(myOptional.map(GameDetails::of));
-		
+
 		verify(mockGameRepository, times(1)).findById(id);
+	}
+
+	@Test
+	void enrollToGame_FailedWith_ResponseStatusException() {
+		try {
+			when(mockGameRepository.findById(anyString()))
+				.thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot enroll to a game"));
+
+		} catch (ResponseStatusException e) {
+
+			assertThat(e).isExactlyInstanceOf(ResponseStatusException.class);
+			assertThat(e.getMessage()).isEqualTo("Cannot enroll to a game");
+		}
 	}
 }
