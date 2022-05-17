@@ -2,8 +2,8 @@ package com.eleks.academy.whoami.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -88,14 +89,13 @@ class GameServiceTest {
 
 	@Test
 	void enrollToGame_FailedWith_ResponseStatusException() {
-		try {
-			when(mockGameRepository.findById(anyString()))
+		when(mockGameRepository.findById(anyString()))
 				.thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot enroll to a game"));
+		
+			Assertions.assertThrows(ResponseStatusException.class, () -> {
+				gameService.enrollToGame("12345", "player");
 
-		} catch (ResponseStatusException e) {
-
-			assertThat(e).isExactlyInstanceOf(ResponseStatusException.class);
-			assertThat(e.getMessage()).isEqualTo("Cannot enroll to a game");
-		}
+				verify(mockGameRepository, times(1)).findById(anyString());
+			});
 	}
 }
