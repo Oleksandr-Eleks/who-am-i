@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.exception.GameException;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
+import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.GameLight;
@@ -93,10 +94,10 @@ class GameServiceTest {
 		final String player = "player";
 		final String player2 = "player2";
 		final String id = "12345";
-		Optional<SynchronousGame> myOptional = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
+		Optional<SynchronousGame> game = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
 
 		when(mockGameRepository.findById(id))
-				.thenReturn(myOptional)
+				.thenReturn(game)
 				.thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot enroll to a game"));
 
 		gameService.enrollToGame(id, player2);
@@ -112,9 +113,9 @@ class GameServiceTest {
 	void enrollToGame_FailedWith_GameException() {
 		final String player = "player";
 		final String id = "12345";
-		Optional<SynchronousGame> myOptional = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
+		Optional<SynchronousGame> game = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
 
-		when(mockGameRepository.findById(id)).thenReturn(myOptional);
+		when(mockGameRepository.findById(id)).thenReturn(game);
 
 		Assertions.assertThrows(GameException.class,
 				() -> { gameService.enrollToGame(id, player); });
@@ -135,4 +136,19 @@ class GameServiceTest {
 
 		verify(mockGameRepository, times(1)).findById(eq(id));
 	}
+
+	@Test
+	void suggestCharacter() {
+		final String player = "player";
+		final String id = "12345";
+		CharacterSuggestion character = new CharacterSuggestion("char");
+		Optional<SynchronousGame> game = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
+		
+		when(mockGameRepository.findById(id)).thenReturn(game);
+		
+		gameService.suggestCharacter(id, player, character);
+		
+		verify(mockGameRepository, times(1)).findById(id);
+	}
+
 }
