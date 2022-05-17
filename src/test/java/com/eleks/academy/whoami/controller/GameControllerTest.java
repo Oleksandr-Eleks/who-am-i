@@ -5,29 +5,31 @@ import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.service.impl.GameServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @ExtendWith(MockitoExtension.class)
 class GameControllerTest {
@@ -36,6 +38,7 @@ class GameControllerTest {
 	private final GameController gameController = new GameController(gameService);
 	private final NewGameRequest gameRequest = new NewGameRequest();
 	private MockMvc mockMvc;
+	private final String id = "1234";
 
 	@BeforeEach
 	public void setMockMvc() {
@@ -58,7 +61,9 @@ class GameControllerTest {
 		GameDetails gameDetails = new GameDetails();
 		gameDetails.setId("12613126");
 		gameDetails.setStatus("WaitingForPlayers");
+
 		when(gameService.createGame(eq("player"), any(NewGameRequest.class))).thenReturn(gameDetails);
+
 		this.mockMvc.perform(
 						MockMvcRequestBuilders.post("/games")
 								.header("X-Player", "player")
@@ -67,7 +72,7 @@ class GameControllerTest {
 										"    \"maxPlayers\": 2\n" +
 										"}"))
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("id").value("12613126"))
+				.andExpect(jsonPath("id").value(gameDetails.getId()))
 				.andExpect(jsonPath("status").value("WaitingForPlayers"));
 	}
 
@@ -87,117 +92,122 @@ class GameControllerTest {
 
 	@Test
 	void findById() throws Exception {
-		MvcResult mvcResult = this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games")
-								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON)
-								.content("4"))
-				.andExpect(status().isOk()).andReturn();
-		ObjectMapper objectMapper = new ObjectMapper();
+		GameDetails gameDetails = new GameDetails();
+		gameDetails.setId(id);
+		Optional<GameDetails> op = Optional.of(gameDetails);
 
-		var gameDetails = objectMapper.readValue(
-				mvcResult.getResponse().getContentAsString(), GameDetails.class);
+		when(gameService.findByIdAndPlayer(gameDetails.getId(), "player")).thenReturn(op);
 
 		this.mockMvc.perform(
 						MockMvcRequestBuilders.get("/games/{id}", gameDetails.getId())
 								.header("X-Player", "player")
-								.accept(APPLICATION_JSON))
-				.andExpect(status().isOk());
+								.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("id").value(op.get().getId()));
+
+		verify(gameService, times(1)).findByIdAndPlayer(op.get().getId(), "player");
+	}
+
+	@Test
+	void findByIdFailedNotFound() throws Exception {
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.get("/games/{id}", id)
+								.header("X-Player", "player")
+								.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound());
+
+		verify(gameService, times(1)).findByIdAndPlayer(id, "player");
 	}
 
 	@Test
 	void enrollToGame() throws Exception {
-		MvcResult mvcResult = this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games")
-								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON)
-								.content("2"))
-				.andExpect(status().isOk()).andReturn();
-		ObjectMapper objectMapper = new ObjectMapper();
-
-		var gameDetails = objectMapper.readValue(
-				mvcResult.getResponse().getContentAsString(), GameDetails.class);
+		doNothing().when(gameService).enrollToGame(eq(id), eq("player"));
 
 		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}/players", gameDetails.getId())
+						MockMvcRequestBuilders.post("/games/{id}/players", id)
 								.header("X-Player", "player")
-								.header("X-Player", "player2"))
-				.andExpect(status().isNoContent());
+								.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		verify(gameService, times(1)).enrollToGame(eq(id), eq("player"));
+	}
+
+	@Test
+	void enrollToGameFailConnection() throws Exception {
+		doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot enroll to a game"))
+				.when(gameService).enrollToGame(eq(id), eq("player"));
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/players", id)
+								.header("X-Player", "player")
+								.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+
+		verify(gameService, times(1)).enrollToGame(eq(id), eq("player"));
 	}
 
 	@Test
 	void suggestCharacter() throws Exception {
-		doNothing().when(gameService).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
+		doNothing().when(gameService)
+				.suggestCharacter(eq(id), eq("player"), any(CharacterSuggestion.class));
+
 		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/1234/characters")
+						MockMvcRequestBuilders.post("/games/{id}/characters", id)
 								.header("X-Player", "player")
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("{\n" +
-										"    \"character\": \" char\"\n" +
+										"\"character\": \" char\"\n" +
 										"}"))
 				.andExpect(status().isOk());
-		verify(gameService, times(1)).suggestCharacter(eq("1234"), eq("player"), any(CharacterSuggestion.class));
+
+		verify(gameService, times(1))
+				.suggestCharacter(eq(id), eq("player"), any(CharacterSuggestion.class));
+	}
+
+	@Test
+	void suggestCharacterFailMoreOneCharacterFromOnePlayer() throws Exception {
+		doThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot add character to a game"))
+				.when(gameService).suggestCharacter(eq(id), eq("player"), any(CharacterSuggestion.class));
+
+		this.mockMvc.perform(
+						MockMvcRequestBuilders.post("/games/{id}/characters", id)
+								.header("X-Player", "player")
+								.contentType(MediaType.APPLICATION_JSON)
+								.content("{\n" +
+										"\"character\": \" char\"\n" +
+										"}"))
+				.andExpect(status().isInternalServerError());
+
+		verify(gameService, times(1))
+				.suggestCharacter(eq(id), eq("player"), any(CharacterSuggestion.class));
 	}
 
 	@Test
 	void startGame() throws Exception {
-		// TODO: Fix startGame. Expected: 200 Actual: 400.
-		MvcResult mvcResult = this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games")
-								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON)
-								.content("2"))
-				.andExpect(status().isOk()).andReturn();
-		ObjectMapper objectMapper = new ObjectMapper();
+		GameDetails gameDetails = new GameDetails();
+		gameDetails.setId(id);
+		Optional<GameDetails> op = Optional.of(gameDetails);
 
-		var gameDetails = objectMapper.readValue(
-				mvcResult.getResponse().getContentAsString(), GameDetails.class);
+		when(gameService.startGame(eq(op.get().getId()), eq("player"))).thenReturn(op);
 
 		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}/players", gameDetails.getId())
+						MockMvcRequestBuilders.post("/games/{id}", op.get().getId())
 								.header("X-Player", "player")
-								.accept(APPLICATION_JSON))
-				.andExpect(status().isNoContent());
+								.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("id").value(op.get().getId()));
 
-		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
-								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON)
-								.content("\"Hero1\""))
-				.andExpect(status().isNoContent());
+		verify(gameService, times(1)).startGame(eq(op.get().getId()), eq("player"));
+	}
 
+	@Test
+	void startGameFailNotFound() throws Exception {
 		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
+						MockMvcRequestBuilders.post("/games/{id}", id)
 								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON)
-								.content("\"Hero2\""))
-				.andExpect(status().isNoContent());
+								.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound());
 
-		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
-								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON)
-								.content("\"Hero3\""))
-				.andExpect(status().isNoContent());
-
-		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
-								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON)
-								.content("\"Hero4\""))
-				.andExpect(status().isNoContent());
-
-		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}/characters", gameDetails.getId())
-								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON)
-								.content("\"Hero5\""))
-				.andExpect(status().isNoContent());
-
-		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}", gameDetails.getId())
-								.header("X-Player", "player")
-								.contentType(APPLICATION_JSON))
-				.andExpect(status().isOk());
+		verify(gameService, times(1)).startGame(eq(id), eq("player"));
 	}
 }
