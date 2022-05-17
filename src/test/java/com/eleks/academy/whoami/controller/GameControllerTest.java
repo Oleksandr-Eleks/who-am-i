@@ -38,7 +38,6 @@ class GameControllerTest {
 	private final GameController gameController = new GameController(gameService);
 	private final NewGameRequest gameRequest = new NewGameRequest();
 	private MockMvc mockMvc;
-	private final String id = "1234";
 
 	@BeforeEach
 	public void setMockMvc() {
@@ -92,6 +91,7 @@ class GameControllerTest {
 
 	@Test
 	void findById() throws Exception {
+		String id = "1234";
 		GameDetails gameDetails = new GameDetails();
 		gameDetails.setId(id);
 		Optional<GameDetails> op = Optional.of(gameDetails);
@@ -103,13 +103,15 @@ class GameControllerTest {
 								.header("X-Player", "player")
 								.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("id").value(op.get().getId()));
+				.andExpect(jsonPath("id").value("1234"));
 
-		verify(gameService, times(1)).findByIdAndPlayer(op.get().getId(), "player");
+		verify(gameService, times(1)).findByIdAndPlayer("1234", "player");
 	}
 
 	@Test
 	void findByIdFailedNotFound() throws Exception {
+		String id = "1234";
+
 		this.mockMvc.perform(
 						MockMvcRequestBuilders.get("/games/{id}", id)
 								.header("X-Player", "player")
@@ -121,6 +123,8 @@ class GameControllerTest {
 
 	@Test
 	void enrollToGame() throws Exception {
+		String id = "1234";
+
 		doNothing().when(gameService).enrollToGame(eq(id), eq("player"));
 
 		this.mockMvc.perform(
@@ -134,6 +138,8 @@ class GameControllerTest {
 
 	@Test
 	void enrollToGameFailConnection() throws Exception {
+		String id = "1234";
+
 		doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot enroll to a game"))
 				.when(gameService).enrollToGame(eq(id), eq("player"));
 
@@ -148,6 +154,8 @@ class GameControllerTest {
 
 	@Test
 	void suggestCharacter() throws Exception {
+		String id = "1234";
+
 		doNothing().when(gameService)
 				.suggestCharacter(eq(id), eq("player"), any(CharacterSuggestion.class));
 
@@ -166,6 +174,8 @@ class GameControllerTest {
 
 	@Test
 	void suggestCharacterFailMoreOneCharacterFromOnePlayer() throws Exception {
+		String id = "1234";
+
 		doThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot add character to a game"))
 				.when(gameService).suggestCharacter(eq(id), eq("player"), any(CharacterSuggestion.class));
 
@@ -184,24 +194,27 @@ class GameControllerTest {
 
 	@Test
 	void startGame() throws Exception {
+		String id = "1234";
 		GameDetails gameDetails = new GameDetails();
 		gameDetails.setId(id);
 		Optional<GameDetails> op = Optional.of(gameDetails);
 
-		when(gameService.startGame(eq(op.get().getId()), eq("player"))).thenReturn(op);
+		when(gameService.startGame(eq("1234"), eq("player"))).thenReturn(op);
 
 		this.mockMvc.perform(
-						MockMvcRequestBuilders.post("/games/{id}", op.get().getId())
+						MockMvcRequestBuilders.post("/games/{id}", "1234")
 								.header("X-Player", "player")
 								.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("id").value(op.get().getId()));
+				.andExpect(jsonPath("id").value("1234"));
 
-		verify(gameService, times(1)).startGame(eq(op.get().getId()), eq("player"));
+		verify(gameService, times(1)).startGame(eq("1234"), eq("player"));
 	}
 
 	@Test
 	void startGameFailNotFound() throws Exception {
+		String id = "1234";
+
 		this.mockMvc.perform(
 						MockMvcRequestBuilders.post("/games/{id}", id)
 								.header("X-Player", "player")
