@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.eleks.academy.whoami.core.SynchronousGame;
+import com.eleks.academy.whoami.core.exception.GameException;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
@@ -37,7 +38,7 @@ class GameServiceTest {
 
 	@BeforeEach
 	void set() {
-		gameRequest.setMaxPlayers(3);
+		gameRequest.setMaxPlayers(2);
 	}
 
 	@Test
@@ -89,13 +90,49 @@ class GameServiceTest {
 
 	@Test
 	void enrollToGame_FailedWith_ResponseStatusException() {
-		when(mockGameRepository.findById(anyString()))
-				.thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot enroll to a game"));
-		
-			Assertions.assertThrows(ResponseStatusException.class, () -> {
-				gameService.enrollToGame("12345", "player");
+		final String player = "player";
+		final String player2 = "player2";
+		final String id = "12345";
+		Optional<SynchronousGame> myOptional = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
 
-				verify(mockGameRepository, times(1)).findById(anyString());
-			});
+		when(mockGameRepository.findById(id))
+				.thenReturn(myOptional)
+				.thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot enroll to a game"));
+
+		gameService.enrollToGame(id, player2);
+
+		Assertions.assertThrows(ResponseStatusException.class, 
+				() -> { gameService.enrollToGame(id, player2); }, 
+				"Cannot enroll to a game");
+
+		verify(mockGameRepository, times(2)).findById(eq(id));
+	}
+
+	@Test
+	void enrollToGame_FailedWith_GameException() {
+		final String player = "player";
+		final String id = "12345";
+		Optional<SynchronousGame> myOptional = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
+
+		when(mockGameRepository.findById(id)).thenReturn(myOptional);
+
+		Assertions.assertThrows(GameException.class,
+				() -> { gameService.enrollToGame(id, player); });
+
+		verify(mockGameRepository, times(1)).findById(eq(id));
+	}
+
+	@Test
+	void enrollToGame() {
+		final String player = "player";
+		final String player2 = "player2";
+		final String id = "12345";
+		Optional<SynchronousGame> myOptional = Optional.of(new PersistentGame(player, gameRequest.getMaxPlayers()));
+
+		when(mockGameRepository.findById(id)).thenReturn(myOptional);
+
+		gameService.enrollToGame(id, player2);
+
+		verify(mockGameRepository, times(1)).findById(eq(id));
 	}
 }
