@@ -1,8 +1,8 @@
 package com.eleks.academy.whoami.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,14 +53,15 @@ class GameServiceTest {
 	@Test
 	void createGame() {
 		final String player = "player";
-		final var game = new PersistentGame(player, gameRequest.getMaxPlayers());
+		final SynchronousGame game = new PersistentGame(player, gameRequest.getMaxPlayers());
 		
-		when(mockGameRepository.save(game)).thenReturn(new PersistentGame(player, gameRequest.getMaxPlayers()));
+		when(mockGameRepository.save(any(SynchronousGame.class))).thenReturn(game);
 		
 		GameDetails createdGame = gameService.createGame(player, gameRequest);
 		
 		assertThat(createdGame).isNotNull();
+		assertThat(createdGame.getId()).isEqualTo(game.getId());
 		
-		verify(mockGameRepository, times(1)).save(eq(game));
+		verify(mockGameRepository, times(1)).save(any(SynchronousGame.class));
 	}
 }
