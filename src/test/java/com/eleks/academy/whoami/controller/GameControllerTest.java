@@ -223,4 +223,5 @@ class GameControllerTest {
 
 		verify(gameService, times(1)).startGame(eq(id), eq("player"));
 	}
+
 }
