@@ -1,4 +1,4 @@
-package com.eleks.academy.whoami.networking.server;
+package com.eleks.academy.whoami.service.server;
 
 import java.io.IOException;
 

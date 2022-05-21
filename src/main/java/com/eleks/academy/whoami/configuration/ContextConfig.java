@@ -1,7 +1,7 @@
 package com.eleks.academy.whoami.configuration;
 
-import com.eleks.academy.whoami.networking.server.Server;
-import com.eleks.academy.whoami.networking.server.ServerImpl;
+import com.eleks.academy.whoami.service.server.Server;
+import com.eleks.academy.whoami.service.server.ServerImpl;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

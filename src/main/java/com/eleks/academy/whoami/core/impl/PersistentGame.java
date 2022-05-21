@@ -1,6 +1,8 @@
 package com.eleks.academy.whoami.core.impl;
 
 import com.eleks.academy.whoami.core.Game;
+import com.eleks.academy.whoami.core.SynchronousGame;
+import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.state.GameState;
 import com.eleks.academy.whoami.core.state.WaitingForPlayers;
 
@@ -12,7 +14,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
-public class PersistentGame implements Game {
+public class PersistentGame implements Game, SynchronousGame {
 
 	private final Lock turnLock = new ReentrantLock();
 
@@ -35,6 +37,11 @@ public class PersistentGame implements Game {
 	}
 
 	@Override
+	public Optional<SynchronousPlayer> findPlayer(String player) {
+		return this.applyIfPresent(this.turns.peek(), gameState -> gameState.findPlayer(player));
+	}
+
+	@Override
 	public String getId() {
 		return this.id;
 	}
@@ -54,18 +61,13 @@ public class PersistentGame implements Game {
 	}
 
 	@Override
-	public boolean isAvailable() {
-		return this.turns.peek() instanceof WaitingForPlayers;
-	}
-
-	@Override
-	public boolean hasPlayer(String player) {
-		return this.applyIfPresent(this.turns.peek(), t -> t.hasPlayer(player), Boolean.FALSE);
-	}
-
-	@Override
 	public String getTurn() {
 		return this.applyIfPresent(this.turns.peek(), GameState::getCurrentTurn);
+	}
+
+	@Override
+	public boolean isAvailable() {
+		return this.turns.peek() instanceof WaitingForPlayers;
 	}
 
 	@Override
@@ -85,11 +87,6 @@ public class PersistentGame implements Game {
 	public boolean isFinished() {
 		return this.turns.isEmpty();
 	}
-
-	// TODO: Questions, answers
-	// TODO: Guesses, answer
-	// TODO: Game finished game
-	// TODO: Drop unused methods
 
 
 	@Override

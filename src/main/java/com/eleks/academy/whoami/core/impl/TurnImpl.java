@@ -8,7 +8,7 @@ import com.eleks.academy.whoami.core.Turn;
 
 public class TurnImpl implements Turn {
 	
-	private List<Player> players;
+	private final List<Player> players;
 	private int currentPlayerIndex = 0;
 	
 	public TurnImpl(List<Player> players) {
@@ -24,7 +24,7 @@ public class TurnImpl implements Turn {
 	public List<Player> getOtherPlayers() {
 		return this.players.stream()
 				.filter(player -> !player.getName().equals(this.getGuesser().getName()))
-				.collect(Collectors.toList());
+				.toList();
 	}
 	
 	@Override

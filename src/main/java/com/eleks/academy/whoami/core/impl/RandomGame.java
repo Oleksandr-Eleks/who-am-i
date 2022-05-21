@@ -28,10 +28,9 @@ public class RandomGame implements Game {
 
 	
 	private final static String YES = "Yes";
-	private final static String NO = "No";
-	
-	public RandomGame(List<Player> players, List<String> availableCharacters) { 
-		this.availableCharacters = new ArrayList<String>(availableCharacters);
+
+	public RandomGame(List<Player> players, List<String> availableCharacters) {
+		this.availableCharacters = new ArrayList<>(availableCharacters);
 		this.players = new ArrayList<>(players.size());
 		players.forEach(this::addPlayer);
 	}
@@ -115,7 +114,6 @@ public class RandomGame implements Game {
 		this.assignCharacters();
 		this.currentTurn = new TurnImpl(this.players);
 	}
-
 
 	@Override
 	public boolean isFinished() {

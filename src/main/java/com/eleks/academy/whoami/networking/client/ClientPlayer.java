@@ -15,6 +15,8 @@ public class ClientPlayer implements Player, AutoCloseable {
 	private final PrintStream writer;
 	private final Socket socket;
 
+	public static String ownCharacter;
+
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	public ClientPlayer(Socket socket) throws IOException {
@@ -89,7 +91,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 			e.printStackTrace();
 		}
 
-		return CompletableFuture.completedFuture(answer.equals("Yes") ? true : false);
+		return CompletableFuture.completedFuture(answer.equals("Yes"));
 	}
 
 	@Override
@@ -112,6 +114,7 @@ public class ClientPlayer implements Player, AutoCloseable {
 		try {
 			writer.println("Write a character name for a next player: ");
 			character = reader.readLine();
+			ownCharacter = character;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

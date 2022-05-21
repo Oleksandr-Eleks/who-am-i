@@ -1,5 +1,6 @@
 package com.eleks.academy.whoami.core.state;
 
+import  com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.exception.GameException;
 import com.eleks.academy.whoami.core.impl.Answer;
@@ -8,21 +9,18 @@ import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 public final class WaitingForPlayers extends AbstractGameState {
 
-	private final Lock lock = new ReentrantLock();
+	private final Map<String, SynchronousPlayer> players;
 
-	private final Integer maxPlayers;
-	private final Map<String, Player> players;
+	public WaitingForPlayers(int maxPlayers) {
+		super(0, maxPlayers);
+		this.players = new HashMap<>(maxPlayers);
+	}
 
-	public WaitingForPlayers(Integer maxPlayers) {
-		super(null, maxPlayers);
-
-		this.maxPlayers = maxPlayers;
-		this.players = new HashMap<>(this.maxPlayers);
+	private WaitingForPlayers(int maxPlayers, Map<String, SynchronousPlayer> players) {
+		super(players.size(), maxPlayers);
+		this.players = players;
 	}
 
 	@Override
@@ -32,40 +30,27 @@ public final class WaitingForPlayers extends AbstractGameState {
 
 	@Override
 	public GameState makeTurn(Answer answer) {
-		this.lock.lock();
-
-		try {
-			Optional.of(this.players)
-					.filter(map -> map.size() < this.maxPlayers)
-					.filter(map -> !map.containsKey(answer.getPlayer()))
-					.ifPresentOrElse(
-							map -> map.put(answer.getPlayer(), new PersistentPlayer(answer.getPlayer())),
-							() -> {
-								throw new GameException("Cannot enroll to the game");
-							}
-					);
-
-			return Optional.of(this)
-					.filter(WaitingForPlayers::finished)
-					.map(WaitingForPlayers::next)
-					.orElse(this);
-		} finally {
-			this.lock.unlock();
+		Map<String, SynchronousPlayer> nextPlayers = new HashMap<>(this.players);
+		if (nextPlayers.containsKey(answer.getPlayer())) {
+			throw new GameException("Cannot enroll to the game");
+		} else {
+			nextPlayers.put(answer.getPlayer(), new PersistentPlayer(answer.getPlayer()));
+		}
+		if (players.size() == getMaxPlayers()) {
+			return new SuggestingCharacters(players);
+		} else {
+			return new WaitingForPlayers(getMaxPlayers(), nextPlayers);
 		}
 	}
 
 	@Override
-	public boolean hasPlayer(String player) {
-		return this.players.containsKey(player);
+	public Optional<SynchronousPlayer> findPlayer(String player) {
+		return Optional.ofNullable(this.players.get(player));
 	}
 
 	@Override
-	public Integer getPlayersInGame() {
+	public int getPlayersInGame() {
 		return this.players.size();
-	}
-
-	private Boolean finished() {
-		return this.players.size() >= this.maxPlayers;
 	}
 
 }
