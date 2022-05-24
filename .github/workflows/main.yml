@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, feature/tests ]
   pull_request:
-    branches: [ develop ]
+    branches: [ develop, feature/tests ]
 
   workflow_dispatch:
 
@@ -27,6 +27,13 @@ jobs:
           name: jacoco-report
           path: ${{ github.workspace }}/target/site/jacoco/
 
+      - name: Check Style for Java
+        uses: dbelyaev/action-checkstyle@v0.5.1
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          level: warning
+
       - name: Add Coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.2
@@ -37,9 +44,4 @@ jobs:
           min-coverage-changed-files: 60
           debug-mode: false
 
-      - name: Check Style for Java
-        uses: dbelyaev/action-checkstyle@v0.5.1
-        with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          level: warning
+      

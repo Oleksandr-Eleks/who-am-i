@@ -1,5 +1,7 @@
 package com.eleks.academy.whoami.core.state;
 
+import java.util.Optional;
+
 import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.exception.GameException;
 import com.eleks.academy.whoami.core.impl.Answer;
@@ -8,11 +10,11 @@ import java.util.Optional;
 
 public sealed interface GameState permits AbstractGameState {
 
-	static GameState start(String player, int maxPlayers) {
+	static GameState start(String player, Integer maxPlayers) {
 		return new WaitingForPlayers(maxPlayers)
 				.makeTurn(new Answer(player));
 	}
-
+	
 	GameState next();
 
 	GameState makeTurn(Answer answer) throws GameException;

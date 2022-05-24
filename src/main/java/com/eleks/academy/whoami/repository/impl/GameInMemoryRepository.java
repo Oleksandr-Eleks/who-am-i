@@ -19,8 +19,7 @@ public class GameInMemoryRepository implements GameRepository {
 	public Stream<SynchronousGame> findAllAvailable(String player) {
 		Predicate<SynchronousGame> freeToJoin = SynchronousGame::isAvailable;
 
-		Predicate<SynchronousGame> playersGame = game ->
-				game.findPlayer(player).isPresent();
+		Predicate<SynchronousGame> playersGame = game -> game.findPlayer(player).isPresent();
 
 		return this.games.values()
 				.stream()

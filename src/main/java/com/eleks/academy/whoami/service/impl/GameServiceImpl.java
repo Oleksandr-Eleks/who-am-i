@@ -1,5 +1,13 @@
 package com.eleks.academy.whoami.service.impl;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.function.UnaryOperator;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.impl.Answer;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
@@ -10,14 +18,8 @@ import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.GameLight;
 import com.eleks.academy.whoami.repository.GameRepository;
 import com.eleks.academy.whoami.service.GameService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.UnaryOperator;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +36,11 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public GameDetails createGame(String player, NewGameRequest gameRequest) {
-		final var game = this.gameRepository.save(new PersistentGame(player, gameRequest.getMaxPlayers()));
+		final var game = gameRepository.save(new PersistentGame(player, gameRequest.getMaxPlayers()));
 
 		return GameDetails.of(game);
 	}
-
+	
 	@Override
 	public void enrollToGame(String id, String player) {
 		this.gameRepository.findById(id)

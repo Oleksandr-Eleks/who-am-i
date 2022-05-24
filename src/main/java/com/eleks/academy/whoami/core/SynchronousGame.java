@@ -1,8 +1,8 @@
 package com.eleks.academy.whoami.core;
 
-import com.eleks.academy.whoami.core.impl.Answer;
-
 import java.util.Optional;
+
+import com.eleks.academy.whoami.core.impl.Answer;
 
 public interface SynchronousGame {
 
@@ -19,4 +19,5 @@ public interface SynchronousGame {
 	void makeTurn(Answer answer);
 
 	String getTurn();
+	
 }

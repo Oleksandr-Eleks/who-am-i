@@ -1,10 +1,10 @@
 package com.eleks.academy.whoami.service;
 
-import com.eleks.academy.whoami.core.SynchronousPlayer;
-import com.eleks.academy.whoami.model.request.CharacterSuggestion;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import com.eleks.academy.whoami.core.SynchronousPlayer;
+import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 
 /**
  * Create for future merging RandomGame and SynchronousGame logic

@@ -3,7 +3,6 @@ package com.eleks.academy.whoami.core.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -25,7 +24,6 @@ public class RandomGame implements Game {
 	private final List<String> availableCharacters;
 	private Turn currentTurn;
 
-
 	private static final String YES = "Yes";
 	private static final String NO = "No";
 
@@ -36,7 +34,8 @@ public class RandomGame implements Game {
 	}
 
 	private void addPlayer(Player player) {
-		// TODO: Add test to ensure that player has not been added to the lists when failed to obtain suggestion
+		// TODO: Add test to ensure that player has not been added to the lists when
+		// failed to obtain suggestion
 		Future<String> maybeCharacter = player.suggestCharacter();
 		try {
 			String character = maybeCharacter.get(DURATION, UNIT);
@@ -53,7 +52,7 @@ public class RandomGame implements Game {
 	@Override
 	public boolean makeTurn() {
 		Player currentGuesser = currentTurn.getGuesser();
-		Set<String> answers;
+		List<String> answers;
 		String guessersName;
 		try {
 			guessersName = currentGuesser.getName().get(DURATION, UNIT);
@@ -65,7 +64,8 @@ public class RandomGame implements Game {
 			String guess = currentGuesser.getGuess();
 			answers = currentTurn.getOtherPlayers().stream()
 					.map(player -> player.answerGuess(guess, this.playersCharacter.get(guessersName)))
-					.collect(Collectors.toSet());
+					.collect(Collectors.toList());
+
 			long positiveCount = answers.stream().filter(YES::equals).count();
 			long negativeCount = answers.stream().filter(NO::equals).count();
 
@@ -79,8 +79,9 @@ public class RandomGame implements Game {
 		} else {
 			String question = currentGuesser.getQuestion();
 			answers = currentTurn.getOtherPlayers().stream()
-				.map(player -> player.answerQuestion(question, this.playersCharacter.get(guessersName)))
-				.collect(Collectors.toSet());
+					.map(player -> player.answerQuestion(question, this.playersCharacter.get(guessersName)))
+					.collect(Collectors.toList());
+
 			long positiveCount = answers.stream().filter(YES::equals).count();
 			long negativeCount = answers.stream().filter(NO::equals).count();
 			return positiveCount > negativeCount;
@@ -111,14 +112,13 @@ public class RandomGame implements Game {
 		this.currentTurn = new TurnImpl(this.players);
 	}
 
-
 	@Override
 	public boolean isFinished() {
 		return players.size() == 1;
 	}
 
 	private String getRandomCharacter() {
-		int randomPos = (int)(Math.random() * this.availableCharacters.size());
+		int randomPos = (int) (Math.random() * this.availableCharacters.size());
 		// TODO: Ensure player never receives own suggested character
 		return this.availableCharacters.remove(randomPos);
 	}

@@ -38,9 +38,9 @@ public class PersistentGame implements Game, SynchronousGame {
 
 	@Override
 	public Optional<SynchronousPlayer> findPlayer(String player) {
-		return this.applyIfPresent(this.turns.peek(), gameState -> gameState.findPlayer(player));
+		return applyIfPresent(turns.peek(), gameState -> gameState.findPlayer(player));
 	}
-
+	
 	@Override
 	public String getId() {
 		return this.id;
@@ -61,13 +61,13 @@ public class PersistentGame implements Game, SynchronousGame {
 	}
 
 	@Override
-	public String getTurn() {
-		return this.applyIfPresent(this.turns.peek(), GameState::getCurrentTurn);
+	public boolean isAvailable() {
+		return this.turns.peek() instanceof WaitingForPlayers;
 	}
 
 	@Override
-	public boolean isAvailable() {
-		return this.turns.peek() instanceof WaitingForPlayers;
+	public String getTurn() {
+		return this.applyIfPresent(this.turns.peek(), GameState::getCurrentTurn);
 	}
 
 	@Override
@@ -87,7 +87,6 @@ public class PersistentGame implements Game, SynchronousGame {
 	public boolean isFinished() {
 		return this.turns.isEmpty();
 	}
-
 
 	@Override
 	public boolean makeTurn() {
@@ -118,4 +117,5 @@ public class PersistentGame implements Game, SynchronousGame {
 				.map(mapper)
 				.orElse(fallback);
 	}
+
 }

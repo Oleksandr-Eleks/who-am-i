@@ -28,47 +28,42 @@ import static com.eleks.academy.whoami.utils.StringUtils.Headers.PLAYER;
 public class GameController {
 
 	private final GameService gameService;
-
+	
+	@PostMapping
+	@ResponseStatus(code = HttpStatus.CREATED)
+	public GameDetails createGame(@RequestHeader(PLAYER) String player, @Valid @RequestBody NewGameRequest gameRequest) {
+		return this.gameService.createGame(player, gameRequest);
+	}
+	
 	@GetMapping
+	@ResponseStatus(code = HttpStatus.OK)
 	public List<GameLight> findAvailableGames(@RequestHeader(PLAYER) String player) {
 		return this.gameService.findAvailableGames(player);
 	}
 
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public GameDetails createGame(@RequestHeader(PLAYER) String player,
-								  @Valid @RequestBody NewGameRequest gameRequest) {
-		return this.gameService.createGame(player, gameRequest);
-	}
-
 	@GetMapping("/{id}")
-	public ResponseEntity<GameDetails> findById(@PathVariable("id") String id,
-												@RequestHeader(PLAYER) String player) {
+	@ResponseStatus(code = HttpStatus.OK)
+	public ResponseEntity<GameDetails> findById(@PathVariable("id") String id, @RequestHeader(PLAYER) String player) {
 		return this.gameService.findByIdAndPlayer(id, player)
 				.map(ResponseEntity::ok)
 				.orElseGet(() -> ResponseEntity.notFound().build());
 	}
 
-	// TODO: Should return enrolled player
-	@PostMapping("/{id}/players")
-	public void enrollToGame(@PathVariable("id") String id,
-							 @RequestHeader(PLAYER) String player) {
-		this.gameService.enrollToGame(id, player);
-	}
-
 	@PostMapping("/{id}/characters")
-	@ResponseStatus(HttpStatus.OK)
-	public void suggestCharacter(@PathVariable("id") String id,
-								 @RequestHeader(PLAYER) String player,
-								 @Valid @RequestBody CharacterSuggestion suggestion) {
+	@ResponseStatus(code = HttpStatus.OK)
+	public void suggestCharacter(@PathVariable("id") String id, @RequestHeader(PLAYER) String player, @Valid @RequestBody CharacterSuggestion suggestion) {
 		this.gameService.suggestCharacter(id, player, suggestion);
 	}
 
+	@PostMapping("/{id}/players")
+	@ResponseStatus(code = HttpStatus.OK)
+	public void enrollToGame(@PathVariable("id") String id, @RequestHeader(PLAYER) String player) {
+		this.gameService.enrollToGame(id, player);
+	}
+	
 	@PostMapping("/{id}")
-	public ResponseEntity<GameDetails> startGame(@PathVariable("id") String id,
-												 @RequestHeader(PLAYER) String player) {
-		return this.gameService.startGame(id, player)
-				.map(ResponseEntity::ok)
+	public ResponseEntity<GameDetails> startGame(@PathVariable("id") String id, @RequestHeader(PLAYER) String player) {
+		return this.gameService.startGame(id, player).map(ResponseEntity::ok)
 				.orElseGet(() -> ResponseEntity.notFound().build());
 	}
 

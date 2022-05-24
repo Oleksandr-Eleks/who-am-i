@@ -1,27 +1,28 @@
 package com.eleks.academy.whoami.core.state;
 
-import com.eleks.academy.whoami.core.SynchronousPlayer;
-import com.eleks.academy.whoami.core.exception.GameException;
-import com.eleks.academy.whoami.core.impl.Answer;
-import com.eleks.academy.whoami.core.impl.GameCharacter;
-import com.eleks.academy.whoami.core.impl.StartGameAnswer;
+import static java.util.stream.Collectors.toList;
 
-import java.util.Map;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
+import com.eleks.academy.whoami.core.SynchronousPlayer;
+import com.eleks.academy.whoami.core.exception.GameException;
+import com.eleks.academy.whoami.core.impl.Answer;
+import com.eleks.academy.whoami.core.impl.GameCharacter;
+import com.eleks.academy.whoami.core.impl.StartGameAnswer;
 
 public final class SuggestingCharacters extends AbstractGameState {
 
