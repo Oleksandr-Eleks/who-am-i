@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class CharacterSuggestion {
 
-	@NotBlank
-	private String character;
+    @NotBlank
+    private String character;
 
 }

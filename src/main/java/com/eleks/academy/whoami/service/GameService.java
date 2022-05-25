@@ -10,16 +10,16 @@ import java.util.Optional;
 
 public interface GameService {
 
-	List<GameLight> findAvailableGames(String player);
+    List<GameLight> findAvailableGames(String player);
 
-	GameDetails createGame(String player, NewGameRequest gameRequest);
+    GameDetails createGame(String player, NewGameRequest gameRequest);
 
-	void enrollToGame(String id, String player);
+    void enrollToGame(String id, String player);
 
-	Optional<GameDetails> findByIdAndPlayer(String id, String player);
+    Optional<GameDetails> findByIdAndPlayer(String id, String player);
 
-	void suggestCharacter(String id, String player, CharacterSuggestion suggestion);
+    void suggestCharacter(String id, String player, CharacterSuggestion suggestion);
 
-	Optional<GameDetails> startGame(String id, String player);
+    Optional<GameDetails> startGame(String id, String player);
 
 }
