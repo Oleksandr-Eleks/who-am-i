@@ -86,7 +86,7 @@ public final class SuggestingCharacters extends AbstractGameState {
 	 * 3) Randomly assign all the suggested characters that are left disregarding the author to
 	 * all the non-author players
 	 */
-	private GameState assignCharacters() {
+	private GameState assignCharacters() { //random plyer order
 		Function<String, Integer> randomAuthorOrderComparator = value ->
 				Double.valueOf(Math.random() * 1000).intValue();
 
@@ -94,7 +94,7 @@ public final class SuggestingCharacters extends AbstractGameState {
 				this.suggestedCharacters.keySet()
 						.stream()
 						.sorted(Comparator.comparing(randomAuthorOrderComparator))
-						.collect(Collectors.toList());
+						.collect(Collectors.toCollection(LinkedList::new));
 
 		authors.forEach(author -> {
 			final var character = this.getRandomCharacter()

@@ -40,6 +40,8 @@ public class PersistentPlayer implements Player, SynchronousPlayer {
 
 	@Override
 	public Future<String> getQuestion() {
+		//TODO: add time limit
+		//TODO: add signs limit
 		return null;
 	}
 
