@@ -1,0 +1,6 @@
+server:
+  port: 8080
+
+game:
+  port: 2200
+  players: 4
