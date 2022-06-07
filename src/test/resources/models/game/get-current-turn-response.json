@@ -1,0 +1,16 @@
+{
+	"currentPlayer": {
+		"name": "Example",
+		"character": "Batman"
+	},
+	"players": [
+		{
+			"player": {
+				"name": "Example",
+				"character": "Batman"
+			},
+			"answer": "NO",
+			"state": "NOT_READY"
+		}
+	]
+}
