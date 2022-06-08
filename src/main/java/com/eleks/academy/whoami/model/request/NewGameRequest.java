@@ -15,7 +15,7 @@ public class NewGameRequest {
 
 	//TODO: Retrieve from config
 	@Min(2)
-	@Max(4)
+	@Max(6)
 	@NotNull(message = "maxPlayers must not be null")
 	private Integer maxPlayers;
 

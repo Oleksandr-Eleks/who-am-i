@@ -1,13 +1,13 @@
 package com.eleks.academy.whoami.service.impl;
 
 import com.eleks.academy.whoami.core.SynchronousGame;
-import com.eleks.academy.whoami.core.impl.Answer;
+import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
-import com.eleks.academy.whoami.core.impl.StartGameAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.GameLight;
+import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
 import com.eleks.academy.whoami.service.GameService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.UnaryOperator;
 
 @Service
 @RequiredArgsConstructor
@@ -40,14 +39,12 @@ public class GameServiceImpl implements GameService {
 	}
 
 	@Override
-	public void enrollToGame(String id, String player) {
-		this.gameRepository.findById(id)
+	public SynchronousPlayer enrollToGame(String id, String player) {
+		return this.gameRepository.findById(id)
 				.filter(SynchronousGame::isAvailable)
-				.ifPresentOrElse(
-						game -> game.makeTurn(new Answer(player)),
-						() -> {
-							throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot enroll to a game");
-						}
+				.map(game -> game.enrollToGame(player))
+				.orElseThrow(
+						() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot enroll to a game")
 				);
 	}
 
@@ -67,15 +64,30 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public Optional<GameDetails> startGame(String id, String player) {
-		UnaryOperator<SynchronousGame> startGame = game -> {
-			game.makeTurn(new StartGameAnswer(player));
-
-			return game;
-		};
-
 		return this.gameRepository.findById(id)
-				.map(startGame)
+				.map(SynchronousGame::start)
 				.map(GameDetails::of);
+	}
+
+	@Override
+	public void askQuestion(String gameId, String player, String message) {
+		this.gameRepository.findById(gameId)
+				.ifPresent(game -> game.askQuestion(player, message));
+	}
+
+	@Override
+	public Optional<TurnDetails> findTurnInfo(String id, String player) {
+		return Optional.empty();
+	}
+
+	@Override
+	public void submitGuess(String id, String player, String guess) {
+
+	}
+
+	@Override
+	public void answerQuestion(String id, String player, String answer) {
+
 	}
 
 }
