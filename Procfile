@@ -1,0 +1,1 @@
+web: java -jar -Dserver.port=$PORT $JAVA_OPTS target/who-am-i-1.0-SNAPSHOT.jar

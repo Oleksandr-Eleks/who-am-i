@@ -1,0 +1,355 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Who am I?
+  description: Rest Api description
+servers:
+  - url: http://localhost:8090/api/v1	  
+paths:
+  /games:
+    get:
+      tags:
+        - game
+      description: Returns a list available games
+      operationId: findAvailableGames
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string               
+      responses:
+        '200':
+          description: Returns a list of available games
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameLight'
+    post:
+      tags:
+        - game
+      description: Creates game
+      operationId: createGame
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string  
+      requestBody:
+        description: Model for game creation
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewGameRequest'
+      responses:
+        '201':
+          description: Returns details about created game
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/GameDetails'
+  /games/{id}:
+    get:
+      tags:
+        - game
+      description: Returns data about game by game id
+      operationId: findById
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns details about game by id
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/GameDetails'
+    post:
+      tags:
+        - game
+      description: Start game
+      operationId: startGame
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns details about game by id
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/GameDetails'              
+  /games/{id}/players:
+    post:
+      tags:
+        - game
+      description: Enrolls(adds) user to game
+      operationId: enrollToGame
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns enrolled player
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/SynchronousPlayer'
+  /games/{id}/characters:
+    post:
+      tags:
+        - game
+      description: Suggest character
+      operationId: suggestCharacter
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Model for character suggestions
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CharacterSuggestion'      
+      responses:
+        '200':
+          description: No response data in case succesful request
+  /games/{id}/turn:
+    get:
+      tags:
+        - game
+      description: Returns data about current turn
+      operationId: findTurnInfo
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns details about game by id
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/TurnDetails'
+  /games/{id}/questions:
+    post:
+      tags:
+        - game
+      description: Ask question
+      operationId: askQuestion
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Message model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'      
+      responses:
+        '200':
+          description: No response data in case succesful request
+  /games/{id}/guess:
+    post:
+      tags:
+        - game
+      description: Take guess
+      operationId: submitGuess
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Message model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'      
+      responses:
+        '200':
+          description: No response data in case succesful request
+  /games/{id}/answer:
+    post:
+      tags:
+        - game
+      description: Give answer
+      operationId: answerQuestion
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Message model
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'      
+      responses:
+        '200':
+          description: No response data in case succesful request                                                                           
+    
+#  ----- Components  ----------------------------------------           
+components:                 
+  schemas:
+    GameLight:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+            type: string
+        playersInGame:
+            type: string
+    NewGameRequest:
+      type: object
+      properties:
+        maxPlayers:
+          type: integer
+    GameDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        currentTurn:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlayerWithState'
+    PlayerWithState:
+      type: object
+      properties:
+        player:
+          type: object
+          $ref: '#/components/schemas/SynchronousPlayer'
+        answer:
+          type: object
+          $ref: '#/components/schemas/QuestionAnswer'
+        state:
+          type: object
+          $ref: '#/components/schemas/PlayerState'            
+    SynchronousPlayer:
+      type: object
+      properties:
+        name:
+          type: string
+        character:
+          type: string
+    CharacterSuggestion:
+      type: object
+      properties:
+        character:
+          type: string
+    TurnDetails:
+      type: object
+      properties:
+        currentPlayer:
+          type: object
+          $ref: '#/components/schemas/SynchronousPlayer'
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlayerWithState'
+    Message:
+      type: object
+      properties:
+        message:
+          type: string                        
+#  ---- Enums section  ----------------------------------------            
+    QuestionAnswer:
+      type: string
+      enum:
+        - "YES"
+        - "NO"
+        - NOT_SURE     
+    PlayerState:
+      type: string
+      enum:
+        - NOT_READY
+        - READY
+        - ASKING
+        - ANSWERING
+        - FINISHED              
