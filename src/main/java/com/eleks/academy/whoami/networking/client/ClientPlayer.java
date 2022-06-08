@@ -48,13 +48,20 @@ public class ClientPlayer implements Player, AutoCloseable {
 	}
 
 	public String doGetQuestion() {
+		long start = System.currentTimeMillis();
+		long end = start + 60 * 1000;
 		String question = "";
-
-		try {
-			writer.println("Ask your questinon: ");
-			question = reader.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
+		while (System.currentTimeMillis() < end) {
+			try {
+				writer.println("Ask your question: ");
+				question = reader.readLine();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(question.isEmpty()) throw new RuntimeException("Oops player didn't wrote in 60 sec... ");
+		if(question.length() > 256){
+			return question.substring(0,256);
 		}
 		return question;
 	}
