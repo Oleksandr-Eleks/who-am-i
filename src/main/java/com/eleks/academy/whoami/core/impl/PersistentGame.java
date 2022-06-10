@@ -5,10 +5,13 @@ import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.state.GameFinished;
 import com.eleks.academy.whoami.core.state.GameState;
+import com.eleks.academy.whoami.core.state.SuggestingCharacters;
 import com.eleks.academy.whoami.core.state.WaitingForPlayers;
+import com.eleks.academy.whoami.model.response.PlayerState;
 import com.eleks.academy.whoami.model.response.PlayerWithState;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
@@ -16,12 +19,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class PersistentGame implements Game, SynchronousGame {
 
 	private final Lock turnLock = new ReentrantLock();
 	private final String id;
-
+	private final Integer maxPlayers;
+	private final List<SynchronousPlayer> players = new ArrayList<>();
 	private final Queue<GameState> turns = new LinkedBlockingQueue<>();
 
 	/**
@@ -34,7 +39,8 @@ public class PersistentGame implements Game, SynchronousGame {
 		this.id = String.format("%d-%d",
 				Instant.now().toEpochMilli(),
 				Double.valueOf(Math.random() * 999).intValue());
-
+		this.maxPlayers = maxPlayers;
+		players.add(new PersistentPlayer(hostPlayer));
 	}
 
 	@Override
@@ -48,9 +54,17 @@ public class PersistentGame implements Game, SynchronousGame {
 	}
 
 	@Override
-	public SynchronousPlayer enrollToGame(String player) {
-		// TODO: Add player to players list
-		return new PersistentPlayer(player);
+	public Optional<SynchronousPlayer> enrollToGame(String player) {
+		SynchronousPlayer synchronousPlayer = null;
+
+		if(this.getCountPlayers() < this.maxPlayers){
+			synchronousPlayer = new PersistentPlayer(player);
+			this.players.add(synchronousPlayer);
+		} else {
+			GameState gameState = new SuggestingCharacters(this.players.stream()
+					.collect(Collectors.toMap(SynchronousPlayer::getName, Function.identity()));
+		}
+		return Optional.ofNullable(synchronousPlayer);
 	}
 
 	@Override
@@ -74,6 +88,11 @@ public class PersistentGame implements Game, SynchronousGame {
 	}
 
 	@Override
+	public Integer getCountPlayers() {
+		return players.size();
+	}
+
+	@Override
 	public boolean isAvailable() {
 		return this.turns.peek() instanceof WaitingForPlayers;
 	}
@@ -85,8 +104,10 @@ public class PersistentGame implements Game, SynchronousGame {
 
 	@Override
 	public List<PlayerWithState> getPlayersInGame() {
-		// TODO: Implement
-		return null;
+		return this.players
+				.stream()
+				.map(player -> new PlayerWithState(player, null, PlayerState.READY))
+				.toList();
 	}
 
 	@Override

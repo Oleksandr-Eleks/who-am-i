@@ -12,7 +12,7 @@ public interface SynchronousGame {
 
 	String getId();
 
-	SynchronousPlayer enrollToGame(String player);
+	Optional<SynchronousPlayer> enrollToGame(String player);
 
 	List<PlayerWithState> getPlayersInGame();
 
@@ -27,4 +27,7 @@ public interface SynchronousGame {
 	void answerQuestion(String player, Answer answer);
 
 	SynchronousGame start();
+
+	Integer getCountPlayers();
+
 }

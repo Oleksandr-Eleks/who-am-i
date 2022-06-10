@@ -3,6 +3,7 @@ package com.eleks.academy.whoami.service.impl;
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
+import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
@@ -42,7 +43,7 @@ public class GameServiceImpl implements GameService {
 	public SynchronousPlayer enrollToGame(String id, String player) {
 		return this.gameRepository.findById(id)
 				.filter(SynchronousGame::isAvailable)
-				.map(game -> game.enrollToGame(player))
+				.flatMap(game -> game.enrollToGame(player))
 				.orElseThrow(
 						() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot enroll to a game")
 				);
@@ -89,5 +90,6 @@ public class GameServiceImpl implements GameService {
 	public void answerQuestion(String id, String player, String answer) {
 
 	}
+
 
 }
