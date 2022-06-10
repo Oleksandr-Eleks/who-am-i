@@ -16,16 +16,16 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.http.HttpStatus;
 
 import com.eleks.academy.whoami.handler.ApiClient;
-import com.eleks.academy.whoami.model.CharacterSuggestion;
-import com.eleks.academy.whoami.model.GameDetails;
-import com.eleks.academy.whoami.model.GameLight;
-import com.eleks.academy.whoami.model.Message;
-import com.eleks.academy.whoami.model.NewGameRequest;
-import com.eleks.academy.whoami.model.PlayerState;
-import com.eleks.academy.whoami.model.PlayerWithState;
-import com.eleks.academy.whoami.model.QuestionAnswer;
-import com.eleks.academy.whoami.model.SynchronousPlayer;
-import com.eleks.academy.whoami.model.TurnDetails;
+import com.eleks.academy.whoami.model.request.CharacterSuggestion;
+import com.eleks.academy.whoami.model.response.GameLight;
+import com.eleks.academy.whoami.model.response.GameDetails;
+import com.eleks.academy.whoami.model.request.Message;
+import com.eleks.academy.whoami.model.request.NewGameRequest;
+import com.eleks.academy.whoami.model.response.PlayerState;
+import com.eleks.academy.whoami.model.response.PlayerWithState;
+import com.eleks.academy.whoami.model.request.QuestionAnswer;
+import com.eleks.academy.whoami.core.SynchronousPlayer;
+import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 

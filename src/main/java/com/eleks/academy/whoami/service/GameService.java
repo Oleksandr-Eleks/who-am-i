@@ -32,6 +32,4 @@ public interface GameService {
 
 	void answerQuestion(String id, String player, String answer);
 
-    Optional<GameLight> quickGame(String player, NewGameRequest gameRequest);
-
 }
