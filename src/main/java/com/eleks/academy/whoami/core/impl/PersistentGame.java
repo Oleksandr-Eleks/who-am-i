@@ -57,7 +57,7 @@ public class PersistentGame implements Game, SynchronousGame {
 	public Optional<SynchronousPlayer> enrollToGame(String player) {
 		SynchronousPlayer synchronousPlayer = null;
 
-		if(this.getCountPlayers() < this.maxPlayers){
+		if (this.getCountPlayers() < this.maxPlayers) {
 			synchronousPlayer = new PersistentPlayer(player);
 			this.players.add(synchronousPlayer);
 		} else {
