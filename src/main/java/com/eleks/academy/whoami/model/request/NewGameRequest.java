@@ -17,6 +17,6 @@ public class NewGameRequest {
 	@Min(4)
 	@Max(6)
 	@NotNull(message = "maxPlayers must not be null")
-	private Integer maxPlayers = 4;
+	private Integer maxPlayers;
 
 }
