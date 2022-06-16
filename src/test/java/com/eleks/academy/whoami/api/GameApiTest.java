@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.http.HttpStatus;
 
-import com.eleks.academy.whoami.handler.ApiClient;
+//import com.eleks.academy.whoami.handler.ApiClient;
+import target.classes.com.eleks.academy.whoami.handler.ApiClient;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.response.GameLight;
 import com.eleks.academy.whoami.model.response.GameDetails;
