@@ -31,4 +31,5 @@ public interface GameService {
 	void submitGuess(String id, String player, String guess);
 
 	void answerQuestion(String id, String player, String answer);
+
 }
