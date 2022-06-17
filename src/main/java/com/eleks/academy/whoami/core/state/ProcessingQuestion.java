@@ -7,11 +7,10 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-// TODO: Implement makeTurn(...) and next() methods, pass a turn to next player
 public final class ProcessingQuestion extends AbstractGameState {
 
-	private final SynchronousPlayer currentPlayer; //той шо питає
-	private final Map<String, SynchronousPlayer> players; //всі інші
+	private final SynchronousPlayer currentPlayer;
+	private final Map<String, SynchronousPlayer> players;
 	private final Queue<SynchronousPlayer> orderedPlayers;
 
 	public ProcessingQuestion(Map<String, SynchronousPlayer> players) {

@@ -5,13 +5,13 @@ import com.eleks.academy.whoami.core.SynchronousPlayer;
 
 import java.util.Objects;
 import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class PersistentPlayer implements Player, SynchronousPlayer {
 
 	private final String name;
 	private final CompletableFuture<String> character = new CompletableFuture<>();
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 
 	private Queue<String> questionQueue;
@@ -42,7 +42,7 @@ public class PersistentPlayer implements Player, SynchronousPlayer {
 	public Future<String> getQuestion() {
 		//TODO: add time limit
 		//TODO: add signs limit
-		return null;
+		return question;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.eleks.academy.whoami.service.impl;
 
+import com.eleks.academy.whoami.controller.GameController;
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.impl.PersistentGame;

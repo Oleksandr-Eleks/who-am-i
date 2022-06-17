@@ -5,13 +5,12 @@ import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.state.GameFinished;
 import com.eleks.academy.whoami.core.state.GameState;
+import com.eleks.academy.whoami.core.state.ProcessingQuestion;
 import com.eleks.academy.whoami.core.state.WaitingForPlayers;
 import com.eleks.academy.whoami.model.response.PlayerWithState;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -23,6 +22,10 @@ public class PersistentGame implements Game, SynchronousGame {
 	private final String id;
 
 	private final Queue<GameState> turns = new LinkedBlockingQueue<>();
+	private Map <SynchronousPlayer, String> questions = new HashMap<>();
+	private Map <String, SynchronousPlayer> players;
+	private ProcessingQuestion processingQuestion;
+	private SynchronousPlayer currentPlayer;
 
 	/**
 	 * Creates a new game (game room) and makes a first enrolment turn by a current player
@@ -50,7 +53,9 @@ public class PersistentGame implements Game, SynchronousGame {
 	@Override
 	public SynchronousPlayer enrollToGame(String player) {
 		// TODO: Add player to players list
-		return new PersistentPlayer(player);
+		this.players.put(player, new PersistentPlayer(player));
+		return players.get(player);
+//		return new PersistentPlayer(player);
 	}
 
 	@Override
@@ -60,7 +65,19 @@ public class PersistentGame implements Game, SynchronousGame {
 
 	@Override
 	public void askQuestion(String player, String message) {
-
+		// TODO: Show question
+		this.processingQuestion = new ProcessingQuestion(players);
+		if(processingQuestion.findPlayer(processingQuestion.getCurrentTurn()).isPresent()) {
+			this.currentPlayer = processingQuestion.findPlayer(processingQuestion.getCurrentTurn()).get();
+		}
+		
+		if(message.isEmpty()) throw new RuntimeException("Player didn't wrote a question. Lost!");
+		if(questions.size() > 256){
+			questions.put(processingQuestion.findPlayer(player).get(), message.substring(0,256));
+		}
+		else questions.put(processingQuestion.findPlayer(player).get(), message);
+		if (!turns.isEmpty()) turns.remove();
+		turns.add(processingQuestion.next());
 	}
 
 	@Override
