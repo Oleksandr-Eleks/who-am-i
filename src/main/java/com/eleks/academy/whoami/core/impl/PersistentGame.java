@@ -55,7 +55,6 @@ public class PersistentGame implements Game, SynchronousGame {
 		// TODO: Add player to players list
 		this.players.put(player, new PersistentPlayer(player));
 		return players.get(player);
-//		return new PersistentPlayer(player);
 	}
 
 	@Override
@@ -67,15 +66,13 @@ public class PersistentGame implements Game, SynchronousGame {
 	public void askQuestion(String player, String message) {
 		// TODO: Show question
 		this.processingQuestion = new ProcessingQuestion(players);
-		if(processingQuestion.findPlayer(processingQuestion.getCurrentTurn()).isPresent()) {
+		if (processingQuestion.findPlayer(processingQuestion.getCurrentTurn()).isPresent()) {
 			this.currentPlayer = processingQuestion.findPlayer(processingQuestion.getCurrentTurn()).get();
 		}
-		
-		if(message.isEmpty()) throw new RuntimeException("Player didn't wrote a question. Lost!");
-		if(questions.size() > 256){
-			questions.put(processingQuestion.findPlayer(player).get(), message.substring(0,256));
-		}
-		else questions.put(processingQuestion.findPlayer(player).get(), message);
+		if (message.isEmpty()) throw new RuntimeException("Player didn't wrote a question. Lost!");
+		if (questions.size() > 256) {
+			questions.put(processingQuestion.findPlayer(player).get(), message.substring(0, 256));
+		} else questions.put(processingQuestion.findPlayer(player).get(), message);
 		if (!turns.isEmpty()) turns.remove();
 		turns.add(processingQuestion.next());
 	}
