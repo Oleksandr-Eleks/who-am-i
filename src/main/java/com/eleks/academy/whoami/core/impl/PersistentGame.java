@@ -3,6 +3,7 @@ package com.eleks.academy.whoami.core.impl;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
+import com.eleks.academy.whoami.core.exception.GameException;
 import com.eleks.academy.whoami.core.state.GameFinished;
 import com.eleks.academy.whoami.core.state.GameState;
 import com.eleks.academy.whoami.core.state.ProcessingQuestion;
@@ -22,7 +23,8 @@ public class PersistentGame implements Game, SynchronousGame {
 	private final String id;
 
 	private final Queue<GameState> turns = new LinkedBlockingQueue<>();
-	private Map <SynchronousPlayer, String> questions = new HashMap<>();
+	private Map <String, String> questions = new HashMap<>();
+	private Map <String, String> answers = new HashMap<>();
 	private Map <String, SynchronousPlayer> players;
 	private ProcessingQuestion processingQuestion;
 	private SynchronousPlayer currentPlayer;
@@ -66,20 +68,31 @@ public class PersistentGame implements Game, SynchronousGame {
 	public void askQuestion(String player, String message) {
 		// TODO: Show question
 		this.processingQuestion = new ProcessingQuestion(players);
-		if (processingQuestion.findPlayer(processingQuestion.getCurrentTurn()).isPresent()) {
-			this.currentPlayer = processingQuestion.findPlayer(processingQuestion.getCurrentTurn()).get();
-		}
-		if (message.isEmpty()) throw new RuntimeException("Player didn't wrote a question. Lost!");
-		if (questions.size() > 256) {
-			questions.put(processingQuestion.findPlayer(player).get(), message.substring(0, 256));
-		} else questions.put(processingQuestion.findPlayer(player).get(), message);
-		if (!turns.isEmpty()) turns.remove();
+		questions.put(player, message);
 		turns.add(processingQuestion.next());
 	}
 
 	@Override
 	public void answerQuestion(String player, Answer answer) {
-		// TODO: Implement method
+		if(answers.containsKey(player)) {
+			throw new GameException("This player has answered already");
+		}
+		answers.put(player, answer.getMessage());
+		if(answers.size() == players.size() - 1){
+			int counter = 0;
+			for(var temp: answers.entrySet()){
+			if(temp.getValue().toLowerCase(Locale.ROOT).equals("yes")){
+				counter++;
+			}
+		}
+			if (counter < players.size() / 2) {
+				turns.remove();
+				turns.add(processingQuestion.next());
+				for (var temp: answers.entrySet()){
+					answers.remove(temp);
+				}
+			}
+		}
 	}
 
 	@Override

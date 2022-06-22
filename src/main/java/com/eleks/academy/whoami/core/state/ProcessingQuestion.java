@@ -43,7 +43,6 @@ public final class ProcessingQuestion extends AbstractGameState {
 	public GameState next() {
 		//TODO: Check if player won
 		this.orderedPlayers.add(this.currentPlayer);
-
 		return new ProcessingQuestion(this.players, this.orderedPlayers);
 	}
 

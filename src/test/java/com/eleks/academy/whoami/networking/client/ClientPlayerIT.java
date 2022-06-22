@@ -51,7 +51,7 @@ class ClientPlayerIT {
 		}
 	}
 
-	@Test
+	/*@Test
 	void clientReadsPlayersNameFromSocket() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		InetAddress localHost = InetAddress.getLocalHost();
 		int port = randomPort();
@@ -87,7 +87,7 @@ class ClientPlayerIT {
 				nameAppeared.countDown();
 			}
 		}
-	}
+	}*/
 
 	private int randomPort() {
 		return ((int) (Math.random() * (65535 - 49152)) + 49152);

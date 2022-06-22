@@ -17,7 +17,7 @@
     <name>who-am-i</name>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>18</java.version>
         <api.version>v1</api.version>
     </properties>
 
