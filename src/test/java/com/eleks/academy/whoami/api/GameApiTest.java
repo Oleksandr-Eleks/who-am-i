@@ -34,12 +34,12 @@ class GameApiTest {
 	@RegisterExtension
 	private static final WireMockExtension wireMockServer = WireMockExtension.newInstance()
 			.options(wireMockConfig().port(8090)).build();
-	
+
 	@BeforeEach
 	void prepare() {
 		wireMockServer.resetAll();
 	}
-	
+
 	@AfterAll
 	static void shutDown() {
 		wireMockServer.shutdownServer();
@@ -51,259 +51,260 @@ class GameApiTest {
 			String expectedResponse = new String(in.readAllBytes());
 			wireMockServer
 					.stubFor(WireMock.get(WireMock.urlMatching("/api/v1/games")).withHeader("X-Player",
-							equalTo("Example"))
-					.willReturn(WireMock.aResponse().withBody(expectedResponse).withStatus(HttpStatus.OK.value())
-							.withHeader("Content-Type", "application/json")));
+									equalTo("Example"))
+							.willReturn(WireMock.aResponse().withBody(expectedResponse).withStatus(HttpStatus.OK.value())
+									.withHeader("Content-Type", "application/json")));
 
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			GameLight gameLight = new GameLight();
 			gameLight.setId("1234-UUID");
 			gameLight.setStatus("WaitingForPlayers");
 			gameLight.setPlayersInGame("3/4");
 
 			assertThat(gameApi.findAvailableGames("Example"))
-				.isEqualTo(singletonList(gameLight));
+					.isEqualTo(singletonList(gameLight));
 		}
 	}
-	
+
 	@Test
 	void createGameTest() throws IOException {
 		try(InputStream in1 = getClass().getResourceAsStream("/models/game/create-game-request.json");
-				InputStream in2 = getClass().getResourceAsStream("/models/game/create-game-response.json");){
+			InputStream in2 = getClass().getResourceAsStream("/models/game/create-game-response.json");){
 			String expectedRequest = new String(in1.readAllBytes());
 			String expectedResponse = new String(in2.readAllBytes());
-			
+
 			wireMockServer
 					.stubFor(WireMock.post(WireMock.urlMatching("/api/v1/games"))
 							.withHeader("X-Player", equalTo("Example"))
 							.withHeader("Content-Type", equalTo("application/json"))
 							.withRequestBody(equalToJson(expectedRequest))
-					.willReturn(WireMock.aResponse().withBody(expectedResponse)
-							.withStatus(HttpStatus.CREATED.value())
-							.withHeader("Content-Type", "application/json")));
-			
+							.willReturn(WireMock.aResponse().withBody(expectedResponse)
+									.withStatus(HttpStatus.CREATED.value())
+									.withHeader("Content-Type", "application/json")));
+
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			NewGameRequest newGameRequest = new NewGameRequest();
 			newGameRequest.maxPlayers(4);
-			
+
 			SynchronousPlayer synchronousPlayer = new SynchronousPlayer();
 			synchronousPlayer.name("Example");
 			synchronousPlayer.character("Batman");
-			
+
 			PlayerWithState playerWithState = new PlayerWithState();
 			playerWithState.player(synchronousPlayer);
 			playerWithState.answer(QuestionAnswer.NO);
 			playerWithState.state(PlayerState.NOT_READY);
-			
+
 			GameDetails gameDetails = new GameDetails();
 			gameDetails.id("1234-Uid");
 			gameDetails.status("WaitingForPlayers");
 			gameDetails.currentTurn("1");
 			gameDetails.players(singletonList(playerWithState));
-			
+
 			assertThat(gameApi.createGame(newGameRequest, "Example")).isEqualTo(gameDetails);
 		}
 	}
-	
+
 	@Test
 	void findByIdTest() throws IOException {
 		try (InputStream in = getClass().getResourceAsStream("/models/game/get-game-by-id-response.json")) {
 			String expectedResponse = new String(in.readAllBytes());
 			wireMockServer
-					.stubFor(WireMock.get(WireMock.urlMatching("/api/v1/games/1234-Uid")).withHeader("X-Player",
-							equalTo("Example"))
-					.willReturn(WireMock.aResponse().withBody(expectedResponse).withStatus(HttpStatus.OK.value())
-							.withHeader("Content-Type", "application/json")));
+					.stubFor(WireMock.get(WireMock.urlMatching("/api/v1/games/1234-Uid"))
+							.withHeader("X-Player", equalTo("Example"))
+							.willReturn(WireMock.aResponse().withBody(expectedResponse).withStatus(HttpStatus.OK.value())
+									.withHeader("Content-Type", "application/json")));
 
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			SynchronousPlayer synchronousPlayer = new SynchronousPlayer();
 			synchronousPlayer.name("Example");
 			synchronousPlayer.character("Batman");
-			
+
 			PlayerWithState playerWithState = new PlayerWithState();
 			playerWithState.player(synchronousPlayer);
 			playerWithState.answer(QuestionAnswer.NO);
 			playerWithState.state(PlayerState.NOT_READY);
-			
+
 			GameDetails gameDetails = new GameDetails();
 			gameDetails.id("1234-Uid");
 			gameDetails.status("WaitingForPlayers");
 			gameDetails.currentTurn("1");
 			gameDetails.players(singletonList(playerWithState));
 
-			assertThat(gameApi.findById("1234-Uid", "Example"))
-				.isEqualTo(gameDetails);
+			assertThat(gameApi.findById("Example", "1234-Uid"))
+					.isEqualTo(gameDetails);
 		}
 	}
-	
+
 	@Test
 	void startGameTest() throws IOException {
 		try(InputStream in1 = getClass().getResourceAsStream("/models/game/start-game-response.json")){
 			String expectedResponse = new String(in1.readAllBytes());
-			
+
 			wireMockServer
-					.stubFor(WireMock.post(WireMock.urlMatching("/api/v1/games/1234-Uid/"))
+					.stubFor(WireMock.post(WireMock.urlMatching("/api/v1/games/1234-Uid"))
 							.withHeader("X-Player", equalTo("Example"))
-					.willReturn(WireMock.aResponse().withBody(expectedResponse)
-							.withStatus(HttpStatus.OK.value())
-							.withHeader("Content-Type", "application/json")));
-			
+							.willReturn(WireMock.aResponse().withBody(expectedResponse)
+									.withStatus(HttpStatus.OK.value())
+									.withHeader("Content-Type", "application/json")));
+
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			SynchronousPlayer synchronousPlayer = new SynchronousPlayer();
 			synchronousPlayer.name("Example");
 			synchronousPlayer.character("Batman");
-			
+
 			PlayerWithState playerWithState = new PlayerWithState();
 			playerWithState.player(synchronousPlayer);
 			playerWithState.answer(QuestionAnswer.NO);
 			playerWithState.state(PlayerState.NOT_READY);
-			
+
 			GameDetails gameDetails = new GameDetails();
 			gameDetails.id("1234-Uid");
 			gameDetails.status("WaitingForPlayers");
 			gameDetails.currentTurn("1");
 			gameDetails.players(singletonList(playerWithState));
-			
-			assertThat(gameApi.startGame("1234-Uid", "Example")).isEqualTo(gameDetails);
+
+			assertThat(gameApi.startGame("Example", "1234-Uid")).isEqualTo(gameDetails);
 		}
 	}
-	
+
 	@Test
 	void enrollToGameTest() throws IOException {
 		try(InputStream in1 = getClass().getResourceAsStream("/models/game/enroll-player-response.json")){
 			String expectedResponse = new String(in1.readAllBytes());
-			
+
 			wireMockServer
 					.stubFor(WireMock.post(WireMock.urlMatching("/api/v1/games/1234-Uid/players"))
 							.withHeader("X-Player", equalTo("Example"))
-					.willReturn(WireMock.aResponse().withBody(expectedResponse)
-							.withStatus(HttpStatus.OK.value())
-							.withHeader("Content-Type", "application/json")));
-			
+							.willReturn(WireMock.aResponse().withBody(expectedResponse)
+									.withStatus(HttpStatus.OK.value())
+									.withHeader("Content-Type", "application/json")));
+
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			SynchronousPlayer synchronousPlayer = new SynchronousPlayer();
 			synchronousPlayer.name("Example");
 			synchronousPlayer.character("Batman");
-			
-			assertThat(gameApi.enrollToGame("1234-Uid", "Example")).isEqualTo(synchronousPlayer);
+
+			assertThat(gameApi.enrollToGame("Example", "1234-Uid")).isEqualTo(synchronousPlayer);
 		}
 	}
-	
+
 	@Test
 	void suggestCharacterTest() throws IOException {
 		try(InputStream in1 = getClass().getResourceAsStream("/models/game/suggest-character-request.json")){
 			String expectedRequest = new String(in1.readAllBytes());
-			
+
 			wireMockServer
 					.stubFor(WireMock.post(WireMock.urlMatching("/api/v1/games/1234-Uid/characters"))
 							.withHeader("X-Player", equalTo("Example"))
 							.withRequestBody(equalToJson(expectedRequest))
-					.willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
-			
+							.willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
+
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			CharacterSuggestion characterSuggestion = new CharacterSuggestion();
 			characterSuggestion.character("Batman");
-			
-			gameApi.suggestCharacter(characterSuggestion, "1234-Uid", "Example");
+
+			gameApi.suggestCharacter(characterSuggestion, "Example", "1234-Uid");
 		}
 	}
-	
+
 	@Test
 	void findTurnInfoTest() throws IOException {
 		try (InputStream in = getClass().getResourceAsStream("/models/game/get-current-turn-response.json")) {
 			String expectedResponse = new String(in.readAllBytes());
 			wireMockServer
-					.stubFor(WireMock.get(WireMock.urlMatching("/api/v1/games/1234-Uid/turn")).withHeader("X-Player",
-							equalTo("Example"))
-					.willReturn(WireMock.aResponse().withBody(expectedResponse).withStatus(HttpStatus.OK.value())
-							.withHeader("Content-Type", "application/json")));
+					.stubFor(WireMock.get(WireMock.urlMatching("/api/v1/games/1234-Uid/turn"))
+							.withHeader("X-Player", equalTo("Example"))
+							.willReturn(WireMock.aResponse().withBody(expectedResponse).withStatus(HttpStatus.OK.value())
+									.withHeader("Content-Type", "application/json")));
 
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			SynchronousPlayer synchronousPlayer = new SynchronousPlayer();
 			synchronousPlayer.name("Example");
 			synchronousPlayer.character("Batman");
-			
+
 			PlayerWithState playerWithState = new PlayerWithState();
 			playerWithState.player(synchronousPlayer);
 			playerWithState.answer(QuestionAnswer.NO);
 			playerWithState.state(PlayerState.NOT_READY);
-			
+
 			TurnDetails turnDetails = new TurnDetails();
 			turnDetails.players(singletonList(playerWithState));
 			turnDetails.currentPlayer(synchronousPlayer);
 
-			assertThat(gameApi.findTurnInfo("1234-Uid", "Example"))
-				.isEqualTo(turnDetails);
+			assertThat(gameApi.findTurnInfo("Example", "1234-Uid"))
+					.isEqualTo(turnDetails);
 		}
 	}
-	
+
 	@Test
 	void askQuestionTest() throws IOException {
 		try(InputStream in1 = getClass().getResourceAsStream("/models/game/ask-question-request.json")){
 			String expectedRequest = new String(in1.readAllBytes());
-			
+
 			wireMockServer
 					.stubFor(WireMock.post(WireMock.urlMatching("/api/v1/games/1234-Uid/questions"))
 							.withHeader("X-Player", equalTo("Example"))
 							.withRequestBody(equalToJson(expectedRequest))
-					.willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
-			
+							.willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
+
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			Message message = new Message();
 			message.message("Question");
-			
-			gameApi.askQuestion(message, "1234-Uid", "Example");
+
+			gameApi.askQuestion(message, "Example", "1234-Uid");
 		}
 	}
-	
+
 	@Test
 	void guessTest() throws IOException {
 		try(InputStream in1 = getClass().getResourceAsStream("/models/game/guess-request.json")){
 			String expectedRequest = new String(in1.readAllBytes());
-			
+
 			wireMockServer
 					.stubFor(WireMock.post(WireMock.urlMatching("/api/v1/games/1234-Uid/guess"))
 							.withHeader("X-Player", equalTo("Example"))
 							.withRequestBody(equalToJson(expectedRequest))
-					.willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
-			
+							.willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
+
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			Message message = new Message();
 			message.message("Question");
-			
-			gameApi.submitGuess(message, "1234-Uid", "Example");
+
+			gameApi.submitGuess(message, "Example", "1234-Uid");
+
 		}
 	}
-	
+
 	@Test
 	void answerTest() throws IOException {
 		try(InputStream in1 = getClass().getResourceAsStream("/models/game/answer-request.json")){
 			String expectedRequest = new String(in1.readAllBytes());
-			
+
 			wireMockServer
 					.stubFor(WireMock.post(WireMock.urlMatching("/api/v1/games/1234-Uid/answer"))
 							.withHeader("X-Player", equalTo("Example"))
 							.withRequestBody(equalToJson(expectedRequest))
-					.willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
-			
+							.willReturn(WireMock.aResponse().withStatus(HttpStatus.OK.value())));
+
 			GameApi gameApi = new GameApi(new ApiClient());
-			
+
 			Message message = new Message();
 			message.message("Question");
-			
-			gameApi.answerQuestion(message, "1234-Uid", "Example");
+
+			gameApi.answerQuestion(message, "Example", "1234-Uid");
 		}
 	}
-	
-	
+
+
 
 }

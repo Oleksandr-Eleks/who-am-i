@@ -3,15 +3,13 @@ package com.eleks.academy.whoami.core.impl;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
-import com.eleks.academy.whoami.core.state.GameFinished;
 import com.eleks.academy.whoami.core.state.GameState;
 import com.eleks.academy.whoami.core.state.WaitingForPlayers;
+import com.eleks.academy.whoami.model.response.PlayerState;
 import com.eleks.academy.whoami.model.response.PlayerWithState;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -21,8 +19,10 @@ public class PersistentGame implements Game, SynchronousGame {
 
 	private final Lock turnLock = new ReentrantLock();
 	private final String id;
-
+	private int maxPlayers;
+	private List<PlayerWithState> playerWithStateList = new ArrayList<>();
 	private final Queue<GameState> turns = new LinkedBlockingQueue<>();
+	private final Queue<PlayerState> playerStates = new LinkedBlockingQueue<>();
 
 	/**
 	 * Creates a new game (game room) and makes a first enrolment turn by a current player
@@ -34,7 +34,16 @@ public class PersistentGame implements Game, SynchronousGame {
 		this.id = String.format("%d-%d",
 				Instant.now().toEpochMilli(),
 				Double.valueOf(Math.random() * 999).intValue());
+		this.turns.add(new WaitingForPlayers(maxPlayers));
+	}
 
+	public PersistentGame(Integer maxPlayers) {
+		this.id = String.format("%d-%d",
+				Instant.now().toEpochMilli(),
+				Double.valueOf(Math.random() * 999).intValue());
+
+		this.maxPlayers = maxPlayers;
+		this.turns.add(new WaitingForPlayers(this.maxPlayers));
 	}
 
 	@Override
@@ -49,13 +58,17 @@ public class PersistentGame implements Game, SynchronousGame {
 
 	@Override
 	public SynchronousPlayer enrollToGame(String player) {
-		// TODO: Add player to players list
-		return new PersistentPlayer(player);
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public String getTurn() {
 		return this.applyIfPresent(this.turns.peek(), GameState::getCurrentTurn);
+	}
+
+	@Override
+	public Optional<GameState> getCurrentTurnInfo() {
+		return Optional.ofNullable(this.turns.peek());
 	}
 
 	@Override
@@ -70,7 +83,15 @@ public class PersistentGame implements Game, SynchronousGame {
 
 	@Override
 	public SynchronousGame start() {
-		return null;
+		this.turnLock.lock();
+		try {
+			Optional.ofNullable(this.turns.poll())
+					.map(GameState::next)
+					.ifPresent(this.turns::add);
+		} finally {
+			this.turnLock.unlock();
+		}
+		return this;
 	}
 
 	@Override
@@ -85,8 +106,7 @@ public class PersistentGame implements Game, SynchronousGame {
 
 	@Override
 	public List<PlayerWithState> getPlayersInGame() {
-		// TODO: Implement
-		return null;
+		return this.applyIfPresent(this.turns.peek(), GameState::getPlayersWithState);
 	}
 
 	@Override
@@ -96,8 +116,16 @@ public class PersistentGame implements Game, SynchronousGame {
 
 
 	@Override
-	public boolean makeTurn() {
-		return true;
+	public void makeTurn(Answer answer) {
+		this.turnLock.lock();
+
+		try {
+			Optional.ofNullable(this.turns.poll())
+					.map(gameState -> gameState.makeTurn(answer))
+					.ifPresent(this.turns::add);
+		} finally {
+			this.turnLock.unlock();
+		}
 	}
 
 	@Override
@@ -112,9 +140,24 @@ public class PersistentGame implements Game, SynchronousGame {
 
 	@Override
 	public void play() {
-		while (!(this.turns.peek() instanceof GameFinished)) {
-			this.makeTurn();
+
+	}
+
+	@Override
+	public void removeFromGame(String gameId, String player) {
+		Optional<SynchronousPlayer> synchronousPlayer = findPlayer(player);
+		if(synchronousPlayer!=null){
+			this.turnLock.lock();
+
+			try {
+				Optional.ofNullable(this.turns.poll())
+						.map(gameState -> gameState.leaveGame(player))
+						.ifPresent(this.turns::add);
+			} finally {
+				this.turnLock.unlock();
+			}
 		}
+
 	}
 
 	private <T, R> R applyIfPresent(T source, Function<T, R> mapper) {

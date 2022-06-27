@@ -82,7 +82,7 @@ class ClientPlayerIT {
 				// TODO: refactor test to always fail after 5 seconds
 				boolean success = clientReady.await(5, TimeUnit.SECONDS);
 				assertTrue(success);
-				String character = player.getName().get(5, TimeUnit.SECONDS);
+				String character = player.getName();
 				assertEquals("Player", character);
 				nameAppeared.countDown();
 			}

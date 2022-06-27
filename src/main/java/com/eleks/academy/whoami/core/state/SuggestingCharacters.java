@@ -1,8 +1,13 @@
 package com.eleks.academy.whoami.core.state;
 
+import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.exception.GameException;
+import com.eleks.academy.whoami.core.impl.Answer;
 import com.eleks.academy.whoami.core.impl.GameCharacter;
+import com.eleks.academy.whoami.core.impl.StartGameAnswer;
+import com.eleks.academy.whoami.model.response.PlayerState;
+import com.eleks.academy.whoami.model.response.PlayerWithState;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -17,16 +22,20 @@ public final class SuggestingCharacters extends AbstractGameState {
 
 	private final Lock lock = new ReentrantLock();
 
-	private final Map<String, SynchronousPlayer> players;
+	private final Map<String, PlayerWithState> players;
 	private final Map<String, List<GameCharacter>> suggestedCharacters;
 	private final Map<String, String> playerCharacterMap;
 
-	public SuggestingCharacters(Map<String, SynchronousPlayer> players) {
+	public SuggestingCharacters(Map<String, PlayerWithState> players) {
 		super(players.size(), players.size());
 
 		this.players = players;
 		this.suggestedCharacters = new HashMap<>(this.players.size());
 		this.playerCharacterMap = new HashMap<>(this.players.size());
+	}
+
+	public SynchronousPlayer add(SynchronousPlayer player) {
+		return player;
 	}
 
 	/**
@@ -37,17 +46,26 @@ public final class SuggestingCharacters extends AbstractGameState {
 	 */
 	@Override
 	public GameState next() {
+		List<String> playersName = players.keySet().stream().toList();
 		return Optional.of(this)
 				.filter(SuggestingCharacters::finished)
 				.map(SuggestingCharacters::assignCharacters)
-				.map(then -> new ProcessingQuestion(this.players))
+				.map(then -> new ProcessingQuestion(playersName.get(0), this.players))
 				.orElseThrow(() -> new GameException("Cannot start game"));
 	}
 
 	@Override
 	public Optional<SynchronousPlayer> findPlayer(String player) {
-		return Optional.ofNullable(this.players.get(player));
+		return Optional.ofNullable(this.players.get(player).getPlayer());
 	}
+
+	@Override
+	public List<PlayerWithState> getPlayersWithState() {
+		return players.values().stream().toList();
+
+	}
+
+
 
 	// TODO: Consider extracting into {@link GameState}
 	private Boolean finished() {
@@ -77,6 +95,31 @@ public final class SuggestingCharacters extends AbstractGameState {
 		return this;
 	}
 
+	@Override
+	public GameState makeTurn(Answer answer) {
+		this.lock.lock();
+		try {
+
+			this.players.values().stream()
+					.filter(playerWithState -> Objects.equals(playerWithState.getPlayer().getName(),
+							players.get(answer.getPlayer()).getPlayer().getName()))
+					.findFirst()
+					.ifPresent(a -> a.setState(PlayerState.READY));
+			if(players.values().stream().filter(playerWithState -> playerWithState.getState()
+					.equals(PlayerState.READY)).count() >= 4) {
+				this.suggestCharacter(answer.getPlayer(), answer.getMessage());
+				return this.next();
+			}
+			return Optional.of(answer)
+					.filter(StartGameAnswer.class::isInstance)
+					.map(StartGameAnswer.class::cast)
+					.map(then -> this.next())
+					.orElseGet(() -> this.suggestCharacter(answer.getPlayer(), answer.getMessage()));
+		} finally {
+		this.lock.unlock();
+		}
+	}
+
 	/**
 	 * The term author is referred to a player who suggested at least one character
 	 * <p>
@@ -101,7 +144,7 @@ public final class SuggestingCharacters extends AbstractGameState {
 					.apply(this.suggestedCharacters.get(this.<String>cyclicNext().apply(authors, author)));
 
 			character.markTaken();
-
+			this.players.get(author).getPlayer().setCharacter(character.getCharacter());
 			this.playerCharacterMap.put(author, character.getCharacter());
 		});
 
@@ -110,7 +153,7 @@ public final class SuggestingCharacters extends AbstractGameState {
 		final var nonTakenCharacters = this.suggestedCharacters.values()
 				.stream()
 				.flatMap(Collection::stream)
-				.filter(character -> !character.isTaken())
+				.filter(gameCharacter -> !gameCharacter.isTaken())
 				.collect(toList());
 
 		this.players.keySet()
@@ -122,7 +165,7 @@ public final class SuggestingCharacters extends AbstractGameState {
 					character.markTaken();
 
 					this.playerCharacterMap.put(player, character.getCharacter());
-
+					this.players.get(player).getPlayer().setCharacter(character.getCharacter());
 					nonTakenCharacters.remove(character);
 				});
 
@@ -137,7 +180,6 @@ public final class SuggestingCharacters extends AbstractGameState {
 			return gameCharacters.get(randomPos);
 		};
 	}
-
 	private <T> BiFunction<List<T>, T, T> cyclicNext() {
 		return (list, item) -> {
 			final var index = list.indexOf(item);
@@ -147,6 +189,20 @@ public final class SuggestingCharacters extends AbstractGameState {
 					.map(i -> list.get(i + 1))
 					.orElseGet(() -> list.get(0));
 		};
+	}
+    @Override
+    public List<PlayerWithState> getPlayers() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+	@Override
+	public GameState leaveGame(String player) {
+		Map<String, PlayerWithState> players = new HashMap<>(this.players);
+		if (findPlayer(player).isPresent()) {
+			players.remove(player);
+		}
+		return new SuggestingCharacters(players);
 	}
 
 }

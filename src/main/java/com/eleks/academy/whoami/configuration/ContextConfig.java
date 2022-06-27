@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 
 @Configuration
-@EnableConfigurationProperties(ServerProperties.class)
+@EnableConfigurationProperties({ServerProperties.class})
 public class ContextConfig {
 
 	@Bean

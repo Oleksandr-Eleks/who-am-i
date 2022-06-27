@@ -8,4 +8,5 @@ public interface SynchronousPlayer {
 
 	void setCharacter(String character);
 
+	void setName(String player);
 }

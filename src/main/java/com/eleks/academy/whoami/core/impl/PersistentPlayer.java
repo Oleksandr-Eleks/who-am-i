@@ -2,16 +2,17 @@ package com.eleks.academy.whoami.core.impl;
 
 import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
+import lombok.Data;
 
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-
+@Data
 public class PersistentPlayer implements Player, SynchronousPlayer {
 
-	private final String name;
-	private final CompletableFuture<String> character = new CompletableFuture<>();
+	private String name;
+	private String character;
 
 
 	private Queue<String> questionQueue;
@@ -23,19 +24,11 @@ public class PersistentPlayer implements Player, SynchronousPlayer {
 		this.name = Objects.requireNonNull(name);
 	}
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
 
-	@Override
-	public String getCharacter() {
-		return null;
-	}
 
 	@Override
 	public Future<String> suggestCharacter() {
-		return character;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -66,13 +59,6 @@ public class PersistentPlayer implements Player, SynchronousPlayer {
 	@Override
 	public void close() {
 
-	}
-
-	@Override
-	public void setCharacter(String character) {
-		if (!this.character.complete(character)) {
-			throw new IllegalStateException("Character has already been suggested!");
-		}
 	}
 
 }

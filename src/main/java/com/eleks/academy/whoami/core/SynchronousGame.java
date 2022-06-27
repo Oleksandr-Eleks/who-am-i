@@ -1,6 +1,7 @@
 package com.eleks.academy.whoami.core;
 
 import com.eleks.academy.whoami.core.impl.Answer;
+import com.eleks.academy.whoami.core.state.GameState;
 import com.eleks.academy.whoami.model.response.PlayerWithState;
 
 import java.util.List;
@@ -22,9 +23,15 @@ public interface SynchronousGame {
 
 	String getTurn();
 
+	void makeTurn(Answer player);
+
 	void askQuestion(String player, String message);
 
 	void answerQuestion(String player, Answer answer);
 
 	SynchronousGame start();
+
+	Optional<GameState> getCurrentTurnInfo();
+
+	void removeFromGame(String gameId, String player);
 }
