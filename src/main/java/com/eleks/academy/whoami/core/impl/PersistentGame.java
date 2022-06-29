@@ -3,7 +3,7 @@ package com.eleks.academy.whoami.core.impl;
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
-import com.eleks.academy.whoami.core.exception.GameException;
+import com.eleks.academy.whoami.core.exception.AnswerQuestionException;
 import com.eleks.academy.whoami.core.state.GameFinished;
 import com.eleks.academy.whoami.core.state.GameState;
 import com.eleks.academy.whoami.core.state.ProcessingQuestion;
@@ -75,22 +75,22 @@ public class PersistentGame implements Game, SynchronousGame {
 	@Override
 	public void answerQuestion(String player, Answer answer) {
 		if(answers.containsKey(player)) {
-			throw new GameException("This player has answered already");
+			throw new AnswerQuestionException("This player has answered already");
 		}
 		answers.put(player, answer.getMessage());
 		if(answers.size() == players.size() - 1){
-			int counter = 0;
+			int positiveAnswers = 0;
 			for(var temp: answers.entrySet()){
 			if(temp.getValue().toLowerCase(Locale.ROOT).equals("yes")){
-				counter++;
+				positiveAnswers++;
 			}
 		}
-			if (counter < players.size() / 2) {
+			if (positiveAnswers < players.size() / 2) {
 				turns.remove();
 				turns.add(processingQuestion.next());
-				for (var temp: answers.entrySet()){
-					answers.remove(temp);
-				}
+			}
+			for (var temp: answers.entrySet()){
+				answers.remove(temp);
 			}
 		}
 	}

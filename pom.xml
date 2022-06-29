@@ -17,8 +17,10 @@
     <name>who-am-i</name>
 
     <properties>
-        <java.version>18</java.version>
+        <java.version>16</java.version>
         <api.version>v1</api.version>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -67,6 +69,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>16</source>
+                    <target>16</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
+                </configuration>
             </plugin>
         </plugins>
     </build>

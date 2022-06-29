@@ -86,7 +86,7 @@ public final class SuggestingCharacters extends AbstractGameState {
 	 * 3) Randomly assign all the suggested characters that are left disregarding the author to
 	 * all the non-author players
 	 */
-	private GameState assignCharacters() { //random plyer order
+	private GameState assignCharacters() { //random player order
 		Function<String, Integer> randomAuthorOrderComparator = value ->
 				Double.valueOf(Math.random() * 1000).intValue();
 

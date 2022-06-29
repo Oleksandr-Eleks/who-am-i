@@ -1,13 +1,12 @@
 package com.eleks.academy.whoami.service.impl;
 
-import com.eleks.academy.whoami.controller.GameController;
 import com.eleks.academy.whoami.core.SynchronousGame;
 import com.eleks.academy.whoami.core.SynchronousPlayer;
+import com.eleks.academy.whoami.core.exception.DuplicateGameException;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
-import com.eleks.academy.whoami.model.response.GameLight;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
 import com.eleks.academy.whoami.service.GameService;
@@ -26,17 +25,20 @@ public class GameServiceImpl implements GameService {
 	private final GameRepository gameRepository;
 
 	@Override
-	public List<GameLight> findAvailableGames(String player) {
+	public List<GameDetails> findAvailableGames(String player) {
 		return this.gameRepository.findAllAvailable(player)
-				.map(GameLight::of)
+				.map(GameDetails::of)
 				.toList();
 	}
 
 	@Override
 	public GameDetails createGame(String player, NewGameRequest gameRequest) {
-		final var game = this.gameRepository.save(new PersistentGame(player, gameRequest.getMaxPlayers()));
-
-		return GameDetails.of(game);
+		// TODO: Create checking if game exists DuplicateGameException
+		PersistentGame game = new PersistentGame(player, gameRequest.getMaxPlayers());
+		if(gameRepository.findById(game.getId()).isEmpty()){
+			return GameDetails.of(this.gameRepository.save(game));
+		}
+		throw new DuplicateGameException("Game with id: " + game.getId() + " already exists!");
 	}
 
 	@Override

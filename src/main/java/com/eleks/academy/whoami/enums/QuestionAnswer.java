@@ -1,4 +1,4 @@
-package com.eleks.academy.whoami.model.request;
+package com.eleks.academy.whoami.enums;
 
 public enum QuestionAnswer {
 

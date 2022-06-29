@@ -1,4 +1,4 @@
-package com.eleks.academy.whoami.model.response;
+package com.eleks.academy.whoami.enums;
 
 public enum PlayerState {
 
