@@ -1,16 +1,24 @@
 package com.eleks.academy.whoami.core;
 
-// TODO: Change default methods to abstract, drop the old version ones
+import com.eleks.academy.whoami.enums.QuestionAnswer;
+import com.eleks.academy.whoami.model.request.Message;
+
+import java.util.List;
+
 public interface Game {
+    void startGame();
 
-	boolean makeTurn();
+    List<SynchronousPlayer> getGamePLayers();
 
-	boolean isFinished();
+    Turn getTurn();
 
-	void changeTurn();
+    boolean isFinished();
 
-	void initGame();
+    void askQuestion(String player, String message);
 
-	void play();
+    void answerQuestion(String player, QuestionAnswer askQuestion);
 
+    void askGuessingQuestion(String player, Message message, boolean guessStatus);
+
+    void answerGuessingQuestion(String player, QuestionAnswer askQuestion, boolean guessStatus);
 }

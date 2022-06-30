@@ -2,30 +2,34 @@ package com.eleks.academy.whoami.core.impl;
 
 import com.eleks.academy.whoami.core.Game;
 import com.eleks.academy.whoami.core.SynchronousGame;
-import com.eleks.academy.whoami.core.SynchronousPlayer;
+import com.eleks.academy.whoami.core.Turn;
 import com.eleks.academy.whoami.core.exception.AnswerQuestionException;
 import com.eleks.academy.whoami.core.state.GameFinished;
 import com.eleks.academy.whoami.core.state.GameState;
 import com.eleks.academy.whoami.core.state.ProcessingQuestion;
 import com.eleks.academy.whoami.core.state.WaitingForPlayers;
+import com.eleks.academy.whoami.enums.GameStatus;
+import com.eleks.academy.whoami.enums.QuestionAnswer;
+import com.eleks.academy.whoami.model.request.Message;
 import com.eleks.academy.whoami.model.response.PlayerWithState;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 public class PersistentGame implements Game, SynchronousGame {
 
-	private final Lock turnLock = new ReentrantLock();
 	private final String id;
+	private Turn turns;
+	private GameStatus gameStatus = GameStatus.WAITING_FOR_PLAYERS;
+	private GameInfo gameInfo;
 
-	private final Queue<GameState> turns = new LinkedBlockingQueue<>();
+
+	private List<SynchronousPlayer> winners = new LinkedList<>();
 	private Map <String, String> questions = new HashMap<>();
 	private Map <String, String> answers = new HashMap<>();
-	private Map <String, SynchronousPlayer> players;
+	private List<SynchronousPlayer> players;
+//	private Map <String, SynchronousPlayer> players;
 	private ProcessingQuestion processingQuestion;
 	private SynchronousPlayer currentPlayer;
 
@@ -35,11 +39,11 @@ public class PersistentGame implements Game, SynchronousGame {
 	 *
 	 * @param hostPlayer player to initiate a new game
 	 */
-	public PersistentGame(String hostPlayer, Integer maxPlayers) {
+	public PersistentGame(Integer maxPlayers) {
 		this.id = String.format("%d-%d",
 				Instant.now().toEpochMilli(),
 				Double.valueOf(Math.random() * 999).intValue());
-
+		this.players = new ArrayList<>(maxPlayers);
 	}
 
 	@Override
@@ -55,12 +59,22 @@ public class PersistentGame implements Game, SynchronousGame {
 	@Override
 	public SynchronousPlayer enrollToGame(String player) {
 		// TODO: Add player to players list
-		this.players.put(player, new PersistentPlayer(player));
+		this.players.put(player, new SynchronousPlayer(player));
 		return players.get(player);
 	}
 
 	@Override
-	public String getTurn() {
+	public void startGame() {
+
+	}
+
+	@Override
+	public List<SynchronousPlayer> getGamePLayers() {
+		return null;
+	}
+
+	@Override
+	public Turn getTurn() {
 		return this.applyIfPresent(this.turns.peek(), GameState::getCurrentTurn);
 	}
 
@@ -69,11 +83,17 @@ public class PersistentGame implements Game, SynchronousGame {
 		// TODO: Show question
 		this.processingQuestion = new ProcessingQuestion(players);
 		questions.put(player, message);
-		turns.add(processingQuestion.next());
+		//TODO: turns
+//		turns.add(processingQuestion.next());
 	}
 
 	@Override
 	public void answerQuestion(String player, Answer answer) {
+
+	}
+
+	@Override
+	public void answerQuestion(String player, QuestionAnswer answer) {
 		if(answers.containsKey(player)) {
 			throw new AnswerQuestionException("This player has answered already");
 		}
@@ -93,6 +113,16 @@ public class PersistentGame implements Game, SynchronousGame {
 				answers.remove(temp);
 			}
 		}
+	}
+
+	@Override
+	public void askGuessingQuestion(String player, Message message, boolean guessStatus) {
+
+	}
+
+	@Override
+	public void answerGuessingQuestion(String player, QuestionAnswer askQuestion, boolean guessStatus) {
+
 	}
 
 	@Override

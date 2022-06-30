@@ -1,7 +1,5 @@
 package com.eleks.academy.whoami.core.state;
 
-import com.eleks.academy.whoami.core.SynchronousPlayer;
-
 import java.util.Optional;
 
 public final class GameFinished extends AbstractGameState {

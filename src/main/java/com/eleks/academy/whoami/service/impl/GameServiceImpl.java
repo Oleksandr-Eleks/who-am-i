@@ -1,7 +1,6 @@
 package com.eleks.academy.whoami.service.impl;
 
 import com.eleks.academy.whoami.core.SynchronousGame;
-import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.core.exception.DuplicateGameException;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
@@ -32,9 +31,8 @@ public class GameServiceImpl implements GameService {
 	}
 
 	@Override
-	public GameDetails createGame(String player, NewGameRequest gameRequest) {
-		// TODO: Create checking if game exists DuplicateGameException
-		PersistentGame game = new PersistentGame(player, gameRequest.getMaxPlayers());
+	public GameDetails createGame(NewGameRequest gameRequest) {
+		PersistentGame game = new PersistentGame(gameRequest.getMaxPlayers());
 		if(gameRepository.findById(game.getId()).isEmpty()){
 			return GameDetails.of(this.gameRepository.save(game));
 		}

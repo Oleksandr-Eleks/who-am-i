@@ -1,8 +1,5 @@
 package com.eleks.academy.whoami.core.state;
 
-import com.eleks.academy.whoami.core.SynchronousPlayer;
-import com.eleks.academy.whoami.core.exception.GameException;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,7 +37,7 @@ public final class ProcessingQuestion extends AbstractGameState {
 	}
 
 	@Override
-	public GameState next() {
+	public ProcessingQuestion next() {
 		//TODO: Check if player won
 		this.orderedPlayers.add(this.currentPlayer);
 		return new ProcessingQuestion(this.players, this.orderedPlayers);

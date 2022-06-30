@@ -1,6 +1,5 @@
 package com.eleks.academy.whoami.model.response;
 
-import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.enums.PlayerState;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import lombok.AllArgsConstructor;

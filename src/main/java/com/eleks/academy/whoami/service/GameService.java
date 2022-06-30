@@ -1,6 +1,5 @@
 package com.eleks.academy.whoami.service;
 
-import com.eleks.academy.whoami.core.SynchronousPlayer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
@@ -13,7 +12,7 @@ public interface GameService {
 
 	List<GameDetails> findAvailableGames(String player);
 
-	GameDetails createGame(String player, NewGameRequest gameRequest);
+	GameDetails createGame(NewGameRequest gameRequest);
 
 	SynchronousPlayer enrollToGame(String id, String player);
 
