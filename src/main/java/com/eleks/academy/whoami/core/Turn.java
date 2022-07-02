@@ -1,17 +1,18 @@
 package com.eleks.academy.whoami.core;
 
-import com.eleks.academy.whoami.core.impl.SynchronousPlayer;
+import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 
 import java.util.List;
 
 public interface Turn {
 
-	SynchronousPlayer getGuesser();
+	PersistentPlayer getCurrentTurn();
 	
-	List<SynchronousPlayer> getOtherPlayers();
+	List<PersistentPlayer> getOtherPlayers();
 
 	List<QuestionAnswer> getPlayersAnswers();
+
 	Turn changeTurn();
 
 }

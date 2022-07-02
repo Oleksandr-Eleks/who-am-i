@@ -1,16 +1,15 @@
 package com.eleks.academy.whoami.repository;
 
-import com.eleks.academy.whoami.core.SynchronousGame;
+import com.eleks.academy.whoami.core.impl.PersistentGame;
 
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.List;
 
 public interface GameRepository {
 
-	Stream<SynchronousGame> findAllAvailable(String player);
+    List<PersistentGame> findAllAvailable();
 
-	SynchronousGame save(SynchronousGame game);
+    PersistentGame save(PersistentGame game);
 
-	Optional<SynchronousGame> findById(String id);
+    PersistentGame findById(String id);
 
 }

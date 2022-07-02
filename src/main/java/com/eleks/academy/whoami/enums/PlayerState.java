@@ -1,7 +1,5 @@
 package com.eleks.academy.whoami.enums;
 
 public enum PlayerState {
-
-	NOT_READY, READY, ASKING, ANSWERING, FINISHED
-
+    GUESSING, ANSWER_QUESTION, ASK_QUESTION, WAITING_FOR_ANSWER, GAME_WINNER, GAME_LOOSER
 }

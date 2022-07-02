@@ -1,8 +1,11 @@
 package com.eleks.academy.whoami.service.impl;
 
-import com.eleks.academy.whoami.core.SynchronousGame;
-import com.eleks.academy.whoami.core.exception.DuplicateGameException;
+import com.eleks.academy.whoami.core.exception.GameNotFoundException;
+import com.eleks.academy.whoami.core.exception.GameStateException;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
+import com.eleks.academy.whoami.core.impl.PersistentPlayer;
+import com.eleks.academy.whoami.enums.GameStatus;
+import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
@@ -10,85 +13,117 @@ import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
 import com.eleks.academy.whoami.service.GameService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.eleks.academy.whoami.enums.Constants.ROOM_NOT_FOUND_BY_ID;
 
 @Service
 @RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
 
-	private final GameRepository gameRepository;
+    private final GameRepository gameRepository;
 
-	@Override
-	public List<GameDetails> findAvailableGames(String player) {
-		return this.gameRepository.findAllAvailable(player)
-				.map(GameDetails::of)
-				.toList();
-	}
+    @Override
+    public List<PersistentGame> findAvailableGames() {
+        return this.gameRepository.findAllAvailable();
+    }
 
-	@Override
-	public GameDetails createGame(NewGameRequest gameRequest) {
-		PersistentGame game = new PersistentGame(gameRequest.getMaxPlayers());
-		if(gameRepository.findById(game.getId()).isEmpty()){
-			return GameDetails.of(this.gameRepository.save(game));
-		}
-		throw new DuplicateGameException("Game with id: " + game.getId() + " already exists!");
-	}
+    @Override
+    public GameDetails findGameById(String id) {
+        return new GameDetails(checkGameExistence(id));
+    }
 
-	@Override
-	public SynchronousPlayer enrollToGame(String id, String player) {
-		return this.gameRepository.findById(id)
-				.filter(SynchronousGame::isAvailable)
-				.map(game -> game.enrollToGame(player))
-				.orElseThrow(
-						() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot enroll to a game")
-				);
-	}
+    @Override
+    public Optional<TurnDetails> findTurnInfo(String id, String player) {
+        PersistentGame game = checkGameExistence(id);
+        return Optional.of(game.getTurnDetails());
+    }
 
-	@Override
-	public Optional<GameDetails> findByIdAndPlayer(String id, String player) {
-		return this.gameRepository.findById(id)
-				.filter(game -> game.findPlayer(player).isPresent())
-				.map(GameDetails::of);
-	}
+    @Override
+    public GameDetails createGame(String playerId, NewGameRequest gameRequest) {
+        PersistentGame game = new PersistentGame(playerId, gameRequest.getMaxPlayers());
+        return new GameDetails(gameRepository.save(game));
+    }
 
-	@Override
-	public void suggestCharacter(String id, String player, CharacterSuggestion suggestion) {
-		this.gameRepository.findById(id)
-				.flatMap(game -> game.findPlayer(player))
-				.ifPresent(p -> p.setCharacter(suggestion.getCharacter()));
-	}
+    @Override
+    public PersistentPlayer enrollToGame(String gameId, String playerId) {
+        PersistentGame game = checkGameExistence(gameId);
+        if (game.getStatus().equals(GameStatus.WAITING_FOR_PLAYERS)) {
+            return game.enrollToGame(playerId);
+        }
+        throw new GameStateException("You cannot enroll to this game! All player slots are taken");
+    }
 
-	@Override
-	public Optional<GameDetails> startGame(String id, String player) {
-		return this.gameRepository.findById(id)
-				.map(SynchronousGame::start)
-				.map(GameDetails::of);
-	}
+    @Override
+    public void suggestCharacter(String gameId, String player, CharacterSuggestion suggestion) {
+        PersistentGame game = checkGameExistence(gameId);
+        if (game.getStatus().equals(GameStatus.SUGGEST_CHARACTER)) {
+            game.suggestCharacter(gameId, player, suggestion);
+        } else {
+            throw new GameStateException("You cannot suggest the character! Current game state is: " + game.getStatus());
+        }
+    }
 
-	@Override
-	public void askQuestion(String gameId, String player, String message) {
-		this.gameRepository.findById(gameId)
-				.ifPresent(game -> game.askQuestion(player, message));
-	}
+    @Override
+    public Optional<GameDetails> startGame(String gameId, String player) {
+        PersistentGame game = checkGameExistence(gameId);
+        switch (game.getStatus()) {
+            case GAME_IN_PROGRESS:
+                throw new GameStateException("Game already in progress! Find another one to play!");
+            case READY_TO_PLAY:
+                game.startGame();
+                return Optional.of(new GameDetails(game));
 
-	@Override
-	public Optional<TurnDetails> findTurnInfo(String id, String player) {
-		return Optional.empty();
-	}
+            case SUGGEST_CHARACTER:
+                throw new GameStateException("Game can not be started! Players suggesting characters! " +
+                        "Waiting for other players to contribute their characters" +
+                        "Players left: " +
+                        game.getPLayers()
+                                .stream()
+                                .filter(randomPlayer -> !randomPlayer.isSuggestStatus())
+                                .map(PersistentPlayer::getNickname)
+                                .collect(Collectors.toList()));
 
-	@Override
-	public void submitGuess(String id, String player, String guess) {
+            case WAITING_FOR_PLAYERS:
+                throw new GameStateException("Game can not be started!" +
+                        " Waiting for additional players! " +
+                        "Current players number: " + game.getPLayers().size() + game.getMaxPlayers());
 
-	}
+            default:
+                throw new GameStateException("Unrecognized state!");
+        }
+    }
 
-	@Override
-	public void answerQuestion(String id, String player, String answer) {
+    @Override
+    public void askQuestion(String gameId, String player, String message) {
+        PersistentGame game = checkGameExistence(gameId);
+        if (game.getStatus().equals(GameStatus.GAME_IN_PROGRESS)) {
+            game.askQuestion(player, message);
+        }
+    }
 
-	}
+    @Override
+    public void answerQuestion(String id, String player, QuestionAnswer answer) {
+        PersistentGame game = checkGameExistence(id);
+        if (game.getStatus().equals(GameStatus.GAME_IN_PROGRESS)) {
+            game.answerQuestion(player, answer);
+        }
+    }
+
+    @Override
+    public void submitGuess(String id, String player, String guess) {
+
+    }
+
+    private PersistentGame checkGameExistence(String roomId) {
+        if (gameRepository.findById(roomId) == null) {
+            throw new GameNotFoundException(String.format(ROOM_NOT_FOUND_BY_ID, roomId));
+        }
+        return gameRepository.findById(roomId);
+    }
 
 }

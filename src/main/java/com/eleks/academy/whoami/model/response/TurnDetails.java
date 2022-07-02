@@ -1,5 +1,6 @@
 package com.eleks.academy.whoami.model.response;
 
+import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,8 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 public class TurnDetails {
 
-	private SynchronousPlayer currentPlayer;
+    private PersistentPlayer currentPlayer;
 
-	private List<PlayerWithState> players;
+    private List<PersistentPlayer> players;
 
 }

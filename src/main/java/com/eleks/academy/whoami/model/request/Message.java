@@ -12,8 +12,8 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class Message {
 
-	@NotBlank
-	@Length(max = 256)
-	private String message;
+    @NotBlank
+    @Length(max = 256)
+    private String message;
 
 }

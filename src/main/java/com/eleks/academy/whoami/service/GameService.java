@@ -1,5 +1,8 @@
 package com.eleks.academy.whoami.service;
 
+import com.eleks.academy.whoami.core.impl.PersistentGame;
+import com.eleks.academy.whoami.core.impl.PersistentPlayer;
+import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
@@ -10,23 +13,23 @@ import java.util.Optional;
 
 public interface GameService {
 
-	List<GameDetails> findAvailableGames(String player);
+    List<PersistentGame> findAvailableGames();
 
-	GameDetails createGame(NewGameRequest gameRequest);
+    GameDetails createGame(String player, NewGameRequest gameRequest);
 
-	SynchronousPlayer enrollToGame(String id, String player);
+    PersistentPlayer enrollToGame(String gameId, String playerId);
 
-	Optional<GameDetails> findByIdAndPlayer(String id, String player);
+    GameDetails findGameById(String id);
 
-	void suggestCharacter(String id, String player, CharacterSuggestion suggestion);
+    void suggestCharacter(String gameId, String player, CharacterSuggestion suggestion);
 
-	Optional<GameDetails> startGame(String id, String player);
+    Optional<GameDetails> startGame(String gameId, String player);
 
-	void askQuestion(String gameId, String player, String message);
+    void askQuestion(String gameId, String player, String message);
 
-	Optional<TurnDetails> findTurnInfo(String id, String player);
+    Optional<TurnDetails> findTurnInfo(String id, String player);
 
-	void submitGuess(String id, String player, String guess);
+    void submitGuess(String id, String player, String guess);
 
-	void answerQuestion(String id, String player, String answer);
+    void answerQuestion(String id, String player, QuestionAnswer answer);
 }

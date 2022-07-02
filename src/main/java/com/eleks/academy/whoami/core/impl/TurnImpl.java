@@ -9,63 +9,62 @@ import com.eleks.academy.whoami.enums.PlayerState;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 
 public class TurnImpl implements Turn {
-	
-	private List<SynchronousPlayer> players;
-	private int currentPlayerIndex = 0;
-	private final List<QuestionAnswer> playersAnswers = new ArrayList<>();
 
-	private SynchronousPlayer currentPlayer;
-	private Queue<SynchronousPlayer> orderedPlayers;
+    private List<PersistentPlayer> players;
+    private final List<QuestionAnswer> playersAnswers = new ArrayList<>();
+    private PersistentPlayer questioningPlayer;
+    private Queue<PersistentPlayer> orderedPlayers;
 
+    public TurnImpl(List<PersistentPlayer> players) {
+        this.players = players;
 
-	public TurnImpl(List<SynchronousPlayer> players) {
-		this.players = players;
+        Function<PersistentPlayer, Integer> randomAuthorOrderComparator = value ->
+                Double.valueOf(Math.random() * 1000).intValue();
 
-		Function<SynchronousPlayer, Integer> randomAuthorOrderComparator = value ->
-				Double.valueOf(Math.random() * 1000).intValue();
-		this.orderedPlayers =
-				this.players
-						.stream()
-						.sorted(Comparator.comparing(randomAuthorOrderComparator))
-						.collect(Collectors.toCollection(LinkedList::new));
+        this.orderedPlayers =
+                this.players
+                        .stream()
+                        .sorted(Comparator.comparing(randomAuthorOrderComparator))
+                        .collect(Collectors.toCollection(LinkedList::new));
 
-		this.currentPlayer = this.orderedPlayers.poll();
-	}
+        this.questioningPlayer = this.orderedPlayers.poll();
+    }
 
-	public TurnImpl(List<SynchronousPlayer> players, Queue<SynchronousPlayer> orderedPlayers) {
-		this.players = players;
-		this.orderedPlayers = orderedPlayers;
+    public TurnImpl(List<PersistentPlayer> players, Queue<PersistentPlayer> orderedPlayers) {
+        this.players = players;
+        this.orderedPlayers = orderedPlayers;
 
-		currentPlayer.setPlayerState(PlayerState.ASK_QUESTION);
+        questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
 
-		this.currentPlayer = this.orderedPlayers.poll();
-	}
+        this.questioningPlayer = this.orderedPlayers.poll();
+    }
 
-	@Override
-	public SynchronousPlayer getGuesser() {
-		return this.players.get(currentPlayerIndex);
-	}
+    @Override
+    public PersistentPlayer getCurrentTurn() {
+        return this.questioningPlayer;
+    }
 
-	@Override
-	public List<SynchronousPlayer> getOtherPlayers() {
-		return this.players.stream()
-				.filter(player -> !player.getName().equals(this.getGuesser().getName()))
-				.toList();
-	}
+    @Override
+    public List<PersistentPlayer> getOtherPlayers() {
+        return orderedPlayers.stream().toList();
+    }
 
-	@Override
-	public List<QuestionAnswer> getPlayersAnswers() {
-		return null;
-	}
+    @Override
+    public List<QuestionAnswer> getPlayersAnswers() {
+        if (playersAnswers.size() == players.size() - 1) {
+            playersAnswers.clear();
+        }
+        return playersAnswers;
+    }
 
-	@Override
-	public Turn changeTurn() {
-//		this.currentPlayerIndex = this.currentPlayerIndex + 1 >= this.players.size() ? 0 : this.currentPlayerIndex + 1;
-		this.orderedPlayers.add(this.currentPlayer);
-		return new TurnImpl(this.players, this.orderedPlayers);
+    public void setPlayersAnswers(QuestionAnswer answer) {
+        playersAnswers.add(answer);
+    }
 
-	}
-	
-	
+    @Override
+    public Turn changeTurn() {
+        this.orderedPlayers.add(this.questioningPlayer);
+        return new TurnImpl(this.players, this.orderedPlayers);
 
+    }
 }
