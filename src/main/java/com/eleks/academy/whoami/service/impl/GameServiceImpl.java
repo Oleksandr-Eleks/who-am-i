@@ -9,6 +9,7 @@ import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
+import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
 import com.eleks.academy.whoami.service.GameService;
@@ -50,7 +51,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public PersistentPlayer enrollToGame(String gameId, String playerId) {
+    public PlayerDetails enrollToGame(String gameId, String playerId) {
         PersistentGame game = checkGameExistence(gameId);
         if (game.getStatus().equals(GameStatus.WAITING_FOR_PLAYERS)) {
             return game.enrollToGame(playerId);
@@ -72,29 +73,23 @@ public class GameServiceImpl implements GameService {
     public Optional<GameDetails> startGame(String gameId, String player) {
         PersistentGame game = checkGameExistence(gameId);
         switch (game.getStatus()) {
-            case GAME_IN_PROGRESS:
-                throw new GameStateException("Game already in progress! Find another one to play!");
-            case READY_TO_PLAY:
+            case GAME_IN_PROGRESS -> throw new GameStateException("Game already in progress! Find another one to play!");
+            case READY_TO_PLAY -> {
                 game.startGame();
                 return Optional.of(new GameDetails(game));
-
-            case SUGGEST_CHARACTER:
-                throw new GameStateException("Game can not be started! Players suggesting characters! " +
-                        "Waiting for other players to contribute their characters" +
-                        "Players left: " +
-                        game.getPLayers()
-                                .stream()
-                                .filter(randomPlayer -> !randomPlayer.isSuggestStatus())
-                                .map(PersistentPlayer::getNickname)
-                                .collect(Collectors.toList()));
-
-            case WAITING_FOR_PLAYERS:
-                throw new GameStateException("Game can not be started!" +
-                        " Waiting for additional players! " +
-                        "Current players number: " + game.getPLayers().size() + game.getMaxPlayers());
-
-            default:
-                throw new GameStateException("Unrecognized state!");
+            }
+            case SUGGEST_CHARACTER -> throw new GameStateException("Game can not be started! Players suggesting characters! " +
+                    "Waiting for other players to contribute their characters" +
+                    "Players left: " +
+                    game.getPLayers()
+                            .stream()
+                            .filter(randomPlayer -> !randomPlayer.isSuggestStatus())
+                            .map(PersistentPlayer::getNickname)
+                            .collect(Collectors.toList()));
+            case WAITING_FOR_PLAYERS -> throw new GameStateException("Game can not be started!" +
+                    " Waiting for additional players! " +
+                    "Current players number: " + game.getPLayers().size() + game.getMaxPlayers());
+            default -> throw new GameStateException("Unrecognized state!");
         }
     }
 
@@ -119,11 +114,11 @@ public class GameServiceImpl implements GameService {
 
     }
 
-    private PersistentGame checkGameExistence(String roomId) {
-        if (gameRepository.findById(roomId) == null) {
-            throw new GameNotFoundException(String.format(ROOM_NOT_FOUND_BY_ID, roomId));
+    private PersistentGame checkGameExistence(String gameId) {
+        if (gameRepository.findById(gameId) == null) {
+            throw new GameNotFoundException(String.format(ROOM_NOT_FOUND_BY_ID, gameId));
         }
-        return gameRepository.findById(roomId);
+        return gameRepository.findById(gameId);
     }
 
 }

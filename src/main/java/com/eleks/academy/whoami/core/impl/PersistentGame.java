@@ -9,6 +9,7 @@ import com.eleks.academy.whoami.enums.PlayerState;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
+import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.HistoryChat;
 
@@ -42,9 +43,9 @@ public class PersistentGame {
                 Instant.now().toEpochMilli(),
                 Double.valueOf(Math.random() * 999).intValue());
         this.players = new ArrayList<>(maxPlayers);
-//        players.add(enrollToGame(hostPlayer));
         this.turn = new TurnImpl(players);
         this.maxPlayers = maxPlayers;
+        players.add(new PersistentPlayer(hostPlayer, id, "hostPlayer"));
     }
 
     public String getGameId() {
@@ -84,7 +85,7 @@ public class PersistentGame {
         return turn.getCurrentTurn();
     }
 
-    public PersistentPlayer enrollToGame(String playerId) {
+    public PlayerDetails enrollToGame(String playerId) {
         PersistentPlayer player;
         if (players.stream().noneMatch((randomPlayer -> randomPlayer.getId().equals(playerId)))) {
             player = new PersistentPlayer(playerId, this.id, "Player-" + (players.size() + 1));
@@ -93,7 +94,7 @@ public class PersistentGame {
                 this.turn = new TurnImpl(players);
                 gameStatus = GameStatus.SUGGEST_CHARACTER;
             }
-            return player;
+            return PlayerDetails.of(player);
         } else {
             throw new GameStateException("Player already enrolled in this room!");
         }

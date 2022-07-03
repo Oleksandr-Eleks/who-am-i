@@ -1,11 +1,11 @@
 package com.eleks.academy.whoami.service;
 
 import com.eleks.academy.whoami.core.impl.PersistentGame;
-import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
+import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public interface GameService {
 
     GameDetails createGame(String player, NewGameRequest gameRequest);
 
-    PersistentPlayer enrollToGame(String gameId, String playerId);
+    PlayerDetails enrollToGame(String gameId, String playerId);
 
     GameDetails findGameById(String id);
 

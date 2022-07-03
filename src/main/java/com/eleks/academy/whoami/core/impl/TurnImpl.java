@@ -34,9 +34,10 @@ public class TurnImpl implements Turn {
         this.players = players;
         this.orderedPlayers = orderedPlayers;
 
-        questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
-
         this.questioningPlayer = this.orderedPlayers.poll();
+        if (!(questioningPlayer == null)) {
+            questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
+        }
     }
 
     @Override

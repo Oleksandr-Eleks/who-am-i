@@ -7,6 +7,7 @@ import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
+import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.service.GameService;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +46,8 @@ public class GameController {
 
 
     @PostMapping("/{id}/players")
-    public PersistentPlayer enrollToGame(@PathVariable("id") String id,
-                                         @RequestHeader(PLAYER) String player) {
+    public PlayerDetails enrollToGame(@PathVariable("id") String id,
+                                      @RequestHeader(PLAYER) String player) {
         return this.gameService.enrollToGame(id, player);
     }
 
