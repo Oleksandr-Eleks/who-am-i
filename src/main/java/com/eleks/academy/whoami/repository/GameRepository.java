@@ -3,6 +3,7 @@ package com.eleks.academy.whoami.repository;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GameRepository {
 
@@ -10,6 +11,6 @@ public interface GameRepository {
 
     PersistentGame save(PersistentGame game);
 
-    PersistentGame findById(String id);
+    Optional<PersistentGame> findById(String id);
 
 }

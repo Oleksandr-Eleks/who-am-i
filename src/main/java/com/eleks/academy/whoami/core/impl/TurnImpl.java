@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.eleks.academy.whoami.core.Turn;
+import com.eleks.academy.whoami.core.exception.TurnException;
 import com.eleks.academy.whoami.enums.PlayerState;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 
@@ -34,14 +35,17 @@ public class TurnImpl implements Turn {
         this.players = players;
         this.orderedPlayers = orderedPlayers;
 
+        if (orderedPlayers.size() == 0) {
+            throw new TurnException("No players left");
+        }
         this.questioningPlayer = this.orderedPlayers.poll();
-        if (!(questioningPlayer == null)) {
+        if (questioningPlayer != null) {
             questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
         }
     }
 
     @Override
-    public PersistentPlayer getCurrentTurn() {
+    public PersistentPlayer getCurrentGuesser() {
         return this.questioningPlayer;
     }
 
@@ -64,8 +68,8 @@ public class TurnImpl implements Turn {
 
     @Override
     public Turn changeTurn() {
+        this.questioningPlayer.setPlayerState(PlayerState.ANSWER_QUESTION);
         this.orderedPlayers.add(this.questioningPlayer);
         return new TurnImpl(this.players, this.orderedPlayers);
-
     }
 }

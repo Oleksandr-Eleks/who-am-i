@@ -28,12 +28,18 @@ public class GameInMemoryRepository implements GameRepository {
     }
 
     @Override
-    public PersistentGame findById(String gameId) {
-        return this.games
+    public Optional <PersistentGame> findById(String gameId) {
+        return Optional.ofNullable(this.games
                 .stream()
                 .filter(game -> game.getGameId().equals(gameId))
                 .findFirst()
-                .orElseThrow(() -> new GameNotFoundException("Game not found!"));
+                .orElseThrow(() -> new GameNotFoundException("Game not found!")));
+
+//        return this.games
+//                .stream()
+//                .filter(game -> game.getGameId().equals(gameId))
+//                .findFirst()
+//                .orElseThrow(() -> new GameNotFoundException("Game not found!"));
     }
 
 }

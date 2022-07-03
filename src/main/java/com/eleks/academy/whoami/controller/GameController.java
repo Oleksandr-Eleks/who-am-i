@@ -1,7 +1,6 @@
 package com.eleks.academy.whoami.controller;
 
 import com.eleks.academy.whoami.core.impl.PersistentGame;
-import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
@@ -84,12 +83,12 @@ public class GameController {
     @PostMapping("/{id}/guess")
     public void submitGuess(@PathVariable("id") String id,
                             @RequestHeader(PLAYER) String player, @RequestBody Message message) {
-        this.gameService.submitGuess(id, player, message.getMessage());
+        this.gameService.submitGuess(id, player, message);
     }
 
     @PostMapping("/{id}/answer")
     public void answerQuestion(@PathVariable("id") String id,
-                               @RequestHeader(PLAYER) String player, @RequestBody QuestionAnswer answer) {
+                               @RequestHeader(PLAYER) String player, @RequestParam QuestionAnswer answer) {
         this.gameService.answerQuestion(id, player, answer);
 
     }

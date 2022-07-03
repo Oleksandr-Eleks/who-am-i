@@ -74,7 +74,7 @@ public class PersistentGame {
      * @return data about current turn (current player, and other players)
      */
     public TurnDetails getTurnDetails() {
-        return new TurnDetails(turn.getCurrentTurn(), turn.getOtherPlayers());
+        return new TurnDetails(turn.getCurrentGuesser(), turn.getOtherPlayers());
     }
 
     /***
@@ -82,7 +82,7 @@ public class PersistentGame {
      * @return PersistentPlayer whose turn is now
      */
     public PersistentPlayer getCurrentTurn() {
-        return turn.getCurrentTurn();
+        return turn.getCurrentGuesser();
     }
 
     public PlayerDetails enrollToGame(String playerId) {
@@ -100,30 +100,27 @@ public class PersistentGame {
         }
     }
 
-    public void suggestCharacter(String roomId, String playerId, CharacterSuggestion suggestion) {
-        if (players.stream().noneMatch(randomPlayer -> randomPlayer.getId().equals(playerId))) {
-            var player = players
-                    .stream()
-                    .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
-                    .findFirst().orElseThrow(() -> new PlayerNotFoundException("Player not found!"));
-            if (!player.isSuggestStatus()) {
-                player.setCharacter(suggestion.getCharacter());
-                player.setNickname(suggestion.getNickname());
-                player.setSuggestStatus(true);
-            } else {
-                throw new GameStateException("You already suggest the character");
-            }
-
-            if (players.stream().filter(PersistentPlayer::isSuggestStatus).count() == maxPlayers) {
-                gameStatus = GameStatus.READY_TO_PLAY;
-            }
+    public void suggestCharacter(String playerId, CharacterSuggestion suggestion) {
+        var player = players
+                .stream()
+                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
+                .findFirst().orElseThrow(() -> new PlayerNotFoundException("Player not found!"));
+        if (!player.isSuggestStatus()) {
+            player.setCharacter(suggestion.getCharacter());
+            player.setNickname(suggestion.getNickname());
+            player.setSuggestStatus(true);
+        } else {
+            throw new GameStateException("You already suggest the character");
+        }
+        if (players.stream().filter(PersistentPlayer::isSuggestStatus).count() == maxPlayers) {
+            gameStatus = GameStatus.READY_TO_PLAY;
         }
     }
 
     public void startGame() {
         if (players.stream().filter(PersistentPlayer::isSuggestStatus).count() == maxPlayers) {
             assignCharacters();
-            var currentPlayer = turn.getCurrentTurn();
+            var currentPlayer = turn.getCurrentGuesser();
             currentPlayer.setPlayerState(PlayerState.ASK_QUESTION);
             players.stream()
                     .filter(randomPlayer -> !randomPlayer.getId().equals(currentPlayer.getId()))
@@ -143,7 +140,7 @@ public class PersistentGame {
 
         cleanPlayersValues(players);
 
-        if (askingPlayer.getPlayerState().equals(PlayerState.ASK_QUESTION) && askingPlayer.getId().equals(turn.getCurrentTurn().getId())) {
+        if (askingPlayer.getPlayerState().equals(PlayerState.ASK_QUESTION)) {
             askingPlayer.setPlayerQuestion(message);
             askingPlayer.setEnteredQuestion(true);
             history.setAllQuestions(askingPlayer.getNickname(), message);
@@ -154,19 +151,25 @@ public class PersistentGame {
 
     public void answerQuestion(String player, QuestionAnswer questionAnswer) {
         //TODO: show on screen questions and answers from history
-        var answerPlayer = players
+        var askingPlayer = turn.getCurrentGuesser();
+        var answeringPlayer = players
                 .stream()
                 .filter(randomPlayer -> randomPlayer.getId().equals(player))
                 .findFirst()
                 .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, player)));
 
-        var playersAnswers = turn.getPlayersAnswers();
-        if (answerPlayer.getPlayerState().equals(PlayerState.ANSWER_QUESTION)) {
-            playersAnswers.add(questionAnswer);
-            answerPlayer.setEnteredAnswer(true);
-            answerPlayer.setPlayerAnswer(String.valueOf(questionAnswer));
+        if (askingPlayer.equals(answeringPlayer)) {
+            throw new TurnException("Not your turn for answering");
+        }
 
-            history.setAllAnswers(answerPlayer.getNickname(), questionAnswer);
+        var playersAnswers = turn.getPlayersAnswers();
+
+        if (answeringPlayer.getPlayerState().equals(PlayerState.ANSWER_QUESTION)) {
+            playersAnswers.add(questionAnswer);
+            answeringPlayer.setEnteredAnswer(true);
+            answeringPlayer.setPlayerAnswer(String.valueOf(questionAnswer));
+
+            history.setAllAnswers(answeringPlayer.getNickname(), questionAnswer);
         }
 
         if (playersAnswers.size() == players.size() - 1) {
@@ -181,17 +184,33 @@ public class PersistentGame {
                     .collect(Collectors.toList());
 
             if (positiveAnswers.size() < negativeAnswers.size()) {
-                turn.changeTurn();
+                this.turn = this.turn.changeTurn();
             }
         }
     }
 
-    public void askGuessingQuestion(String player, Message message, boolean guessStatus) {
+    public void askGuessingQuestion(String playerId, Message guess) {
+        var askingPlayer = players
+                .stream()
+                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
+                .findFirst()
+                .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, playerId)));
 
+        cleanPlayersValues(players);
+
+        if (askingPlayer.getPlayerState().equals(PlayerState.ASK_QUESTION)) {
+            askingPlayer.setPlayerState(PlayerState.GUESSING);
+            askingPlayer.setPlayerQuestion(guess.getMessage());
+            askingPlayer.setEnteredQuestion(true);
+            askingPlayer.setGuessing(true);
+            history.setAllQuestions(askingPlayer.getNickname(), guess.getMessage());
+        } else {
+            throw new TurnException("Not your turn! Current turn has player: " + getCurrentTurn().getNickname());
+        }
     }
 
     public void answerGuessingQuestion(String player, QuestionAnswer askQuestion, boolean guessStatus) {
-
+        //TODO: implement
     }
 
     private void assignCharacters() {

@@ -3,6 +3,7 @@ package com.eleks.academy.whoami.service;
 import com.eleks.academy.whoami.core.impl.PersistentGame;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
+import com.eleks.academy.whoami.model.request.Message;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
@@ -29,7 +30,7 @@ public interface GameService {
 
     Optional<TurnDetails> findTurnInfo(String id, String player);
 
-    void submitGuess(String id, String player, String guess);
+    void submitGuess(String id, String player, Message guess);
 
     void answerQuestion(String id, String player, QuestionAnswer answer);
 }

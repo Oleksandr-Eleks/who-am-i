@@ -7,6 +7,7 @@ import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import com.eleks.academy.whoami.enums.GameStatus;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
+import com.eleks.academy.whoami.model.request.Message;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
@@ -63,7 +64,7 @@ public class GameServiceImpl implements GameService {
     public void suggestCharacter(String gameId, String player, CharacterSuggestion suggestion) {
         PersistentGame game = checkGameExistence(gameId);
         if (game.getStatus().equals(GameStatus.SUGGEST_CHARACTER)) {
-            game.suggestCharacter(gameId, player, suggestion);
+            game.suggestCharacter(player, suggestion);
         } else {
             throw new GameStateException("You cannot suggest the character! Current game state is: " + game.getStatus());
         }
@@ -102,23 +103,25 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void answerQuestion(String id, String player, QuestionAnswer answer) {
-        PersistentGame game = checkGameExistence(id);
+    public void answerQuestion(String gameId, String player, QuestionAnswer answer) {
+        PersistentGame game = checkGameExistence(gameId);
         if (game.getStatus().equals(GameStatus.GAME_IN_PROGRESS)) {
             game.answerQuestion(player, answer);
         }
     }
 
     @Override
-    public void submitGuess(String id, String player, String guess) {
-
+    public void submitGuess(String gameId, String player, Message guess) {
+        PersistentGame game = checkGameExistence(gameId);
+        if (game.getStatus().equals(GameStatus.GAME_IN_PROGRESS)) {
+            game.askGuessingQuestion(player, guess);
+        }
     }
 
     private PersistentGame checkGameExistence(String gameId) {
-        if (gameRepository.findById(gameId) == null) {
-            throw new GameNotFoundException(String.format(ROOM_NOT_FOUND_BY_ID, gameId));
+        if (gameRepository.findById(gameId).isPresent()) {
+            return gameRepository.findById(gameId).get();
         }
-        return gameRepository.findById(gameId);
+        throw new GameNotFoundException(String.format(ROOM_NOT_FOUND_BY_ID, gameId));
     }
-
 }
