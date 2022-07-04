@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.eleks.academy.whoami.core.Turn;
+import com.eleks.academy.whoami.core.exception.PlayerNotFoundException;
 import com.eleks.academy.whoami.core.exception.TurnException;
 import com.eleks.academy.whoami.enums.PlayerState;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
@@ -62,6 +63,15 @@ public class TurnImpl implements Turn {
         return playersAnswers;
     }
 
+    @Override
+    public List<PersistentPlayer> getAllPlayers() {
+        return players;
+    }
+
+    public List<PersistentPlayer> getPlayers() {
+        return players;
+    }
+
     public void setPlayersAnswers(QuestionAnswer answer) {
         playersAnswers.add(answer);
     }
@@ -71,5 +81,29 @@ public class TurnImpl implements Turn {
         this.questioningPlayer.setPlayerState(PlayerState.ANSWER_QUESTION);
         this.orderedPlayers.add(this.questioningPlayer);
         return new TurnImpl(this.players, this.orderedPlayers);
+    }
+
+    @Override
+    public void removePLayer(String playerId) {
+        Optional<PersistentPlayer> playerToRemove = this.players
+                .stream()
+                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
+                .findFirst();
+
+        playerToRemove.ifPresent(this.players::remove);
+
+        playerToRemove = this.orderedPlayers
+                .stream()
+                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
+                .findFirst();
+        playerToRemove.ifPresent(this.orderedPlayers::remove);
+
+        if (questioningPlayer.getId().equals(playerId)) {
+            playerToRemove = Optional.ofNullable(this.questioningPlayer);
+            if (playerToRemove.isPresent()) {
+                this.questioningPlayer = this.orderedPlayers.poll();
+                this.questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
+            }
+        }
     }
 }

@@ -15,4 +15,7 @@ public interface Turn {
 
 	Turn changeTurn();
 
+	void removePLayer(String playerId);
+
+	List<PersistentPlayer> getAllPlayers();
 }

@@ -27,9 +27,4 @@ public class GameDetails {
         this.players = game.getPLayers();
         this.winners = game.getWinnerList();
     }
-
-    //    public static GameDetails of(PersistentGame game) {
-//        return new GameDetails(game.getGameId(), game.getStatus(), game.getPLayers(), game.getWinnerList());
-//    }
-
 }

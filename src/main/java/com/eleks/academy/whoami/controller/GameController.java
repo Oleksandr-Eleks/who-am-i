@@ -93,4 +93,21 @@ public class GameController {
 
     }
 
+    @PostMapping("/{id}/guess/answer")
+    public void answerGuessingQuestion(@PathVariable("id") String id,
+                                       @RequestHeader(PLAYER) String player, @RequestParam QuestionAnswer answer) {
+        this.gameService.answerGuessingQuestion(id, player, answer);
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<String> getGameHistory(@PathVariable("id") String id) {
+        return ResponseEntity.ok(this.gameService.gameHistory(id));
+    }
+
+    @DeleteMapping("/{id}/leave")
+    public void leaveGame(@PathVariable("id") String id,
+                          @RequestHeader(PLAYER) String player) {
+        this.gameService.leaveGame(id, player);
+    }
+
 }

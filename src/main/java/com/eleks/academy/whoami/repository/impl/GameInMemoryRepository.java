@@ -34,12 +34,6 @@ public class GameInMemoryRepository implements GameRepository {
                 .filter(game -> game.getGameId().equals(gameId))
                 .findFirst()
                 .orElseThrow(() -> new GameNotFoundException("Game not found!")));
-
-//        return this.games
-//                .stream()
-//                .filter(game -> game.getGameId().equals(gameId))
-//                .findFirst()
-//                .orElseThrow(() -> new GameNotFoundException("Game not found!"));
     }
 
 }

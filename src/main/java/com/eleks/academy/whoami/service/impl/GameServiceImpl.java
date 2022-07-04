@@ -13,6 +13,7 @@ import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
+import com.eleks.academy.whoami.model.response.HistoryDetails;
 import com.eleks.academy.whoami.service.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -118,10 +119,30 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    @Override
+    public void answerGuessingQuestion(String gameId, String playerId, QuestionAnswer answerQuess) {
+        PersistentGame game = checkGameExistence(gameId);
+        if (game.getStatus().equals(GameStatus.GAME_IN_PROGRESS)) {
+            game.answerGuessingQuestion(playerId, answerQuess);
+        }
+    }
+
     private PersistentGame checkGameExistence(String gameId) {
         if (gameRepository.findById(gameId).isPresent()) {
             return gameRepository.findById(gameId).get();
         }
         throw new GameNotFoundException(String.format(ROOM_NOT_FOUND_BY_ID, gameId));
+    }
+
+    @Override
+    public String gameHistory(String gameId) {
+        PersistentGame game = checkGameExistence(gameId);
+        return (new HistoryDetails(game.getHistory())).toString();
+    }
+
+    @Override
+    public void leaveGame(String gameId, String playerId) {
+        PersistentGame game = checkGameExistence(gameId);
+        game.deletePlayer(playerId);
     }
 }

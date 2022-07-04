@@ -57,7 +57,7 @@ public class GameControllerAdvice extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler(GameNotFoundException.class)
-	public final ResponseEntity<ErrorResponse> handleRoomNotFoundException(GameNotFoundException ex) {
+	public final ResponseEntity<ErrorResponse> handleGameNotFoundException(GameNotFoundException ex) {
 		return new ResponseEntity<>(new ErrorResponse(NOT_FOUND,
 				Collections.singletonList(ex.getLocalizedMessage())),
 				HttpStatus.NOT_FOUND);
@@ -78,7 +78,7 @@ public class GameControllerAdvice extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler(GameStateException.class)
-	public final ResponseEntity<ErrorResponse> handleRoomStateException(GameStateException ex) {
+	public final ResponseEntity<ErrorResponse> handleGameStateException(GameStateException ex) {
 		return new ResponseEntity<>(new ErrorResponse(FORBIDDEN,
 				Collections.singletonList(ex.getLocalizedMessage())),
 				HttpStatus.FORBIDDEN);
