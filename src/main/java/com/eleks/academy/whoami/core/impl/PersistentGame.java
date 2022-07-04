@@ -239,17 +239,19 @@ public class PersistentGame {
         if (playersAnswers.size() == this.players.size() - 1) {
             var positiveAnswers = playersAnswers
                     .stream()
-                    .filter(answer -> answer.equals(QuestionAnswer.NOT_SURE) || answer.equals(QuestionAnswer.YES))
+                    .filter(answer -> answer.equals(QuestionAnswer.YES))
                     .collect(Collectors.toList());
 
             var negativeAnswers = playersAnswers
                     .stream()
-                    .filter(answer -> answer.equals(QuestionAnswer.NO))
+                    .filter(answer -> answer.equals(QuestionAnswer.NOT_SURE) || answer.equals(QuestionAnswer.NO))
                     .collect(Collectors.toList());
 
-            if (positiveAnswers.size() < negativeAnswers.size()) {
+            if (positiveAnswers.size() > negativeAnswers.size()) {
                 this.winners.add(askingPlayer);
                 deletePlayer(playerId);
+            } else {
+                this.turn = this.turn.changeTurn();
             }
         }
 
