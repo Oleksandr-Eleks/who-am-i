@@ -4,4 +4,5 @@ public class AnswerQuestionException extends RuntimeException {
     public AnswerQuestionException(String message) {
         super(message);
     }
+
 }

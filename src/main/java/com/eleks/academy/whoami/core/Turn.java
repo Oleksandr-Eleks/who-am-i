@@ -7,12 +7,16 @@ import java.util.List;
 
 public interface Turn {
 
-	PersistentPlayer getCurrentGuesser();
-	
-	List<PersistentPlayer> getOtherPlayers();
+    PersistentPlayer getCurrentGuesser();
 
-	List<QuestionAnswer> getPlayersAnswers();
+    List<PersistentPlayer> getOtherPlayers();
 
-	Turn changeTurn();
+    List<QuestionAnswer> getPlayersAnswers();
+
+    Turn changeTurn();
+
+    void removePLayer(String playerId);
+
+    List<PersistentPlayer> getAllPlayers();
 
 }

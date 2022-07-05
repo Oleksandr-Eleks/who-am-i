@@ -129,14 +129,13 @@ public class PersistentGame {
         }
     }
 
-
-    public void askQuestion(String player, String message) {
+    public void askQuestion(String playerId, String message) {
         // TODO: Show question
         var askingPlayer = players
                 .stream()
-                .filter(randomPlayer -> randomPlayer.getId().equals(player))
+                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
                 .findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, player)));
+                .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, playerId)));
 
         cleanPlayersValues(players);
 
@@ -151,14 +150,14 @@ public class PersistentGame {
         }
     }
 
-    public void answerQuestion(String player, QuestionAnswer questionAnswer) {
+    public void answerQuestion(String playerId, QuestionAnswer questionAnswer) {
         //TODO: show on screen questions and answers from history
         var askingPlayer = turn.getCurrentGuesser();
         var answeringPlayer = players
                 .stream()
-                .filter(randomPlayer -> randomPlayer.getId().equals(player))
+                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
                 .findFirst()
-                .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, player)));
+                .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, playerId)));
 
         if (askingPlayer.equals(answeringPlayer)) {
             throw new TurnException("Not your turn for answering");
@@ -212,16 +211,59 @@ public class PersistentGame {
         }
     }
 
-    public void answerGuessingQuestion(String playerId, QuestionAnswer askQuestion, boolean guessStatus) {
-        //TODO: implement
+    public void answerGuessingQuestion(String playerId, QuestionAnswer askQuestion) 
+        var askingPlayer = turn.getCurrentGuesser();
         var answeringPlayer = players
                 .stream()
                 .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
                 .findFirst()
                 .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, playerId)));
 
-        addAnswerToHistory(answeringPlayer.getNickname(), askQuestion.toString());
+        if (askingPlayer.equals(answeringPlayer)) {
+            throw new TurnException("Not your turn for answering");
+        }
+
+        var playersAnswers = turn.getPlayersAnswers();
+
+        if (answeringPlayer.getPlayerState().equals(PlayerState.ANSWER_QUESTION)) {
+            playersAnswers.add(askQuestion);
+            answeringPlayer.setEnteredAnswer(true);
+            answeringPlayer.setPlayerAnswer(String.valueOf(askQuestion));
+
+            addAnswerToHistory(answeringPlayer.getNickname(), askQuestion.toString());
+        }
+
+        if (playersAnswers.size() == this.players.size() - 1) {
+            var positiveAnswers = playersAnswers
+                    .stream()
+                    .filter(answer -> answer.equals(QuestionAnswer.YES))
+                    .collect(Collectors.toList());
+
+            var negativeAnswers = playersAnswers
+                    .stream()
+                    .filter(answer -> answer.equals(QuestionAnswer.NOT_SURE) || answer.equals(QuestionAnswer.NO))
+                    .collect(Collectors.toList());
+
+            if (positiveAnswers.size() > negativeAnswers.size()) {
+                this.winners.add(askingPlayer);
+                deletePlayer(playerId);
+            } else {
+                this.turn = this.turn.changeTurn();
+            }
+        }
+
     }
+
+    public void deletePlayer(String playerId) {
+        Optional<PersistentPlayer> playerToRemove = this.players
+                .stream()
+                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
+                .findFirst();
+
+        playerToRemove.ifPresent(this.players::remove);
+        this.turn.removePLayer(playerId);
+    }
+
 
     private void assignCharacters() {
         var availableCharacters = players.stream()
@@ -258,4 +300,5 @@ public class PersistentGame {
     public HistoryChat getHistory() {
         return history;
     }
+
 }

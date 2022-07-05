@@ -6,6 +6,9 @@ import com.eleks.academy.whoami.enums.GameStatus;
 import com.eleks.academy.whoami.repository.GameRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,4 +38,5 @@ public class GameInMemoryRepository implements GameRepository {
                 .findFirst()
                 .orElseThrow(() -> new GameNotFoundException("Game not found!")));
     }
+
 }
