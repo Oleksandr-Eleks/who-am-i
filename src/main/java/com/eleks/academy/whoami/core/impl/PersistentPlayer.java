@@ -1,78 +1,151 @@
 package com.eleks.academy.whoami.core.impl;
 
-import com.eleks.academy.whoami.core.Player;
-import com.eleks.academy.whoami.core.SynchronousPlayer;
+import com.eleks.academy.whoami.enums.PlayerState;
 
 import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
-public class PersistentPlayer implements Player, SynchronousPlayer {
+public class PersistentPlayer {
 
-	private final String name;
-	private final CompletableFuture<String> character = new CompletableFuture<>();
+    private String id;
+    private String gameId;
+    private String nickname;
+    private String character;
+    private boolean suggestStatus = false;
+    private PlayerState playerState;
+    private boolean enteredAnswer;
+    private boolean enteredQuestion;
+    private boolean guessing;
+    private String playerQuestion;
+    private String playerAnswer;
 
+    public PersistentPlayer(String id, String gameId, String nickname) {
+        this.id = id;
+        this.gameId = gameId;
+        this.nickname = nickname;
+    }
 
-	private Queue<String> questionQueue;
-	private volatile CompletableFuture<String> question;
-	private volatile CompletableFuture<String> currentAnswer;
-	private volatile CompletableFuture<Boolean> readyForAnswerFuture;
+    public String getId() {
+        return id;
+    }
 
-	public PersistentPlayer(String name) {
-		this.name = Objects.requireNonNull(name);
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    public String getGameId() {
+        return gameId;
+    }
 
-	@Override
-	public String getCharacter() {
-		return null;
-	}
+    public void setGameId(String gameId) {
+        this.gameId = gameId;
+    }
 
-	@Override
-	public Future<String> suggestCharacter() {
-		return character;
-	}
+    public String getNickname() {
+        return nickname;
+    }
 
-	@Override
-	public Future<String> getQuestion() {
-		return null;
-	}
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
-	@Override
-	public Future<String> answerQuestion(String question, String character) {
-		return null;
-	}
+    public String getCharacter() {
+        return character;
+    }
 
-	@Override
-	public Future<String> getGuess() {
-		return null;
-	}
+    public void setCharacter(String character) {
+        this.character = character;
+    }
 
-	@Override
-	public Future<Boolean> isReadyForGuess() {
-		return null;
-	}
+    public boolean isSuggestStatus() {
+        return suggestStatus;
+    }
 
-	@Override
-	public Future<String> answerGuess(String guess, String character) {
-		return null;
-	}
+    public void setSuggestStatus(boolean suggestStatus) {
+        this.suggestStatus = suggestStatus;
+    }
 
-	@Override
-	public void close() {
+    public PlayerState getPlayerState() {
+        return playerState;
+    }
 
-	}
+    public void setPlayerState(PlayerState playerState) {
+        this.playerState = playerState;
+    }
 
-	@Override
-	public void setCharacter(String character) {
-		if (!this.character.complete(character)) {
-			throw new IllegalStateException("Character has already been suggested!");
-		}
-	}
+    public boolean isEnteredAnswer() {
+        return enteredAnswer;
+    }
 
+    public void setEnteredAnswer(boolean enteredAnswer) {
+        this.enteredAnswer = enteredAnswer;
+    }
+
+    public boolean isEnteredQuestion() {
+        return enteredQuestion;
+    }
+
+    public void setEnteredQuestion(boolean enteredQuestion) {
+        this.enteredQuestion = enteredQuestion;
+    }
+
+    public String getPlayerQuestion() {
+        return playerQuestion;
+    }
+
+    public void setPlayerQuestion(String playerQuestion) {
+        this.playerQuestion = playerQuestion;
+    }
+
+    public String getPlayerAnswer() {
+        return playerAnswer;
+    }
+
+    public void setPlayerAnswer(String playerAnswer) {
+        this.playerAnswer = playerAnswer;
+    }
+
+    public boolean isGuessing() {
+        return guessing;
+    }
+
+    public void setGuessing(boolean guessing) {
+        this.guessing = guessing;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PersistentPlayer that = (PersistentPlayer) o;
+        return suggestStatus == that.suggestStatus && enteredAnswer == that.enteredAnswer && enteredQuestion == that.enteredQuestion && guessing == that.guessing &&
+                Objects.equals(id, that.id) && Objects.equals(gameId, that.gameId) && Objects.equals(nickname, that.nickname) &&
+                Objects.equals(character, that.character) && playerState == that.playerState && Objects.equals(playerQuestion, that.playerQuestion) &&
+                Objects.equals(playerAnswer, that.playerAnswer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, gameId, nickname, character, suggestStatus, playerState, enteredAnswer, enteredQuestion, guessing, playerQuestion, playerAnswer);
+    }
+
+    @Override
+    public String toString() {
+        return "RandomPlayer{" +
+                "id='" + id + '\'' +
+                ", roomId='" + gameId + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", character='" + character + '\'' +
+                ", suggestStatus=" + suggestStatus +
+                ", playerState=" + playerState +
+                ", enteredAnswer=" + enteredAnswer +
+                ", enteredQuestion=" + enteredQuestion +
+                ", guessing=" + guessing +
+                ", playerQuestion='" + playerQuestion + '\'' +
+                ", playerAnswer='" + playerAnswer + '\'' +
+                '}';
+    }
 }

@@ -1,42 +1,41 @@
 package com.eleks.academy.whoami.repository.impl;
 
-import com.eleks.academy.whoami.core.SynchronousGame;
+import com.eleks.academy.whoami.core.exception.GameNotFoundException;
+import com.eleks.academy.whoami.core.impl.PersistentGame;
+import com.eleks.academy.whoami.enums.GameStatus;
 import com.eleks.academy.whoami.repository.GameRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Repository
 public class GameInMemoryRepository implements GameRepository {
 
-	private final Map<String, SynchronousGame> games = new ConcurrentHashMap<>();
+    private final List<PersistentGame> games = new ArrayList<>();
 
-	@Override
-	public Stream<SynchronousGame> findAllAvailable(String player) {
-		Predicate<SynchronousGame> freeToJoin = SynchronousGame::isAvailable;
+    @Override
+    public List<PersistentGame> findAllAvailable() {
+        return this.games.stream()
+                .filter(game -> game.getStatus().equals(GameStatus.WAITING_FOR_PLAYERS))
+                .collect(Collectors.toList());
+    }
 
-		Predicate<SynchronousGame> playersGame = game ->
-				game.findPlayer(player).isPresent();
+    @Override
+    public PersistentGame save(PersistentGame game) {
+        this.games.add(game);
+        return game;
+    }
 
-		return this.games.values()
-				.stream()
-				.filter(freeToJoin.or(playersGame));
-	}
-
-	@Override
-	public SynchronousGame save(SynchronousGame game) {
-		this.games.put(game.getId(), game);
-
-		return game;
-	}
-
-	@Override
-	public Optional<SynchronousGame> findById(String id) {
-		return Optional.ofNullable(this.games.get(id));
-	}
+    @Override
+    public Optional <PersistentGame> findById(String gameId) {
+        return Optional.ofNullable(this.games
+                .stream()
+                .filter(game -> game.getGameId().equals(gameId))
+                .findFirst()
+                .orElseThrow(() -> new GameNotFoundException("Game not found!")));
+    }
 
 }
