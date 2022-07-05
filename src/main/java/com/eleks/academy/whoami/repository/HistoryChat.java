@@ -25,4 +25,5 @@ public class HistoryChat {
     public List<String> getAnswers() {
         return answers;
     }
+
 }

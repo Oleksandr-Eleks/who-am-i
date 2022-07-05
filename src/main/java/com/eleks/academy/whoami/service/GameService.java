@@ -39,4 +39,5 @@ public interface GameService {
     void answerGuessingQuestion(String id, String playerId, QuestionAnswer answer);
 
     void leaveGame(String gameId, String playerId);
+
 }

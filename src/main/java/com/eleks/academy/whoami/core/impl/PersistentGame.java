@@ -129,7 +129,6 @@ public class PersistentGame {
         }
     }
 
-
     public void askQuestion(String playerId, String message) {
         // TODO: Show question
         var askingPlayer = players
@@ -303,4 +302,5 @@ public class PersistentGame {
     public HistoryChat getHistory() {
         return history;
     }
+
 }

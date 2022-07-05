@@ -27,4 +27,5 @@ public class GameDetails {
         this.players = game.getPLayers();
         this.winners = game.getWinnerList();
     }
+
 }

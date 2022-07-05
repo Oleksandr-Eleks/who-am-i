@@ -13,12 +13,12 @@ import java.util.Map;
 public class HistoryDetails {
     private Map<List<String>, List<String>> historyMap = new HashMap<>();
 
-    public HistoryDetails (HistoryChat historyChat){
+    public HistoryDetails(HistoryChat historyChat) {
         historyMap.put(historyChat.getQuestions(), historyChat.getAnswers());
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "History of questions and answers:\n" +
                 getHistoryMap();
     }
