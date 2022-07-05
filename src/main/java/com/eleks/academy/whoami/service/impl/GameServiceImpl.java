@@ -10,6 +10,7 @@ import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
+import com.eleks.academy.whoami.model.response.HistoryDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
@@ -123,5 +124,11 @@ public class GameServiceImpl implements GameService {
             return gameRepository.findById(gameId).get();
         }
         throw new GameNotFoundException(String.format(ROOM_NOT_FOUND_BY_ID, gameId));
+    }
+
+    @Override
+    public String gameHistory(String gameId){
+        PersistentGame game = checkGameExistence(gameId);
+        return (new HistoryDetails(game.getHistory())).toString();
     }
 }

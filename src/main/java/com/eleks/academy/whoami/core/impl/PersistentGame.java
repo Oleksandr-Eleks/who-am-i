@@ -143,7 +143,9 @@ public class PersistentGame {
         if (askingPlayer.getPlayerState().equals(PlayerState.ASK_QUESTION)) {
             askingPlayer.setPlayerQuestion(message);
             askingPlayer.setEnteredQuestion(true);
-            history.setAllQuestions(askingPlayer.getNickname(), message);
+
+            addQuestionToHistory(askingPlayer.getNickname(), message);
+
         } else {
             throw new TurnException("Not your turn! Current turn has player: " + getCurrentTurn().getNickname());
         }
@@ -169,7 +171,7 @@ public class PersistentGame {
             answeringPlayer.setEnteredAnswer(true);
             answeringPlayer.setPlayerAnswer(String.valueOf(questionAnswer));
 
-            history.setAllAnswers(answeringPlayer.getNickname(), questionAnswer);
+            addAnswerToHistory(answeringPlayer.getNickname(), questionAnswer.toString());
         }
 
         if (playersAnswers.size() == players.size() - 1) {
@@ -203,14 +205,22 @@ public class PersistentGame {
             askingPlayer.setPlayerQuestion(guess.getMessage());
             askingPlayer.setEnteredQuestion(true);
             askingPlayer.setGuessing(true);
-            history.setAllQuestions(askingPlayer.getNickname(), guess.getMessage());
+
+            addQuestionToHistory(askingPlayer.getNickname(), guess.getMessage());
         } else {
             throw new TurnException("Not your turn! Current turn has player: " + getCurrentTurn().getNickname());
         }
     }
 
-    public void answerGuessingQuestion(String player, QuestionAnswer askQuestion, boolean guessStatus) {
+    public void answerGuessingQuestion(String playerId, QuestionAnswer askQuestion, boolean guessStatus) {
         //TODO: implement
+        var answeringPlayer = players
+                .stream()
+                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
+                .findFirst()
+                .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, playerId)));
+
+        addAnswerToHistory(answeringPlayer.getNickname(), askQuestion.toString());
     }
 
     private void assignCharacters() {
@@ -233,5 +243,19 @@ public class PersistentGame {
             randomPlayer.setPlayerQuestion(null);
             randomPlayer.setPlayerAnswer(null);
         });
+    }
+
+    private void addQuestionToHistory(String nickName, String question) {
+        StringBuffer sb = new StringBuffer("\n" + nickName + ". Question : " + question);
+        history.setQuestions(sb.toString());
+    }
+
+    private void addAnswerToHistory(String nickName, String answer) {
+        StringBuffer sb = new StringBuffer(nickName + ". Answer : " + answer);
+        history.setQuestions(sb.toString());
+    }
+
+    public HistoryChat getHistory() {
+        return history;
     }
 }

@@ -33,4 +33,6 @@ public interface GameService {
     void submitGuess(String id, String player, Message guess);
 
     void answerQuestion(String id, String player, QuestionAnswer answer);
+
+    String gameHistory(String gameId);
 }

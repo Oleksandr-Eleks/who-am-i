@@ -33,9 +33,9 @@ public class GameController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<GameDetails> createGame(@RequestHeader(PLAYER) String player,
+    public GameDetails createGame(@RequestHeader(PLAYER) String player,
                                                   @Valid @RequestBody NewGameRequest gameRequest) {
-        return ResponseEntity.ok(this.gameService.createGame(player, gameRequest));
+        return this.gameService.createGame(player, gameRequest);
     }
 
     @GetMapping("/{id}")
@@ -93,4 +93,8 @@ public class GameController {
 
     }
 
+    @GetMapping("/{id}/history")
+    public ResponseEntity<String> getGameHistory(@PathVariable("id") String id) {
+        return ResponseEntity.ok(this.gameService.gameHistory(id));
+    }
 }

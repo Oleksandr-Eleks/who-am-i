@@ -1,29 +1,28 @@
 package com.eleks.academy.whoami.repository;
 
-import com.eleks.academy.whoami.enums.QuestionAnswer;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 public class HistoryChat {
-    private Map<String, String> allQuestions = new HashMap<>();
-    private Map<String, QuestionAnswer> allAnswers = new HashMap<>();
+    private List<String> questions = new ArrayList<>();
+    private List<String> answers = new ArrayList<>();
 
-    public Map<String, String> getAllQuestions() {
-        return allQuestions;
+    public void setQuestions(String question) {
+        this.questions.add(question);
     }
 
-    public void setAllQuestions(String nickName, String question) {
-        allQuestions.put(nickName, question);
+    public void setAnswers(String answer) {
+        this.answers.add(answer);
     }
 
-    public Map<String, QuestionAnswer> getAllAnswers() {
-        return allAnswers;
+    public List<String> getQuestions() {
+        return questions;
     }
 
-    public void setAllAnswers(String nickName, QuestionAnswer answer) {
-        allAnswers.put(nickName, answer);
+    public List<String> getAnswers() {
+        return answers;
     }
 }
