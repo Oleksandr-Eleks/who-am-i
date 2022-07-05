@@ -7,6 +7,7 @@ import java.util.List;
 
 @NoArgsConstructor
 public class HistoryChat {
+
     private List<String> questions = new LinkedList<>();
     private List<String> answers = new LinkedList<>();
 

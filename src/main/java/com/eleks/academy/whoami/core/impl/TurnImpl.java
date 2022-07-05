@@ -105,5 +105,5 @@ public class TurnImpl implements Turn {
             }
         }
     }
-
+    
 }

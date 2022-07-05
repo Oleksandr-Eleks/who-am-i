@@ -75,12 +75,15 @@ public class GameServiceImpl implements GameService {
     public Optional<GameDetails> startGame(String gameId, String player) {
         PersistentGame game = checkGameExistence(gameId);
         switch (game.getStatus()) {
+
             case GAME_IN_PROGRESS ->
                     throw new GameStateException("Game already in progress! Find another one to play!");
+
             case READY_TO_PLAY -> {
                 game.startGame();
                 return Optional.of(new GameDetails(game));
             }
+
             case SUGGEST_CHARACTER ->
                     throw new GameStateException("Game can not be started! Players suggesting characters! " +
                             "Waiting for other players to contribute their characters" +
@@ -90,6 +93,7 @@ public class GameServiceImpl implements GameService {
                                     .filter(randomPlayer -> !randomPlayer.isSuggestStatus())
                                     .map(PersistentPlayer::getNickname)
                                     .collect(Collectors.toList()));
+
             case WAITING_FOR_PLAYERS -> throw new GameStateException("Game can not be started!" +
                     " Waiting for additional players! " +
                     "Current players number: " + game.getPLayers().size() + game.getMaxPlayers());
@@ -120,6 +124,7 @@ public class GameServiceImpl implements GameService {
             game.askGuessingQuestion(player, guess);
         }
     }
+
 
     @Override
     public void answerGuessingQuestion(String gameId, String playerId, QuestionAnswer answerQuess) {
