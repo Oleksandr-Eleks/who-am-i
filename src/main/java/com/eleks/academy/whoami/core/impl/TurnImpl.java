@@ -1,36 +1,75 @@
 package com.eleks.academy.whoami.core.impl;
 
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import com.eleks.academy.whoami.core.Player;
 import com.eleks.academy.whoami.core.Turn;
+import com.eleks.academy.whoami.core.exception.TurnException;
+import com.eleks.academy.whoami.enums.PlayerState;
+import com.eleks.academy.whoami.enums.QuestionAnswer;
 
 public class TurnImpl implements Turn {
-	
-	private final List<Player> players;
-	private int currentPlayerIndex = 0;
-	
-	public TurnImpl(List<Player> players) {
-		this.players = players;
-	}
-	
-	@Override
-	public Player getGuesser() {
-		return this.players.get(currentPlayerIndex);
-	}
 
-	@Override
-	public List<Player> getOtherPlayers() {
-		return this.players.stream()
-				.filter(player -> !player.getName().equals(this.getGuesser().getName()))
-				.toList();
-	}
-	
-	@Override
-	public void changeTurn() {
-		this.currentPlayerIndex = this.currentPlayerIndex + 1 >= this.players.size() ? 0 : this.currentPlayerIndex + 1; 
-	}
-	
-	
+    private List<PersistentPlayer> players;
+    private final List<QuestionAnswer> playersAnswers = new ArrayList<>();
+    private PersistentPlayer questioningPlayer;
+    private Queue<PersistentPlayer> orderedPlayers;
 
+    public TurnImpl(List<PersistentPlayer> players) {
+        this.players = players;
+
+        Function<PersistentPlayer, Integer> randomAuthorOrderComparator = value ->
+                Double.valueOf(Math.random() * 1000).intValue();
+
+        this.orderedPlayers =
+                this.players
+                        .stream()
+                        .sorted(Comparator.comparing(randomAuthorOrderComparator))
+                        .collect(Collectors.toCollection(LinkedList::new));
+
+        this.questioningPlayer = this.orderedPlayers.poll();
+    }
+
+    public TurnImpl(List<PersistentPlayer> players, Queue<PersistentPlayer> orderedPlayers) {
+        this.players = players;
+        this.orderedPlayers = orderedPlayers;
+
+        if (orderedPlayers.size() == 0) {
+            throw new TurnException("No players left");
+        }
+        this.questioningPlayer = this.orderedPlayers.poll();
+        if (questioningPlayer != null) {
+            questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
+        }
+    }
+
+    @Override
+    public PersistentPlayer getCurrentGuesser() {
+        return this.questioningPlayer;
+    }
+
+    @Override
+    public List<PersistentPlayer> getOtherPlayers() {
+        return orderedPlayers.stream().toList();
+    }
+
+    @Override
+    public List<QuestionAnswer> getPlayersAnswers() {
+        if (playersAnswers.size() == players.size() - 1) {
+            playersAnswers.clear();
+        }
+        return playersAnswers;
+    }
+
+    public void setPlayersAnswers(QuestionAnswer answer) {
+        playersAnswers.add(answer);
+    }
+
+    @Override
+    public Turn changeTurn() {
+        this.questioningPlayer.setPlayerState(PlayerState.ANSWER_QUESTION);
+        this.orderedPlayers.add(this.questioningPlayer);
+        return new TurnImpl(this.players, this.orderedPlayers);
+    }
 }

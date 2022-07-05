@@ -7,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(staticName = "of")
 public class GameCharacter {
 
-	private final String character;
+    private final String character;
 
-	private final String author;
+    private final String author;
 
-	private boolean taken;
+    private boolean taken;
 
-	public void markTaken() {
-		this.taken = Boolean.TRUE;
-	}
+    public void markTaken() {
+        this.taken = Boolean.TRUE;
+    }
 
 }
