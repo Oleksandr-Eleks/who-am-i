@@ -129,6 +129,7 @@ public class PersistentGame {
         }
     }
 
+
     public void askQuestion(String playerId, String message) {
         // TODO: Show question
         var askingPlayer = players
@@ -206,12 +207,13 @@ public class PersistentGame {
             askingPlayer.setGuessing(true);
 
             addQuestionToHistory(askingPlayer.getNickname(), guess.getMessage());
+
         } else {
             throw new TurnException("Not your turn! Current turn has player: " + getCurrentTurn().getNickname());
         }
     }
 
-    public void answerGuessingQuestion(String playerId, QuestionAnswer askQuestion) 
+    public void answerGuessingQuestion(String playerId, QuestionAnswer askQuestion) {
         var askingPlayer = turn.getCurrentGuesser();
         var answeringPlayer = players
                 .stream()
@@ -300,5 +302,4 @@ public class PersistentGame {
     public HistoryChat getHistory() {
         return history;
     }
-
 }
