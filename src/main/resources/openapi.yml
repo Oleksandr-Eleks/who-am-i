@@ -303,14 +303,14 @@ paths:
           description: Game id
           required: true
           schema:
-          type: string
-            responses:
-              '200':
-            description: Returns details about history
-            content:
+            type: string
+      responses:
+        '200':
+          description: Returns details about history
+          content:
             application/json:
-            schema:
-              type: string
+              schema:
+                type: string
   /games/{id}/leave:
     delete:
       tags:
@@ -341,6 +341,67 @@ components:
       properties:
         maxPlayers:
           type: integer
+    PersistentGame:
+      type: object
+      properties:
+        id:
+          type: string
+        players:
+          type: array
+            items:
+              $ref: '#/components/schemas/PersistentPlayer'
+        maxPlayer:
+          type: integer
+        gameStatus:
+          type: object
+            $ref: '#/components/schemas/GameStatus'
+        winners:
+          type: array
+            items:
+              $ref: '#/components/schemas/PersistentPlayer'
+        turn:
+          type: object
+          $ref: '#/components/schemas/Turn'
+        random:
+          type: object
+          $ref: '#/components/schemas/Random'
+        history:
+          type: object
+          $ref: '#/components/schemas/HistoryChat'
+    Turn:
+      type: object
+      properties:
+        getCurrentGuesser:
+          type: object
+          $ref: '#/components/schemas/PersistentPlayer'
+        getOtherPlayers:
+          type: array
+            items:
+              $ref: '#/components/schemas/PersistentPlayer'
+        getPlayersAnswers:
+          type: array
+            items:
+              $ref: '#/components/schemas/QuestionAnswer'
+        changeTurn:
+          type: object
+          $ref: '#/components/schemas/Turn'
+        removePlayer:
+          type: string
+        getAllPlayers:
+          type: array
+            items:
+              $ref: '#/components/schemas/PersistentPlayer'
+    HistoryChat:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            type: string
+        answer:
+          type: array
+          items:
+            type: string
     GameDetails:
       type: object
       properties:
@@ -410,33 +471,6 @@ components:
           type: string
         nickname:
           type: string
-    PersistentGame:
-      type: object
-      properties:
-        id:
-          type: string
-        players:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersistentPlayer'
-        maxPlayer:
-          type: integer
-        gameStatus:
-          type: object
-          $ref: '#/components/schemas/GameStatus'
-        winners:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersistentPlayer'
-        turn:
-          type: object
-          $ref: '#/components/schemas/Turn'
-        random:
-          type: object
-          $ref: '#/components/schemas/Random'
-        history:
-          type: object
-          $ref: '#/components/schemas/HistoryChat'
 
       #  ---- Enums section  ----------------------------------------
     QuestionAnswer:
