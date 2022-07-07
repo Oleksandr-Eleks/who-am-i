@@ -29,7 +29,7 @@ public class PersistentGame {
     private List<PersistentPlayer> winners = new LinkedList<>();
     private Turn turn;
     private final Random random = new Random();
-    HistoryChat history = new HistoryChat();
+    private HistoryChat history = new HistoryChat();
 
 
     /**
