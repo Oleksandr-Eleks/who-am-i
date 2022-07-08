@@ -253,9 +253,9 @@ paths:
           required: true
           schema:
             type: string
-        requestParam:
+        - in: query
         description: QuestionAnswer
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -281,9 +281,9 @@ paths:
           required: true
           schema:
             type: string
-        requestParam:
+        - in: query
         description: QuestionAnswer
-        required: true
+        required: false
         content:
           application/json:
             schema:
