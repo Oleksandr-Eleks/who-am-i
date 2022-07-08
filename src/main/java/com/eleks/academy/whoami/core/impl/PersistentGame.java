@@ -28,7 +28,6 @@ public class PersistentGame {
     private GameStatus gameStatus = GameStatus.WAITING_FOR_PLAYERS;
     private List<PersistentPlayer> winners = new LinkedList<>();
     private Turn turn;
-    private final Random random = new Random();
     private HistoryChat history = new HistoryChat();
 
 
@@ -271,6 +270,8 @@ public class PersistentGame {
         var availableCharacters = players.stream()
                 .map(PersistentPlayer::getCharacter)
                 .collect(Collectors.toList());
+
+        final var random = new Random();
 
         for (int i = availableCharacters.size() - 1; i >= 1; i--) {
             Collections.swap(availableCharacters, i, random.nextInt(i + 1));

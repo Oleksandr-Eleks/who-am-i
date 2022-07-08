@@ -254,12 +254,13 @@ paths:
           schema:
             type: string
         - in: query
-        description: QuestionAnswer
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/QuestionAnswer'
+          name: answer
+          required: true
+          description: QuestionAnswer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionAnswer'
       responses:
         '200':
           description: No response data in case successfully request
@@ -282,12 +283,13 @@ paths:
           schema:
             type: string
         - in: query
-        description: QuestionAnswer
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/QuestionAnswer'
+          name: answer
+          description: QuestionAnswer
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionAnswer'
       responses:
         '200':
           description: No response data in case successfully request
@@ -348,23 +350,20 @@ components:
           type: string
         players:
           type: array
-            items:
-              $ref: '#/components/schemas/PersistentPlayer'
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
         maxPlayer:
           type: integer
         gameStatus:
           type: object
-            $ref: '#/components/schemas/GameStatus'
+          $ref: '#/components/schemas/GameStatus'
         winners:
           type: array
-            items:
-              $ref: '#/components/schemas/PersistentPlayer'
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
         turn:
           type: object
           $ref: '#/components/schemas/Turn'
-        random:
-          type: object
-          $ref: '#/components/schemas/Random'
         history:
           type: object
           $ref: '#/components/schemas/HistoryChat'
@@ -376,12 +375,12 @@ components:
           $ref: '#/components/schemas/PersistentPlayer'
         getOtherPlayers:
           type: array
-            items:
-              $ref: '#/components/schemas/PersistentPlayer'
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
         getPlayersAnswers:
           type: array
-            items:
-              $ref: '#/components/schemas/QuestionAnswer'
+          items:
+            $ref: '#/components/schemas/QuestionAnswer'
         changeTurn:
           type: object
           $ref: '#/components/schemas/Turn'
@@ -389,8 +388,8 @@ components:
           type: string
         getAllPlayers:
           type: array
-            items:
-              $ref: '#/components/schemas/PersistentPlayer'
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
     HistoryChat:
       type: object
       properties:
