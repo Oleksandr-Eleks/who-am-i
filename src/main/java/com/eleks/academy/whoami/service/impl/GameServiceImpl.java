@@ -48,8 +48,19 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameDetails createGame(String playerId, NewGameRequest gameRequest) {
-        PersistentGame game = new PersistentGame(playerId, gameRequest.getMaxPlayers());
-        return new GameDetails(gameRepository.save(game));
+        List<PersistentGame> availableGames = findAvailableGames();
+        if (availableGames.isEmpty()) {
+            PersistentGame game = new PersistentGame(playerId, gameRequest.getMaxPlayers());
+            return new GameDetails(gameRepository.save(game));
+        } else {
+            PersistentGame game = checkGameExistence(availableGames.get(0).getGameId());
+            if (game.getStatus().equals(GameStatus.WAITING_FOR_PLAYERS)) {
+                game.enrollToGame(playerId);
+            } else {
+                throw new GameStateException("You cannot enroll to this game! All player slots are taken");
+            }
+            return new GameDetails(game);
+        }
     }
 
     @Override
@@ -151,6 +162,23 @@ public class GameServiceImpl implements GameService {
     public void leaveGame(String gameId, String playerId) {
         PersistentGame game = checkGameExistence(gameId);
         game.deletePlayer(playerId);
+    }
+
+    @Override
+    public List<PersistentGame> findAllGames() {
+        return this.gameRepository.findAllGames();
+    }
+
+    @Override
+    public int getAllPlayers() {
+        List<PersistentGame> allGames = findAllGames();
+        int allPlayers = 0;
+        if (!allGames.isEmpty()) {
+            for (var game : allGames) {
+                allPlayers += game.getPLayers().size();
+            }
+        }
+        return allPlayers;
     }
 
 }

@@ -13,4 +13,6 @@ public interface GameRepository {
 
     Optional<PersistentGame> findById(String id);
 
+    List<PersistentGame> findAllGames();
+
 }
