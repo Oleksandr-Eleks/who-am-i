@@ -39,4 +39,9 @@ public class GameInMemoryRepository implements GameRepository {
                 .orElseThrow(() -> new GameNotFoundException("Game not found!")));
     }
 
+    @Override
+    public List<PersistentGame> findAllGames() {
+        return this.games;
+    }
+
 }

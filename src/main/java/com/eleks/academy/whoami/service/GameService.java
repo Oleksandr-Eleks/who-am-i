@@ -40,4 +40,8 @@ public interface GameService {
 
     void leaveGame(String gameId, String playerId);
 
+    int getAllPlayers();
+
+    List<PersistentGame> findAllGames();
+
 }

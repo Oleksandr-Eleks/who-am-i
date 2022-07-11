@@ -108,5 +108,9 @@ public class GameController {
                           @RequestHeader(PLAYER) String player) {
         this.gameService.leaveGame(id, player);
     }
+    @GetMapping("/showPlayers")
+    public int showPlayers() {
+        return this.gameService.getAllPlayers();
+    }
 
 }
