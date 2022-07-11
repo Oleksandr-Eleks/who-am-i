@@ -6,6 +6,9 @@ import com.eleks.academy.whoami.enums.GameStatus;
 import com.eleks.academy.whoami.repository.GameRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,7 @@ public class GameInMemoryRepository implements GameRepository {
                 .collect(Collectors.toList());
     }
 
+
     @Override
     public PersistentGame save(PersistentGame game) {
         this.games.add(game);
@@ -28,12 +32,17 @@ public class GameInMemoryRepository implements GameRepository {
     }
 
     @Override
-    public Optional <PersistentGame> findById(String gameId) {
+    public Optional<PersistentGame> findById(String gameId) {
         return Optional.ofNullable(this.games
                 .stream()
                 .filter(game -> game.getGameId().equals(gameId))
                 .findFirst()
                 .orElseThrow(() -> new GameNotFoundException("Game not found!")));
+    }
+
+    @Override
+    public List<PersistentGame> findAllGames() {
+        return this.games;
     }
 
 }

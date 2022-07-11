@@ -10,10 +10,10 @@ import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
+import com.eleks.academy.whoami.model.response.HistoryDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
-import com.eleks.academy.whoami.model.response.HistoryDetails;
 import com.eleks.academy.whoami.service.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -48,8 +48,19 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameDetails createGame(String playerId, NewGameRequest gameRequest) {
-        PersistentGame game = new PersistentGame(playerId, gameRequest.getMaxPlayers());
-        return new GameDetails(gameRepository.save(game));
+        List<PersistentGame> availableGames = findAvailableGames();
+        if (availableGames.isEmpty()) {
+            PersistentGame game = new PersistentGame(playerId, gameRequest.getMaxPlayers());
+            return new GameDetails(gameRepository.save(game));
+        } else {
+            PersistentGame game = checkGameExistence(availableGames.get(0).getGameId());
+            if (game.getStatus().equals(GameStatus.WAITING_FOR_PLAYERS)) {
+                game.enrollToGame(playerId);
+            } else {
+                throw new GameStateException("You cannot enroll to this game! All player slots are taken");
+            }
+            return new GameDetails(game);
+        }
     }
 
     @Override
@@ -75,11 +86,14 @@ public class GameServiceImpl implements GameService {
     public Optional<GameDetails> startGame(String gameId, String player) {
         PersistentGame game = checkGameExistence(gameId);
         switch (game.getStatus()) {
+
             case GAME_IN_PROGRESS -> throw new GameStateException("Game already in progress! Find another one to play!");
+
             case READY_TO_PLAY -> {
                 game.startGame();
                 return Optional.of(new GameDetails(game));
             }
+
             case SUGGEST_CHARACTER -> throw new GameStateException("Game can not be started! Players suggesting characters! " +
                     "Waiting for other players to contribute their characters" +
                     "Players left: " +
@@ -88,6 +102,7 @@ public class GameServiceImpl implements GameService {
                             .filter(randomPlayer -> !randomPlayer.isSuggestStatus())
                             .map(PersistentPlayer::getNickname)
                             .collect(Collectors.toList()));
+
             case WAITING_FOR_PLAYERS -> throw new GameStateException("Game can not be started!" +
                     " Waiting for additional players! " +
                     "Current players number: " + game.getPLayers().size() + game.getMaxPlayers());
@@ -119,6 +134,7 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+
     @Override
     public void answerGuessingQuestion(String gameId, String playerId, QuestionAnswer answerQuess) {
         PersistentGame game = checkGameExistence(gameId);
@@ -145,4 +161,22 @@ public class GameServiceImpl implements GameService {
         PersistentGame game = checkGameExistence(gameId);
         game.deletePlayer(playerId);
     }
+
+    @Override
+    public List<PersistentGame> findAllGames() {
+        return this.gameRepository.findAllGames();
+    }
+
+    @Override
+    public int getAllPlayers() {
+        List<PersistentGame> allGames = findAllGames();
+        int allPlayers = 0;
+        if (!allGames.isEmpty()) {
+            for (var game : allGames) {
+                allPlayers += game.getPLayers().size();
+            }
+        }
+        return allPlayers;
+    }
+
 }
