@@ -28,8 +28,7 @@ public class PersistentGame {
     private GameStatus gameStatus = GameStatus.WAITING_FOR_PLAYERS;
     private List<PersistentPlayer> winners = new LinkedList<>();
     private Turn turn;
-    private final Random random = new Random();
-    HistoryChat history = new HistoryChat();
+    private HistoryChat history = new HistoryChat();
 
 
     /**
@@ -96,7 +95,7 @@ public class PersistentGame {
             }
             return PlayerDetails.of(player);
         } else {
-            throw new GameStateException("Player already enrolled in this room!");
+            throw new GameStateException("Player already enrolled in this game!");
         }
     }
 
@@ -214,7 +213,6 @@ public class PersistentGame {
     }
 
     public void answerGuessingQuestion(String playerId, QuestionAnswer askQuestion) {
-        //TODO: implement
         var askingPlayer = turn.getCurrentGuesser();
         var answeringPlayer = players
                 .stream()
@@ -272,6 +270,8 @@ public class PersistentGame {
         var availableCharacters = players.stream()
                 .map(PersistentPlayer::getCharacter)
                 .collect(Collectors.toList());
+
+        final var random = new Random();
 
         for (int i = availableCharacters.size() - 1; i >= 1; i--) {
             Collections.swap(availableCharacters, i, random.nextInt(i + 1));

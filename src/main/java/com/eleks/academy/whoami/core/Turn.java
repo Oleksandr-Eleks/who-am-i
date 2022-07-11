@@ -8,7 +8,7 @@ import java.util.List;
 public interface Turn {
 
 	PersistentPlayer getCurrentGuesser();
-	
+
 	List<PersistentPlayer> getOtherPlayers();
 
 	List<QuestionAnswer> getPlayersAnswers();
@@ -18,4 +18,5 @@ public interface Turn {
 	void removePLayer(String playerId);
 
 	List<PersistentPlayer> getAllPlayers();
+
 }

@@ -42,6 +42,7 @@ public class GameControllerAdvice extends ResponseEntityExceptionHandler {
 								.body(new ErrorResponse("Validation failed!", details))
 				));
 	}
+
 	@ExceptionHandler(RuntimeException.class)
 	public final ResponseEntity<ErrorResponse> handleRuntimeExceptions(RuntimeException ex) {
 		return new ResponseEntity<>(new ErrorResponse("Server Error",
@@ -97,4 +98,5 @@ public class GameControllerAdvice extends ResponseEntityExceptionHandler {
 				Collections.singletonList(ex.getLocalizedMessage())),
 				HttpStatus.FORBIDDEN);
 	}
+
 }

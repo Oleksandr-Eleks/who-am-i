@@ -4,7 +4,7 @@ info:
   title: Who am I?
   description: Rest Api description
 servers:
-  - url: http://localhost:8090/api/v1	  
+  - url: http://localhost:8090/api/v1
 paths:
   /games:
     get:
@@ -17,7 +17,7 @@ paths:
           name: X-Player
           required: true
           schema:
-            type: string               
+            type: string
       responses:
         '200':
           description: Returns a list of available games
@@ -26,7 +26,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GameLight'
+                  $ref: '#/components/schemas/PersistentGame'
     post:
       tags:
         - game
@@ -37,7 +37,7 @@ paths:
           name: X-Player
           required: true
           schema:
-            type: string  
+            type: string
       requestBody:
         description: Model for game creation
         required: true
@@ -60,11 +60,6 @@ paths:
       description: Returns data about game by game id
       operationId: findById
       parameters:
-        - in: header
-          name: X-Player
-          required: true
-          schema:
-            type: string
         - in: path
           name: id
           description: Game id
@@ -103,7 +98,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/GameDetails'              
+                $ref: '#/components/schemas/GameDetails'
   /games/{id}/players:
     post:
       tags:
@@ -129,7 +124,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/SynchronousPlayer'
+                $ref: '#/components/schemas/PlayerDetails'
   /games/{id}/characters:
     post:
       tags:
@@ -154,10 +149,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CharacterSuggestion'      
+              $ref: '#/components/schemas/CharacterSuggestion'
       responses:
         '200':
-          description: No response data in case succesful request
+          description: No response data in case successful request
   /games/{id}/turn:
     get:
       tags:
@@ -208,10 +203,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Message'      
+              $ref: '#/components/schemas/Message'
       responses:
         '200':
-          description: No response data in case succesful request
+          description: No response data in case successful request
   /games/{id}/guess:
     post:
       tags:
@@ -236,10 +231,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Message'      
+              $ref: '#/components/schemas/Message'
       responses:
         '200':
-          description: No response data in case succesful request
+          description: No response data in case successful request
   /games/{id}/answer:
     post:
       tags:
@@ -258,65 +253,195 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        description: Message model
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Message'      
+        - in: query
+          name: answer
+          required: true
+          description: QuestionAnswer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionAnswer'
       responses:
         '200':
-          description: No response data in case succesful request                                                                           
-    
-#  ----- Components  ----------------------------------------           
-components:                 
+          description: No response data in case successfully request
+  /games/{id}/guess/answer:
+    post:
+      tags:
+        - game
+      description: Answer the guess
+      operationId: answerGuessingQuestion
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: answer
+          description: QuestionAnswer
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionAnswer'
+      responses:
+        '200':
+          description: No response data in case successfully request
+  /games/{id}/history:
+    get:
+      tags:
+        - game
+      description: Returns data about history
+      operationId: getGameHistory
+      parameters:
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns details about history
+          content:
+            application/json:
+              schema:
+                type: string
+  /games/{id}/leave:
+    delete:
+      tags:
+        - game
+      description: Removes the player from the game
+      operationId: leaveGame
+      parameters:
+        - in: header
+          name: X-Player
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Game id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: No response data in case successfully request
+
+#  ----- Components  ----------------------------------------
+components:
   schemas:
-    GameLight:
-      type: object
-      properties:
-        id:
-          type: string
-        status:
-            type: string
-        playersInGame:
-            type: string
     NewGameRequest:
       type: object
       properties:
         maxPlayers:
           type: integer
+    PersistentGame:
+      type: object
+      properties:
+        id:
+          type: string
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
+        maxPlayer:
+          type: integer
+        gameStatus:
+          type: object
+          $ref: '#/components/schemas/GameStatus'
+        winners:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
+        turn:
+          type: object
+          $ref: '#/components/schemas/Turn'
+        history:
+          type: object
+          $ref: '#/components/schemas/HistoryChat'
+    Turn:
+      type: object
+      properties:
+        getCurrentGuesser:
+          type: object
+          $ref: '#/components/schemas/PersistentPlayer'
+        getOtherPlayers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
+        getPlayersAnswers:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionAnswer'
+        changeTurn:
+          type: object
+          $ref: '#/components/schemas/Turn'
+        removePlayer:
+          type: string
+        getAllPlayers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
+    HistoryChat:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            type: string
+        answer:
+          type: array
+          items:
+            type: string
     GameDetails:
       type: object
       properties:
         id:
           type: string
         status:
-          type: string
-        currentTurn:
-          type: string
+          type: object
+          $ref: '#/components/schemas/GameStatus'
         players:
           type: array
           items:
-            $ref: '#/components/schemas/PlayerWithState'
-    PlayerWithState:
+            $ref: '#/components/schemas/PersistentPlayer'
+        winners:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistentPlayer'
+    PersistentPlayer:
       type: object
       properties:
-        player:
-          type: object
-          $ref: '#/components/schemas/SynchronousPlayer'
-        answer:
-          type: object
-          $ref: '#/components/schemas/QuestionAnswer'
-        state:
-          type: object
-          $ref: '#/components/schemas/PlayerState'            
-    SynchronousPlayer:
-      type: object
-      properties:
-        name:
+        id:
+          type: string
+        gameId:
+          type: string
+        nickname:
           type: string
         character:
+          type: string
+        suggestStatus:
+          type: boolean
+        playerState:
+          type: object
+          $ref: '#/components/schemas/PlayerState'
+        enteredAnswer:
+          type: boolean
+        enteredQuestion:
+          type: boolean
+        guessing:
+          type: boolean
+        playerQuestion:
+          type: string
+        playerAnswer:
           type: string
     CharacterSuggestion:
       type: object
@@ -328,28 +453,44 @@ components:
       properties:
         currentPlayer:
           type: object
-          $ref: '#/components/schemas/SynchronousPlayer'
+          $ref: '#/components/schemas/PersistentPlayer'
         players:
           type: array
           items:
-            $ref: '#/components/schemas/PlayerWithState'
+            $ref: '#/components/schemas/PersistentPlayer'
     Message:
       type: object
       properties:
         message:
-          type: string                        
-#  ---- Enums section  ----------------------------------------            
+          type: string
+    PlayerDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        nickname:
+          type: string
+
+      #  ---- Enums section  ----------------------------------------
     QuestionAnswer:
       type: string
       enum:
         - "YES"
         - "NO"
-        - NOT_SURE     
+        - "NOT_SURE"
     PlayerState:
       type: string
       enum:
-        - NOT_READY
-        - READY
-        - ASKING
-        - ANSWERING
-        - FINISHED              
+        - GUESSING
+        - ANSWER_QUESTION
+        - ASK_QUESTION
+        - WAITING_FOR_ANSWER
+        - GAME_WINNER
+        - GAME_LOOSER
+    GameStatus:
+      type: string
+      enum:
+        - WAITING_FOR_PLAYERS
+        - SUGGEST_CHARACTER
+        - READY_TO_PLAY
+        - GAME_IN_PROGRESS

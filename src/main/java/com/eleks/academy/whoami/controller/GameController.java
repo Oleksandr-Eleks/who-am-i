@@ -33,16 +33,15 @@ public class GameController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<GameDetails> createGame(@RequestHeader(PLAYER) String player,
-                                                  @Valid @RequestBody NewGameRequest gameRequest) {
-        return ResponseEntity.ok(this.gameService.createGame(player, gameRequest));
+    public GameDetails createGame(@RequestHeader(PLAYER) String player,
+                                  @Valid @RequestBody NewGameRequest gameRequest) {
+        return this.gameService.createGame(player, gameRequest);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<GameDetails> findById(@PathVariable("id") String id) {
         return ResponseEntity.ok(this.gameService.findGameById(id));
     }
-
 
     @PostMapping("/{id}/players")
     public PlayerDetails enrollToGame(@PathVariable("id") String id,
@@ -108,6 +107,11 @@ public class GameController {
     public void leaveGame(@PathVariable("id") String id,
                           @RequestHeader(PLAYER) String player) {
         this.gameService.leaveGame(id, player);
+    }
+
+    @GetMapping("/showPlayers")
+    public int showPlayers() {
+        return this.gameService.getAllPlayers();
     }
 
 }

@@ -1,14 +1,13 @@
 package com.eleks.academy.whoami.core.impl;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import com.eleks.academy.whoami.core.Turn;
-import com.eleks.academy.whoami.core.exception.PlayerNotFoundException;
 import com.eleks.academy.whoami.core.exception.TurnException;
 import com.eleks.academy.whoami.enums.PlayerState;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class TurnImpl implements Turn {
 
@@ -106,4 +105,5 @@ public class TurnImpl implements Turn {
             }
         }
     }
+
 }
