@@ -75,13 +75,13 @@ public class GameController {
 
     @PostMapping("/{id}/questions")
     public void askQuestion(@PathVariable("id") String id,
-                            @RequestHeader(PLAYER) String player, @RequestBody Message message) {
+                            @RequestHeader(PLAYER) String player, @Valid @RequestBody Message message) {
         this.gameService.askQuestion(id, player, message.getMessage());
     }
 
     @PostMapping("/{id}/guess")
     public void submitGuess(@PathVariable("id") String id,
-                            @RequestHeader(PLAYER) String player, @RequestBody Message message) {
+                            @RequestHeader(PLAYER) String player, @Valid @RequestBody Message message) {
         this.gameService.submitGuess(id, player, message);
     }
 
