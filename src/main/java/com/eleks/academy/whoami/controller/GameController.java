@@ -8,6 +8,7 @@ import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
+import com.eleks.academy.whoami.repository.HistoryChat;
 import com.eleks.academy.whoami.service.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 import static com.eleks.academy.whoami.utils.StringUtils.Headers.PLAYER;
 
@@ -99,7 +101,7 @@ public class GameController {
     }
 
     @GetMapping("/{id}/history")
-    public ResponseEntity<String> getGameHistory(@PathVariable("id") String id) {
+    public ResponseEntity<HistoryChat> getGameHistory(@PathVariable("id") String id) {
         return ResponseEntity.ok(this.gameService.gameHistory(id));
     }
 
