@@ -42,9 +42,9 @@ public class PersistentGame {
                 Instant.now().toEpochMilli(),
                 Double.valueOf(Math.random() * 999).intValue());
         this.players = new ArrayList<>(maxPlayers);
-        this.turn = new TurnImpl(players);
         this.maxPlayers = maxPlayers;
-        players.add(new PersistentPlayer(hostPlayer, id, "hostPlayer"));
+        this.players.add(new PersistentPlayer(hostPlayer, id, "hostPlayer"));
+        this.turn = new TurnImpl(players);
     }
 
     public String getGameId() {
@@ -73,7 +73,7 @@ public class PersistentGame {
      * @return data about current turn (current player, and other players)
      */
     public TurnDetails getTurnDetails() {
-        return new TurnDetails(turn.getCurrentGuesser(), turn.getOtherPlayers());
+        return new TurnDetails(turn.getCurrentPlayer(), turn.getOtherPlayers());
     }
 
     /***
@@ -81,7 +81,7 @@ public class PersistentGame {
      * @return PersistentPlayer whose turn is now
      */
     public PersistentPlayer getCurrentTurn() {
-        return turn.getCurrentGuesser();
+        return turn.getCurrentPlayer();
     }
 
     public PlayerDetails enrollToGame(String playerId) {
@@ -89,8 +89,8 @@ public class PersistentGame {
         if (players.stream().noneMatch((randomPlayer -> randomPlayer.getId().equals(playerId)))) {
             player = new PersistentPlayer(playerId, this.id, "Player-" + (players.size() + 1));
             players.add(player);
+            this.turn = new TurnImpl(players);
             if (players.size() == maxPlayers) {
-                this.turn = new TurnImpl(players);
                 gameStatus = GameStatus.SUGGEST_CHARACTER;
             }
             return PlayerDetails.of(player);
@@ -119,7 +119,7 @@ public class PersistentGame {
     public void startGame() {
         if (players.stream().filter(PersistentPlayer::isSuggestStatus).count() == maxPlayers) {
             assignCharacters();
-            var currentPlayer = turn.getCurrentGuesser();
+            var currentPlayer = turn.getCurrentPlayer();
             currentPlayer.setPlayerState(PlayerState.ASK_QUESTION);
             players.stream()
                     .filter(randomPlayer -> !randomPlayer.getId().equals(currentPlayer.getId()))
@@ -152,7 +152,7 @@ public class PersistentGame {
 
     public void answerQuestion(String playerId, QuestionAnswer questionAnswer) {
         //TODO: show on screen questions and answers from history
-        var askingPlayer = turn.getCurrentGuesser();
+        var askingPlayer = turn.getCurrentPlayer();
         var answeringPlayer = players
                 .stream()
                 .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
@@ -213,7 +213,7 @@ public class PersistentGame {
     }
 
     public void answerGuessingQuestion(String playerId, QuestionAnswer askQuestion) {
-        var askingPlayer = turn.getCurrentGuesser();
+        var askingPlayer = turn.getCurrentPlayer();
         var answeringPlayer = players
                 .stream()
                 .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
@@ -248,21 +248,15 @@ public class PersistentGame {
             if (positiveAnswers.size() > negativeAnswers.size()) {
                 //TODO: show "YOU WIN THE GAME!"
                 this.winners.add(askingPlayer);
-                deletePlayer(playerId);
-            } else {
-                this.turn = this.turn.changeTurn();
+                deletePlayer(askingPlayer.getId());
             }
+            this.turn = this.turn.changeTurn();
         }
 
     }
 
     public void deletePlayer(String playerId) {
-        Optional<PersistentPlayer> playerToRemove = this.players
-                .stream()
-                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
-                .findFirst();
-
-        playerToRemove.ifPresent(this.players::remove);
+        this.players.removeIf(player -> player.getId().equals(playerId));
         this.turn.removePLayer(playerId);
     }
 

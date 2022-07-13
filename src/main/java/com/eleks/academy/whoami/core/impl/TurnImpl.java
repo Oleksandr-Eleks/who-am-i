@@ -13,7 +13,7 @@ public class TurnImpl implements Turn {
 
     private List<PersistentPlayer> players;
     private final List<QuestionAnswer> playersAnswers = new ArrayList<>();
-    private PersistentPlayer questioningPlayer;
+    private PersistentPlayer currentPlayer;
     private Queue<PersistentPlayer> orderedPlayers;
 
     public TurnImpl(List<PersistentPlayer> players) {
@@ -28,7 +28,7 @@ public class TurnImpl implements Turn {
                         .sorted(Comparator.comparing(randomAuthorOrderComparator))
                         .collect(Collectors.toCollection(LinkedList::new));
 
-        this.questioningPlayer = this.orderedPlayers.poll();
+        this.currentPlayer = this.orderedPlayers.poll();
     }
 
     public TurnImpl(List<PersistentPlayer> players, Queue<PersistentPlayer> orderedPlayers) {
@@ -38,15 +38,15 @@ public class TurnImpl implements Turn {
         if (orderedPlayers.size() == 0) {
             throw new TurnException("No players left");
         }
-        this.questioningPlayer = this.orderedPlayers.poll();
-        if (questioningPlayer != null) {
-            questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
+        this.currentPlayer = this.orderedPlayers.poll();
+        if (currentPlayer != null) {
+            currentPlayer.setPlayerState(PlayerState.ASK_QUESTION);
         }
     }
 
     @Override
-    public PersistentPlayer getCurrentGuesser() {
-        return this.questioningPlayer;
+    public PersistentPlayer getCurrentPlayer() {
+        return this.currentPlayer;
     }
 
     @Override
@@ -77,8 +77,8 @@ public class TurnImpl implements Turn {
 
     @Override
     public Turn changeTurn() {
-        this.questioningPlayer.setPlayerState(PlayerState.ANSWER_QUESTION);
-        this.orderedPlayers.add(this.questioningPlayer);
+        this.currentPlayer.setPlayerState(PlayerState.ANSWER_QUESTION);
+        this.orderedPlayers.add(this.currentPlayer);
         return new TurnImpl(this.players, this.orderedPlayers);
     }
 
@@ -88,12 +88,14 @@ public class TurnImpl implements Turn {
 
         this.orderedPlayers.removeIf(player -> player.getId().equals(playerId));
 
-        if (this.questioningPlayer.getId().equals(playerId)) {
-            this.questioningPlayer = this.orderedPlayers.poll();
-            if (this.questioningPlayer != null) {
-                this.questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
+        if (this.currentPlayer != null) {
+            if (this.currentPlayer.getId().equals(playerId)) {
+                this.currentPlayer = this.orderedPlayers.poll();
+                if (this.currentPlayer != null) {
+                    this.currentPlayer.setPlayerState(PlayerState.ASK_QUESTION);
+                }
             }
         }
     }
-  
+
 }
