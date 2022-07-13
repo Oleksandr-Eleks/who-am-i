@@ -11,15 +11,9 @@ public interface Turn {
 
 	List<PersistentPlayer> getOtherPlayers();
 
-    List<PersistentPlayer> getOtherPlayers();
-
     List<QuestionAnswer> getPlayersAnswers();
 
     Turn changeTurn();
-
-    void removePLayer(String playerId);
-
-    List<PersistentPlayer> getAllPlayers();
 
 	void removePLayer(String playerId);
 
