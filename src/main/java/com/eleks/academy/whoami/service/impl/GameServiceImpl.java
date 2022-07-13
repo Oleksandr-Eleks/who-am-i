@@ -10,6 +10,7 @@ import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
+import com.eleks.academy.whoami.model.response.HistoryDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
@@ -87,7 +88,7 @@ public class GameServiceImpl implements GameService {
     public Optional<GameDetails> startGame(String gameId, String player) {
         PersistentGame game = checkGameExistence(gameId);
         switch (game.getStatus()) {
-
+            
             case GAME_IN_PROGRESS -> throw new GameStateException("Game already in progress! Find another one to play!");
 
             case READY_TO_PLAY -> {

@@ -335,7 +335,7 @@ paths:
         '200':
           description: No response data in case successfully request
 
-#  ----- Components  ----------------------------------------
+#  ----- Components  ----------------------------------------           
 components:
   schemas:
     NewGameRequest:
