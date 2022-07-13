@@ -46,4 +46,8 @@ public interface GameService {
 
     List<PersistentGame> findAllGames();
 
+    String getCurrentQuestion(String gameId, String playerId);
+
+    String getCurrentAnswer(String gameId, String playerId);
+
 }

@@ -246,6 +246,7 @@ public class PersistentGame {
                     .collect(Collectors.toList());
 
             if (positiveAnswers.size() > negativeAnswers.size()) {
+                //TODO: show "YOU WIN THE GAME!"
                 this.winners.add(askingPlayer);
                 deletePlayer(playerId);
             } else {
@@ -301,4 +302,29 @@ public class PersistentGame {
     public HistoryChat getHistory() {
         return history;
     }
+
+    public String getCurrentQuestion(String playerId) {
+        for (var player : this.players) {
+            if (player != null && player.getId().equals(playerId)) {
+                if (player.getPlayerQuestion() == null) {
+                    return "Player " + player.getNickname() + " didn't ask";
+                }
+                return player.getNickname() + " asked: " + player.getPlayerQuestion();
+            }
+        }
+        throw new PlayerNotFoundException("Player is not found");
+    }
+
+    public String getCurrentAnswer(String playerId) {
+        for (var player : this.players) {
+            if (player != null && player.getId().equals(playerId)) {
+                if (player.getPlayerAnswer() == null) {
+                    return "Player " + player.getNickname() + " didn't answer";
+                }
+                return player.getNickname() + " answered: " + player.getPlayerAnswer();
+            }
+        }
+        throw new PlayerNotFoundException("Player is not found");
+    }
+
 }

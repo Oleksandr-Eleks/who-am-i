@@ -10,7 +10,6 @@ import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
 import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
-import com.eleks.academy.whoami.model.response.HistoryDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -175,12 +173,24 @@ public class GameServiceImpl implements GameService {
         int allPlayers = 0;
         if (!allGames.isEmpty()) {
             for (var game : allGames) {
-                if(game.getPLayers() != null){
+                if (game.getPLayers() != null) {
                     allPlayers += game.getPLayers().size();
                 }
             }
         }
         return allPlayers;
+    }
+
+    @Override
+    public String getCurrentQuestion(String gameId, String playerId) {
+        PersistentGame game = checkGameExistence(gameId);
+        return game.getCurrentQuestion(playerId);
+    }
+
+    @Override
+    public String getCurrentAnswer(String gameId, String playerId) {
+        PersistentGame game = checkGameExistence(gameId);
+        return game.getCurrentAnswer(playerId);
     }
 
 }
