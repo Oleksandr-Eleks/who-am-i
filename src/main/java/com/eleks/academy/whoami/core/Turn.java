@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface Turn {
 
-	PersistentPlayer getCurrentGuesser();
+	PersistentPlayer getCurrentPlayer();
 
 	List<PersistentPlayer> getOtherPlayers();
 
