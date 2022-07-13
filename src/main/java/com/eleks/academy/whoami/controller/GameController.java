@@ -8,6 +8,7 @@ import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
+import com.eleks.academy.whoami.repository.HistoryChat;
 import com.eleks.academy.whoami.service.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 import static com.eleks.academy.whoami.utils.StringUtils.Headers.PLAYER;
 
@@ -34,7 +36,7 @@ public class GameController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GameDetails createGame(@RequestHeader(PLAYER) String player,
-                                                  @Valid @RequestBody NewGameRequest gameRequest) {
+                                  @Valid @RequestBody NewGameRequest gameRequest) {
         return this.gameService.createGame(player, gameRequest);
     }
 
@@ -75,13 +77,13 @@ public class GameController {
 
     @PostMapping("/{id}/questions")
     public void askQuestion(@PathVariable("id") String id,
-                            @RequestHeader(PLAYER) String player, @RequestBody Message message) {
+                            @RequestHeader(PLAYER) String player, @Valid @RequestBody Message message) {
         this.gameService.askQuestion(id, player, message.getMessage());
     }
 
     @PostMapping("/{id}/guess")
     public void submitGuess(@PathVariable("id") String id,
-                            @RequestHeader(PLAYER) String player, @RequestBody Message message) {
+                            @RequestHeader(PLAYER) String player, @Valid @RequestBody Message message) {
         this.gameService.submitGuess(id, player, message);
     }
 
@@ -99,7 +101,7 @@ public class GameController {
     }
 
     @GetMapping("/{id}/history")
-    public ResponseEntity<String> getGameHistory(@PathVariable("id") String id) {
+    public ResponseEntity<HistoryChat> getGameHistory(@PathVariable("id") String id) {
         return ResponseEntity.ok(this.gameService.gameHistory(id));
     }
 
@@ -108,7 +110,8 @@ public class GameController {
                           @RequestHeader(PLAYER) String player) {
         this.gameService.leaveGame(id, player);
     }
-    @GetMapping("/all-players-count")
+
+    @GetMapping("/showPlayers")
     public int showPlayers() {
         return this.gameService.getAllPlayers();
     }

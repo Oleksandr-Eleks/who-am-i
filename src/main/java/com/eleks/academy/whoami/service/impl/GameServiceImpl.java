@@ -14,11 +14,13 @@ import com.eleks.academy.whoami.model.response.HistoryDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
 import com.eleks.academy.whoami.repository.GameRepository;
+import com.eleks.academy.whoami.repository.HistoryChat;
 import com.eleks.academy.whoami.service.GameService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -86,24 +88,22 @@ public class GameServiceImpl implements GameService {
     public Optional<GameDetails> startGame(String gameId, String player) {
         PersistentGame game = checkGameExistence(gameId);
         switch (game.getStatus()) {
-
-            case GAME_IN_PROGRESS ->
-                    throw new GameStateException("Game already in progress! Find another one to play!");
+            
+            case GAME_IN_PROGRESS -> throw new GameStateException("Game already in progress! Find another one to play!");
 
             case READY_TO_PLAY -> {
                 game.startGame();
                 return Optional.of(new GameDetails(game));
             }
 
-            case SUGGEST_CHARACTER ->
-                    throw new GameStateException("Game can not be started! Players suggesting characters! " +
-                            "Waiting for other players to contribute their characters" +
-                            "Players left: " +
-                            game.getPLayers()
-                                    .stream()
-                                    .filter(randomPlayer -> !randomPlayer.isSuggestStatus())
-                                    .map(PersistentPlayer::getNickname)
-                                    .collect(Collectors.toList()));
+            case SUGGEST_CHARACTER -> throw new GameStateException("Game can not be started! Players suggesting characters! " +
+                    "Waiting for other players to contribute their characters" +
+                    "Players left: " +
+                    game.getPLayers()
+                            .stream()
+                            .filter(randomPlayer -> !randomPlayer.isSuggestStatus())
+                            .map(PersistentPlayer::getNickname)
+                            .collect(Collectors.toList()));
 
             case WAITING_FOR_PLAYERS -> throw new GameStateException("Game can not be started!" +
                     " Waiting for additional players! " +
@@ -153,9 +153,9 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public String gameHistory(String gameId) {
+    public HistoryChat gameHistory(String gameId) {
         PersistentGame game = checkGameExistence(gameId);
-        return (new HistoryDetails(game.getHistory())).toString();
+        return game.getHistory();
     }
 
     @Override
@@ -175,7 +175,9 @@ public class GameServiceImpl implements GameService {
         int allPlayers = 0;
         if (!allGames.isEmpty()) {
             for (var game : allGames) {
-                allPlayers += game.getPLayers().size();
+                if(game.getPLayers() != null){
+                    allPlayers += game.getPLayers().size();
+                }
             }
         }
         return allPlayers;

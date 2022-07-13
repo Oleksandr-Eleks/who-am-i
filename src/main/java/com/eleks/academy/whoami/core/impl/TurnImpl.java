@@ -84,26 +84,16 @@ public class TurnImpl implements Turn {
 
     @Override
     public void removePLayer(String playerId) {
-        Optional<PersistentPlayer> playerToRemove = this.players
-                .stream()
-                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
-                .findFirst();
+        this.players.removeIf(player -> player.getId().equals(playerId));
 
-        playerToRemove.ifPresent(this.players::remove);
+        this.orderedPlayers.removeIf(player -> player.getId().equals(playerId));
 
-        playerToRemove = this.orderedPlayers
-                .stream()
-                .filter(randomPlayer -> randomPlayer.getId().equals(playerId))
-                .findFirst();
-        playerToRemove.ifPresent(this.orderedPlayers::remove);
-
-        if (questioningPlayer.getId().equals(playerId)) {
-            playerToRemove = Optional.ofNullable(this.questioningPlayer);
-            if (playerToRemove.isPresent()) {
-                this.questioningPlayer = this.orderedPlayers.poll();
+        if (this.questioningPlayer.getId().equals(playerId)) {
+            this.questioningPlayer = this.orderedPlayers.poll();
+            if (this.questioningPlayer != null) {
                 this.questioningPlayer.setPlayerState(PlayerState.ASK_QUESTION);
             }
         }
     }
-    
+  
 }

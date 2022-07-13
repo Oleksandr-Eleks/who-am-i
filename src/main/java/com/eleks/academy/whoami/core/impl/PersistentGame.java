@@ -22,13 +22,13 @@ import static com.eleks.academy.whoami.enums.Constants.PLAYER_NOT_FOUND;
 
 public class PersistentGame {
 
-    private String id;
-    private List<PersistentPlayer> players;
-    private int maxPlayers;
+    private final String id;
+    private final List<PersistentPlayer> players;
+    private final int maxPlayers;
     private GameStatus gameStatus = GameStatus.WAITING_FOR_PLAYERS;
-    private List<PersistentPlayer> winners = new LinkedList<>();
+    private final List<PersistentPlayer> winners = new LinkedList<>();
     private Turn turn;
-    private HistoryChat history = new HistoryChat();
+    private final HistoryChat history = new HistoryChat();
 
 
     /**
@@ -95,7 +95,7 @@ public class PersistentGame {
             }
             return PlayerDetails.of(player);
         } else {
-            throw new GameStateException("Player already enrolled in this room!");
+            throw new GameStateException("Player already enrolled in this game!");
         }
     }
 
@@ -170,7 +170,7 @@ public class PersistentGame {
             answeringPlayer.setEnteredAnswer(true);
             answeringPlayer.setPlayerAnswer(String.valueOf(questionAnswer));
 
-            addAnswerToHistory(answeringPlayer.getNickname(), questionAnswer.toString());
+            addAnswerToHistory(answeringPlayer.getNickname(), String.valueOf(questionAnswer));
         }
 
         if (playersAnswers.size() == players.size() - 1) {
@@ -291,13 +291,11 @@ public class PersistentGame {
     }
 
     private void addQuestionToHistory(String nickName, String question) {
-        StringBuffer sb = new StringBuffer("\n" + nickName + ". Question : " + question);
-        history.setQuestions(sb.toString());
+        history.setQuestions(nickName + ". Question : " + question);
     }
 
     private void addAnswerToHistory(String nickName, String answer) {
-        StringBuffer sb = new StringBuffer(nickName + ". Answer : " + answer);
-        history.setQuestions(sb.toString());
+        history.setAnswers(nickName + ". Answer : " + answer);
     }
 
     public HistoryChat getHistory() {

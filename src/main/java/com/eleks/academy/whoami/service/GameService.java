@@ -8,8 +8,10 @@ import com.eleks.academy.whoami.model.request.NewGameRequest;
 import com.eleks.academy.whoami.model.response.GameDetails;
 import com.eleks.academy.whoami.model.response.PlayerDetails;
 import com.eleks.academy.whoami.model.response.TurnDetails;
+import com.eleks.academy.whoami.repository.HistoryChat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface GameService {
@@ -34,7 +36,7 @@ public interface GameService {
 
     void answerQuestion(String id, String player, QuestionAnswer answer);
 
-    String gameHistory(String gameId);
+    HistoryChat gameHistory(String gameId);
 
     void answerGuessingQuestion(String id, String playerId, QuestionAnswer answer);
 

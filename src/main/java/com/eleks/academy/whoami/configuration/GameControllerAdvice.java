@@ -98,5 +98,5 @@ public class GameControllerAdvice extends ResponseEntityExceptionHandler {
                 Collections.singletonList(ex.getLocalizedMessage())),
                 HttpStatus.FORBIDDEN);
     }
-
+  
 }
