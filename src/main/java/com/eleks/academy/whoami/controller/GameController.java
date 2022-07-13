@@ -116,4 +116,16 @@ public class GameController {
         return this.gameService.getAllPlayers();
     }
 
+    @GetMapping("/{id}/questions/getQuestion")
+    public String getCurrentQuestion(@PathVariable("id") String id,
+                                     @RequestHeader(PLAYER) String player) {
+        return this.gameService.getCurrentQuestion(id, player);
+    }
+
+    @GetMapping("/{id}/answer/getAnswer")
+    public String getCurrentAnswer(@PathVariable("id") String id,
+                                     @RequestHeader(PLAYER) String player) {
+        return this.gameService.getCurrentAnswer(id, player);
+    }
+
 }
