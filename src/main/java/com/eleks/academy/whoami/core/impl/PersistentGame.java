@@ -247,6 +247,7 @@ public class PersistentGame {
 
             if (positiveAnswers.size() > negativeAnswers.size()) {
                 //TODO: show "YOU WIN THE GAME!"
+                askingPlayer.setPlayerState(PlayerState.GAME_WINNER);
                 this.winners.add(askingPlayer);
                 deletePlayer(askingPlayer.getId());
             }
