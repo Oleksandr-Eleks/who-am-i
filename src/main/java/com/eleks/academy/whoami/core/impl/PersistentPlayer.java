@@ -25,6 +25,7 @@ public class PersistentPlayer {
         this.gameId = gameId;
         this.nickname = nickname;
         this.inactiveCounter = 0;
+        this.playerState = PlayerState.WAITING;
     }
 
     public int getInactiveCounter() {
