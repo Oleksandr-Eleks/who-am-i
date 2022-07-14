@@ -160,6 +160,8 @@ public class GameServiceImpl implements GameService {
     public void leaveGame(String gameId, String playerId) {
         PersistentGame game = checkGameExistence(gameId);
         game.deletePlayer(playerId);
+        if(game.getPLayers().isEmpty())
+            this.gameRepository.deleteGame(gameId);
     }
 
     @Override
