@@ -321,7 +321,7 @@ public class PersistentGame {
         throw new PlayerNotFoundException("Player is not found");
     }
 
-    public void inactivePlayer(String playerId) {
+    public boolean inactivePlayer(String playerId) {
         var inactivePlayer = this.players
                 .stream()
                 .filter(player -> player.getId().equals(playerId))
@@ -339,10 +339,13 @@ public class PersistentGame {
 
             if (inactivePlayer.getInactiveCounter() == 3) {
                 deletePlayer(playerId);
+                return true;
             }
         } else {
             deletePlayer(playerId);
+            return true;
         }
+        return false;
     }
 
 }
