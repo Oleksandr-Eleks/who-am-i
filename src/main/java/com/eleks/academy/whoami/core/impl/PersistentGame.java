@@ -176,7 +176,7 @@ public class PersistentGame {
         if (playersAnswers.size() == players.size() - 1) {
             var positiveAnswers = playersAnswers
                     .stream()
-                    .filter(answer -> answer.equals(QuestionAnswer.NOT_SURE) || answer.equals(QuestionAnswer.YES))
+                    .filter(answer -> answer.equals(QuestionAnswer.YES))
                     .collect(Collectors.toList());
 
             var negativeAnswers = playersAnswers
@@ -242,7 +242,7 @@ public class PersistentGame {
 
             var negativeAnswers = playersAnswers
                     .stream()
-                    .filter(answer -> answer.equals(QuestionAnswer.NOT_SURE) || answer.equals(QuestionAnswer.NO))
+                    .filter(answer -> answer.equals(QuestionAnswer.NO))
                     .collect(Collectors.toList());
 
             if (positiveAnswers.size() > negativeAnswers.size()) {
@@ -319,6 +319,30 @@ public class PersistentGame {
             }
         }
         throw new PlayerNotFoundException("Player is not found");
+    }
+
+    public void inactivePlayer(String playerId) {
+        var inactivePlayer = this.players
+                .stream()
+                .filter(player -> player.getId().equals(playerId))
+                .findFirst()
+                .orElseThrow(() -> new PlayerNotFoundException(String.format(PLAYER_NOT_FOUND, playerId)));
+
+        if (inactivePlayer.getPlayerState().equals(PlayerState.ANSWER_QUESTION)) {
+            inactivePlayer.incrementInactiveCounter();
+
+            if (this.turn.getCurrentPlayer().getPlayerState().equals(PlayerState.ASK_QUESTION)) {
+                answerQuestion(playerId, QuestionAnswer.NOT_SURE);
+            } else if (this.turn.getCurrentPlayer().getPlayerState().equals(PlayerState.GUESSING)) {
+                answerGuessingQuestion(playerId, QuestionAnswer.NOT_SURE);
+            }
+
+            if (inactivePlayer.getInactiveCounter() == 3) {
+                deletePlayer(playerId);
+            }
+        } else {
+            deletePlayer(playerId);
+        }
     }
 
 }

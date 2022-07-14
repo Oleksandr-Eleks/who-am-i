@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 import static com.eleks.academy.whoami.utils.StringUtils.Headers.PLAYER;
 
@@ -126,6 +125,12 @@ public class GameController {
     public String getCurrentAnswer(@PathVariable("id") String id,
                                      @RequestHeader(PLAYER) String player) {
         return this.gameService.getCurrentAnswer(id, player);
+    }
+
+    @PostMapping("/{id}/inactivePlayer")
+    public void inactivePlayer(@PathVariable("id") String id,
+                               @RequestHeader(PLAYER) String player){
+        this.gameService.inactivePlayer(id,player);
     }
 
 }

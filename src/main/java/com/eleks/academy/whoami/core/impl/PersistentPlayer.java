@@ -18,10 +18,21 @@ public class PersistentPlayer {
     private String playerQuestion;
     private String playerAnswer;
 
+    private int inactiveCounter;
+
     public PersistentPlayer(String id, String gameId, String nickname) {
         this.id = id;
         this.gameId = gameId;
         this.nickname = nickname;
+        this.inactiveCounter = 0;
+    }
+
+    public int getInactiveCounter() {
+        return inactiveCounter;
+    }
+
+    public void incrementInactiveCounter() {
+        this.inactiveCounter++;
     }
 
     public String getId() {
