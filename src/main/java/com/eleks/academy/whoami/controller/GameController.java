@@ -1,6 +1,7 @@
 package com.eleks.academy.whoami.controller;
 
 import com.eleks.academy.whoami.core.impl.PersistentGame;
+import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
@@ -128,9 +129,9 @@ public class GameController {
     }
 
     @PostMapping("/{id}/inactivePlayer")
-    public void inactivePlayer(@PathVariable("id") String id,
-                               @RequestHeader(PLAYER) String player){
-        this.gameService.inactivePlayer(id,player);
+    public boolean inactivePlayer(@PathVariable("id") String id,
+                                                           @RequestHeader(PLAYER) String player){
+        return this.gameService.inactivePlayer(id,player);
     }
 
 }

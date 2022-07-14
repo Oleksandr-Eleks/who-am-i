@@ -196,9 +196,9 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void inactivePlayer(String gameId, String playerId) {
+    public boolean inactivePlayer(String gameId, String playerId) {
         PersistentGame game = checkGameExistence(gameId);
-        game.inactivePlayer(playerId);
+        return game.inactivePlayer(playerId);
     }
 
 }
