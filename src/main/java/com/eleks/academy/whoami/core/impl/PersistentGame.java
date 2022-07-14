@@ -116,6 +116,15 @@ public class PersistentGame {
         }
     }
 
+    public boolean areAllPlayersSuggested(){
+        for (var player : this.players){
+            if(!player.isSuggestStatus()){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void startGame() {
         if (players.stream().filter(PersistentPlayer::isSuggestStatus).count() == maxPlayers) {
             assignCharacters();

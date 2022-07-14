@@ -67,14 +67,6 @@ public class GameController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<GameDetails> startGame(@PathVariable("id") String id,
-                                                 @RequestHeader(PLAYER) String player) {
-        return this.gameService.startGame(id, player)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     @PostMapping("/{id}/questions")
     public void askQuestion(@PathVariable("id") String id,
                             @RequestHeader(PLAYER) String player, @Valid @RequestBody Message message) {

@@ -80,10 +80,13 @@ public class GameServiceImpl implements GameService {
         } else {
             throw new GameStateException("You cannot suggest the character! Current game state is: " + game.getStatus());
         }
+        if(game.areAllPlayersSuggested()){
+            startGame(gameId);
+        }
     }
 
     @Override
-    public Optional<GameDetails> startGame(String gameId, String player) {
+    public Optional<GameDetails> startGame(String gameId) {
         PersistentGame game = checkGameExistence(gameId);
         switch (game.getStatus()) {
             
