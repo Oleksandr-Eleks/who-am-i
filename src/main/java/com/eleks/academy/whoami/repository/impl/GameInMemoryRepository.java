@@ -45,4 +45,9 @@ public class GameInMemoryRepository implements GameRepository {
         return this.games;
     }
 
+    @Override
+    public void deleteGame(String gameId) {
+        this.games.removeIf(game -> game.getGameId().equals(gameId));
+    }
+
 }
