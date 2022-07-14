@@ -27,7 +27,7 @@ public interface GameService {
 
     void suggestCharacter(String gameId, String player, CharacterSuggestion suggestion);
 
-    Optional<GameDetails> startGame(String gameId, String player);
+    Optional<GameDetails> startGame(String gameId);
 
     void askQuestion(String gameId, String player, String message);
 
