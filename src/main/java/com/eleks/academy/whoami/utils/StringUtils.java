@@ -2,10 +2,9 @@ package com.eleks.academy.whoami.utils;
 
 public interface StringUtils {
 
-	interface Headers {
+    interface Headers {
 
-		String PLAYER = "X-Player";
-
-	}
+        String PLAYER = "X-Player";
+    }
 
 }
