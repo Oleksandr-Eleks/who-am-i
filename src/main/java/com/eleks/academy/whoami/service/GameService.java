@@ -50,4 +50,6 @@ public interface GameService {
 
     String getCurrentAnswer(String gameId, String playerId);
 
+    void inactivePlayer(String gameId, String playerId);
+
 }
