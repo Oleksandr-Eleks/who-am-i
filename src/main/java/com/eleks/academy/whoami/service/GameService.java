@@ -1,6 +1,7 @@
 package com.eleks.academy.whoami.service;
 
 import com.eleks.academy.whoami.core.impl.PersistentGame;
+import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
@@ -50,6 +51,6 @@ public interface GameService {
 
     String getCurrentAnswer(String gameId, String playerId);
 
-    void inactivePlayer(String gameId, String playerId);
+    boolean inactivePlayer(String gameId, String playerId);
 
 }
