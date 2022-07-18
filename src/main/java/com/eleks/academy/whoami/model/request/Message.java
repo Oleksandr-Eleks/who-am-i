@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 public class Message {
 
     @NotBlank
-    @Size(min = 2, max = 256, message = "question length should be between {min} and {max}")
+    @Size(min = 1, max = 256, message = "question length should be between {min} and {max}")
     private String message;
 
 }
