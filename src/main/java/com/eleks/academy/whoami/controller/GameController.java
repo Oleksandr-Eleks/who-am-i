@@ -102,9 +102,9 @@ public class GameController {
         this.gameService.leaveGame(id, player);
     }
 
-    @GetMapping("/showPlayers")
-    public int showPlayers() {
-        return this.gameService.getAllPlayers();
+    @GetMapping("/all-players-count")
+    public int getAllPlayersCount() {
+        return this.gameService.getAllPlayersCount();
     }
 
     @GetMapping("/{id}/questions/getQuestion")
