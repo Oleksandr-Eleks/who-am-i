@@ -103,8 +103,8 @@ public class GameController {
     }
 
     @GetMapping("/all-players-count")
-    public int getAllPlayersCount() {
-        return this.gameService.getAllPlayersCount();
+    public int showPlayers() {
+        return this.gameService.getAllPlayers();
     }
 
     @GetMapping("/{id}/questions/getQuestion")

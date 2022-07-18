@@ -43,7 +43,7 @@ public interface GameService {
 
     void leaveGame(String gameId, String playerId);
 
-    int getAllPlayersCount();
+    int getAllPlayers();
 
     List<PersistentGame> findAllGames();
 
