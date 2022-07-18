@@ -152,7 +152,7 @@ public class PersistentGame {
             askingPlayer.setPlayerQuestion(message);
             askingPlayer.setEnteredQuestion(true);
 
-            addQuestionToHistory(askingPlayer.getNickname(), message);
+            this.history.addQuestion(message, playerId);
 
         } else {
             throw new TurnException("Not your turn! Current turn has player: " + getCurrentTurn().getNickname());
@@ -179,7 +179,8 @@ public class PersistentGame {
             answeringPlayer.setEnteredAnswer(true);
             answeringPlayer.setPlayerAnswer(String.valueOf(questionAnswer));
 
-            addAnswerToHistory(answeringPlayer.getNickname(), String.valueOf(questionAnswer));
+            this.history.addAnswer(questionAnswer.toString(), playerId);
+
         }
 
         if (playersAnswers.size() == players.size() - 1) {
@@ -214,7 +215,7 @@ public class PersistentGame {
             askingPlayer.setEnteredQuestion(true);
             askingPlayer.setGuessing(true);
 
-            addQuestionToHistory(askingPlayer.getNickname(), guess.getMessage());
+            this.history.addQuestion(guess.getMessage(), playerId);
 
         } else {
             throw new TurnException("Not your turn! Current turn has player: " + getCurrentTurn().getNickname());
@@ -240,7 +241,7 @@ public class PersistentGame {
             answeringPlayer.setEnteredAnswer(true);
             answeringPlayer.setPlayerAnswer(String.valueOf(askQuestion));
 
-            addAnswerToHistory(answeringPlayer.getNickname(), askQuestion.toString());
+            this.history.addAnswer(askQuestion.toString(), playerId);
         }
 
         if (playersAnswers.size() == this.players.size() - 1) {
@@ -293,14 +294,6 @@ public class PersistentGame {
             randomPlayer.setPlayerQuestion(null);
             randomPlayer.setPlayerAnswer(null);
         });
-    }
-
-    private void addQuestionToHistory(String nickName, String question) {
-        history.setQuestions(nickName + ". Question : " + question);
-    }
-
-    private void addAnswerToHistory(String nickName, String answer) {
-        history.setAnswers(nickName + ". Answer : " + answer);
     }
 
     public HistoryChat getHistory() {

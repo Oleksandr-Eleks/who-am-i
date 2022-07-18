@@ -15,12 +15,12 @@ public class CharacterSuggestion {
 
     @NotNull
     @Size(min = 2, max = 50, message = "nickname length must be between {min} and {max}!")
-    @NotBlank
+    @NotBlank(message = "must not be blank")
     private String nickname;
 
     @NotNull
     @Size(min = 2, max = 50, message = "character length must be between {min} and {max}!")
-    @NotBlank
+    @NotBlank(message = "must not be blank")
     private String character;
 
 }

@@ -1,7 +1,6 @@
 package com.eleks.academy.whoami.controller;
 
 import com.eleks.academy.whoami.core.impl.PersistentGame;
-import com.eleks.academy.whoami.core.impl.PersistentPlayer;
 import com.eleks.academy.whoami.enums.QuestionAnswer;
 import com.eleks.academy.whoami.model.request.CharacterSuggestion;
 import com.eleks.academy.whoami.model.request.Message;
@@ -104,8 +103,8 @@ public class GameController {
     }
 
     @GetMapping("/all-players-count")
-    public int showPlayers() {
-        return this.gameService.getAllPlayers();
+    public int getAllPlayersCount() {
+        return this.gameService.getAllPlayersCount();
     }
 
     @GetMapping("/{id}/questions/getQuestion")

@@ -1,30 +1,53 @@
 package com.eleks.academy.whoami.repository;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @NoArgsConstructor
 public class HistoryChat {
+    @Getter
+    private final Map<HistoryQuestion, HistoryQuestion> questions = new HashMap<>();
+    private HistoryQuestion currentQuestion;
 
-    private List<String> questions = new LinkedList<>();
-    private List<String> answers = new LinkedList<>();
-
-    public void setQuestions(String question) {
-        this.questions.add(question);
+    public void addQuestion(String question, String player) {
+        final var historyQuestion = new HistoryQuestion(player, question);
+        this.questions.put(historyQuestion, historyQuestion);
+        this.currentQuestion = historyQuestion;
     }
 
-    public void setAnswers(String answer) {
-        this.answers.add(answer);
+    public void addAnswer(String answer, String player) {
+        Optional.ofNullable(this.questions.get(this.currentQuestion))
+                .ifPresent(question -> question.addAnswer(answer, player));
+    }
+}
+
+@Data
+@NoArgsConstructor
+class HistoryQuestion {
+    private String player;
+    private String question;
+    private List<HistoryAnswer> answers = new ArrayList<>();
+
+    public HistoryQuestion(String player, String question) {
+        this.player = player;
+        this.question = question;
     }
 
-    public List<String> getQuestions() {
-        return questions;
+    public void addAnswer(String answer, String player) {
+        this.answers.add(new HistoryAnswer(player, answer));
     }
 
-    public List<String> getAnswers() {
-        return answers;
-    }
+}
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+class HistoryAnswer {
+    private String player;
+    private String answer;
 
 }
