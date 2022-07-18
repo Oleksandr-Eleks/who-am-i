@@ -173,7 +173,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public int getAllPlayersCount() {
+    public int getAllPlayers() {
         List<PersistentGame> allGames = findAllGames();
         int allPlayers = 0;
         if (!allGames.isEmpty()) {
