@@ -165,6 +165,8 @@ public class GameServiceImpl implements GameService {
         game.deletePlayer(playerId);
         if(game.getPLayers().isEmpty())
             this.gameRepository.deleteGame(gameId);
+        if(game.getPLayers().size() <= 3)
+            this.gameRepository.deleteGame(gameId);
     }
 
     @Override
